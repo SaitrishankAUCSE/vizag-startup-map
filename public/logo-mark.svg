@@ -1,0 +1,7 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+  <!-- Vizag Map Pin: Sunrise over Bay of Bengal -->
+  <path d="M32 61C32 61 10 40 10 24a22 22 0 0 1 44 0C54 40 32 61 32 61Z" fill="#3A0F34"/>
+  <path d="M23 29a9 9 0 0 1 18 0Z" fill="#EAAA00"/>
+  <path d="M20 34q3-3 6 0t6 0t6 0t6 0" stroke="#DDE3E8" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M24 39q2.5-2.5 5 0t5 0t5 0" stroke="#DDE3E8" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

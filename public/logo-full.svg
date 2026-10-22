@@ -1,0 +1,12 @@
+<svg viewBox="0 0 240 64" xmlns="http://www.w3.org/2000/svg" width="240" height="64">
+  <!-- Mark -->
+  <g transform="translate(0, 0)">
+    <path d="M32 61C32 61 10 40 10 24a22 22 0 0 1 44 0C54 40 32 61 32 61Z" fill="#3A0F34"/>
+    <path d="M23 29a9 9 0 0 1 18 0Z" fill="#EAAA00"/>
+    <path d="M20 34q3-3 6 0t6 0t6 0t6 0" stroke="#DDE3E8" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M24 39q2.5-2.5 5 0t5 0t5 0" stroke="#DDE3E8" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="68" y="38" font-family="'Bricolage Grotesque', sans-serif" font-weight="800" font-size="34" letter-spacing="-0.03em" fill="#3A0F34">vizag</text>
+  <text x="70" y="52" font-family="'DM Sans', sans-serif" font-weight="600" font-size="9" letter-spacing="0.3em" fill="#3A0F34">STARTUP MAP</text>
+</svg>

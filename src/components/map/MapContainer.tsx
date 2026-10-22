@@ -1,197 +1,94 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Map as MapLibreMap,
-  NavigationControl,
   Popup,
-  GeoJSONSource,
   Marker,
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Listing } from '@/types';
 import { MAP_CONFIG } from '@/config/map';
+import { createCustomMarkerElement } from './CustomPin';
+import { createPinPopupContent } from './PinPopup';
+import { MapLegend } from '@/components/ui/MapLegend';
+import { Plus, Minus, Navigation } from 'lucide-react';
 
 interface MapContainerProps {
   listings: Listing[];
   selectedListing: Listing | null;
   onSelectListing: (listing: Listing) => void;
+  onMapInteraction?: () => void;
   className?: string;
+  showLegend?: boolean;
 }
 
 export function MapContainer({
   listings,
   selectedListing,
   onSelectListing,
+  onMapInteraction,
   className = '',
+  showLegend = true,
 }: MapContainerProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const popupRef = useRef<Popup | null>(null);
   const markersRef = useRef<Map<string, Marker>>(new Map());
+  const [isLocating, setIsLocating] = useState(false);
 
   // Initialize Map
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
+
+    // Use reliable OpenStreetMap tiles with CSS duotone (no API key required)
+    const tileSource =
+      process.env.NEXT_PUBLIC_MAP_TILE_URL ||
+      MAP_CONFIG.tileUrl ||
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
     const map = new MapLibreMap({
       container: mapContainerRef.current,
       style: {
         version: 8,
         sources: {
-          'carto-tiles': {
+          'base-tiles': {
             type: 'raster',
-            tiles: [MAP_CONFIG.tileUrl],
+            tiles: [tileSource],
             tileSize: 256,
             attribution: MAP_CONFIG.attribution,
           },
         },
         layers: [
           {
-            id: 'carto-tiles-layer',
+            id: 'base-tiles-layer',
             type: 'raster',
-            source: 'carto-tiles',
+            source: 'base-tiles',
             minzoom: 0,
             maxzoom: 19,
           },
         ],
       },
-      center: MAP_CONFIG.center,
-      zoom: MAP_CONFIG.defaultZoom,
-      minZoom: MAP_CONFIG.minZoom,
-      maxZoom: MAP_CONFIG.maxZoom,
-      maxBounds: MAP_CONFIG.bounds,
+      center: [83.2185, 17.6868], // Vizag city center: 17.6868° N, 83.2185° E
+      zoom: 11.8,
+      minZoom: 9.5,
+      maxZoom: 18,
+      bounds: [
+        [83.05, 17.55],
+        [83.5, 17.95],
+      ],
       attributionControl: false,
     });
 
-    // Add navigation controls (zoom in/out, compass) at bottom right
-    map.addControl(new NavigationControl({ showCompass: true }), 'bottom-right');
+    // Notify parent if user interacts with the map (drag/zoom)
+    const handleInteraction = () => {
+      if (onMapInteraction) {
+        onMapInteraction();
+      }
+    };
 
-    map.on('load', () => {
-      // Add empty listings GeoJSON source with clustering
-      map.addSource('listings', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: [],
-        },
-        cluster: true,
-        clusterMaxZoom: 14,
-        clusterRadius: 50,
-      });
-
-      // 1. Cluster Outer Halo Ring
-      map.addLayer({
-        id: 'cluster-halo',
-        type: 'circle',
-        source: 'listings',
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': [
-            'step',
-            ['get', 'point_count'],
-            'rgba(134, 239, 172, 0.4)', // soft green halo
-            10,
-            'rgba(253, 224, 71, 0.4)',  // warm amber halo
-            50,
-            'rgba(251, 146, 60, 0.4)',  // coral halo
-          ],
-          'circle-radius': [
-            'step',
-            ['get', 'point_count'],
-            26,
-            10,
-            32,
-            50,
-            40,
-          ],
-          'circle-opacity': 0.7,
-        },
-      });
-
-      // 2. Cluster Solid Circle Layer (Matching Bangalore Startup Map pastel circles)
-      map.addLayer({
-        id: 'clusters',
-        type: 'circle',
-        source: 'listings',
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': [
-            'step',
-            ['get', 'point_count'],
-            '#86efac', // < 10: pastel green
-            10,
-            '#fde047', // 10 - 49: pastel yellow/amber
-            50,
-            '#fb923c', // 50+: coral/orange
-          ],
-          'circle-radius': [
-            'step',
-            ['get', 'point_count'],
-            18,
-            10,
-            24,
-            50,
-            30,
-          ],
-          'circle-stroke-width': 3,
-          'circle-stroke-color': '#ffffff',
-          'circle-opacity': 0.95,
-        },
-      });
-
-      // 3. Cluster Count Number
-      map.addLayer({
-        id: 'cluster-count',
-        type: 'symbol',
-        source: 'listings',
-        filter: ['has', 'point_count'],
-        layout: {
-          'text-field': '{point_count_abbreviated}',
-          'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-          'text-size': 13,
-        },
-        paint: {
-          'text-color': [
-            'step',
-            ['get', 'point_count'],
-            '#166534', // dark green for small
-            10,
-            '#854d0e', // dark amber for medium
-            50,
-            '#ffffff', // white for coral/orange
-          ],
-        },
-      });
-
-      // 4. Cluster Click: Zoom in with smooth easeTo
-      map.on('click', 'clusters', async (e) => {
-        const features = map.queryRenderedFeatures(e.point, {
-          layers: ['clusters'],
-        });
-        const clusterId = features[0]?.properties?.cluster_id;
-        const source = map.getSource('listings') as GeoJSONSource;
-
-        if (source && typeof clusterId === 'number') {
-          const zoom = await source.getClusterExpansionZoom(clusterId);
-          const coordinates = (features[0].geometry as GeoJSON.Point)
-            .coordinates as [number, number];
-          map.easeTo({
-            center: coordinates,
-            zoom: zoom + 0.6,
-            duration: 500,
-          });
-        }
-      });
-
-      // Cursors
-      map.on('mouseenter', 'clusters', () => {
-        map.getCanvas().style.cursor = 'pointer';
-      });
-      map.on('mouseleave', 'clusters', () => {
-        map.getCanvas().style.cursor = '';
-      });
-    });
+    map.on('dragstart', handleInteraction);
+    map.on('zoomstart', handleInteraction);
 
     mapRef.current = map;
 
@@ -199,105 +96,37 @@ export function MapContainer({
       map.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [onMapInteraction]);
 
-  // Update GeoJSON source & HTML unclustered markers
+  // Update Markers whenever listings change
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    const updateSourceAndMarkers = () => {
-      const source = map.getSource('listings') as GeoJSONSource;
-      if (!source) return;
+    // Remove existing markers that are no longer in listings
+    const currentListingIds = new Set(listings.map((l) => l.id));
+    markersRef.current.forEach((marker, id) => {
+      if (!currentListingIds.has(id)) {
+        marker.remove();
+        markersRef.current.delete(id);
+      }
+    });
 
-      const geojsonData: GeoJSON.FeatureCollection<GeoJSON.Point> = {
-        type: 'FeatureCollection',
-        features: listings.map((item) => ({
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [item.lng, item.lat],
-          },
-          properties: {
-            id: item.id,
-            name: item.name,
-            slug: item.slug,
-            type: item.type,
-            stage: item.stage,
-            sector: item.sector,
-            area: item.area,
-            is_featured: item.is_featured,
-            jobs_count: item.jobs_count || 0,
-          },
-        })),
-      };
+    // Add or update markers
+    listings.forEach((listing) => {
+      const isSelected = selectedListing?.id === listing.id;
+      const existingMarker = markersRef.current.get(listing.id);
 
-      source.setData(geojsonData);
-      renderUnclusteredMarkers();
-    };
-
-    const renderUnclusteredMarkers = () => {
-      // Clear previous HTML markers
-      markersRef.current.forEach((marker) => marker.remove());
-      markersRef.current.clear();
-
-      // Create rich circular logo/favicon badge markers matching Bangalore Startup Map
-      listings.forEach((listing) => {
-        let domain = '';
-        try {
-          if (listing.website) {
-            domain = new URL(
-              listing.website.startsWith('http')
-                ? listing.website
-                : `https://${listing.website}`
-            ).hostname;
-          }
-        } catch {
-          domain = '';
-        }
-
-        const faviconUrl = domain
-          ? `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
-          : null;
-
-        // Custom marker DOM element
-        const el = document.createElement('div');
-        el.className = 'custom-map-marker group cursor-pointer transition-transform duration-200 hover:scale-115 hover:z-30';
-        el.style.width = '36px';
-        el.style.height = '36px';
-
-        const inner = document.createElement('div');
-        inner.className =
-          'w-full h-full rounded-full bg-white border-2 border-white shadow-md flex items-center justify-center overflow-hidden ring-1 ring-zinc-200';
-
-        if (faviconUrl) {
-          const img = document.createElement('img');
-          img.src = faviconUrl;
-          img.alt = listing.name;
-          img.className = 'w-5 h-5 object-contain';
-          img.onerror = () => {
-            img.style.display = 'none';
-            fallbackInitial.style.display = 'flex';
-          };
-          inner.appendChild(img);
-        }
-
-        const fallbackInitial = document.createElement('div');
-        fallbackInitial.className =
-          'w-full h-full bg-[#0E4D64] text-white font-bold text-xs flex items-center justify-center uppercase';
-        fallbackInitial.textContent = listing.name.charAt(0);
-        if (faviconUrl) {
-          fallbackInitial.style.display = 'none';
-        }
-        inner.appendChild(fallbackInitial);
-
-        el.appendChild(inner);
-
-        // Click handler
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
+      if (existingMarker) {
+        // Update DOM element if selection state changed
+        const newEl = createCustomMarkerElement(listing, isSelected, () => {
           onSelectListing(listing);
-          showListingPopup(map, [listing.lng, listing.lat], listing);
+        });
+        existingMarker.getElement().replaceWith(newEl);
+      } else {
+        // Create new marker
+        const el = createCustomMarkerElement(listing, isSelected, () => {
+          onSelectListing(listing);
         });
 
         const marker = new Marker({ element: el })
@@ -305,104 +134,135 @@ export function MapContainer({
           .addTo(map);
 
         markersRef.current.set(listing.id, marker);
-      });
-    };
+      }
+    });
+  }, [listings, selectedListing, onSelectListing]);
 
-    if (map.isStyleLoaded()) {
-      updateSourceAndMarkers();
-    } else {
-      map.once('load', updateSourceAndMarkers);
-    }
-  }, [listings, onSelectListing]);
-
-  // Handle selectedListing flyTo & popup
+  // Handle selected listing popup & camera pan
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !selectedListing) return;
+    if (!map) return;
 
-    const coordinates: [number, number] = [
-      selectedListing.lng,
-      selectedListing.lat,
-    ];
+    if (selectedListing) {
+      // Pan smoothly to selected coordinates
+      map.flyTo({
+        center: [selectedListing.lng, selectedListing.lat],
+        zoom: Math.max(map.getZoom(), 13.5),
+        duration: 900,
+        essential: true,
+      });
 
-    map.flyTo({
-      center: coordinates,
-      zoom: 14.5,
-      speed: 1.4,
-      curve: 1.2,
-      essential: true,
-    });
+      // Show silver-and-aubergine popup
+      if (popupRef.current) {
+        popupRef.current.remove();
+      }
 
-    showListingPopup(map, coordinates, selectedListing);
+      const popup = new Popup({
+        offset: 20,
+        closeButton: true,
+        closeOnClick: false,
+        maxWidth: '320px',
+        className: 'editorial-pin-popup',
+      })
+        .setLngLat([selectedListing.lng, selectedListing.lat])
+        .setHTML(createPinPopupContent(selectedListing))
+        .addTo(map);
+
+      popupRef.current = popup;
+    } else {
+      if (popupRef.current) {
+        popupRef.current.remove();
+        popupRef.current = null;
+      }
+    }
   }, [selectedListing]);
 
-  // Speech bubble popup matching Bangalore Startup Map exact layout
-  const showListingPopup = (
-    map: MapLibreMap,
-    coordinates: [number, number],
-    listing: Listing
-  ) => {
-    if (popupRef.current) {
-      popupRef.current.remove();
-    }
+  // Map Controls: Zoom In, Zoom Out, Locate
+  const handleZoomIn = () => {
+    mapRef.current?.zoomIn({ duration: 300 });
+  };
 
-    const popupContent = document.createElement('div');
-    popupContent.className = 'p-4 max-w-[280px] font-sans text-left';
+  const handleZoomOut = () => {
+    mapRef.current?.zoomOut({ duration: 300 });
+  };
 
-    popupContent.innerHTML = `
-      <div style="margin-bottom: 4px;">
-        <h4 style="font-size: 15px; font-weight: 700; color: #18181b; margin: 0; line-height: 1.25;">
-          ${listing.name}
-        </h4>
-      </div>
-      <p style="font-size: 12px; color: #52525b; margin: 6px 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-        ${listing.description}
-      </p>
-      <div style="font-size: 11px; color: #71717a; margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center;">
-        <span>${listing.stage}</span>
-        <span>·</span>
-        <span>${listing.sector}</span>
-        <span>·</span>
-        <span style="color: #3f3f46;">${listing.area}</span>
-        ${
-          listing.jobs_count && listing.jobs_count > 0
-            ? `<span>·</span><span style="color: #e04f36; font-weight: 600;">💼 ${listing.jobs_count} jobs</span>`
-            : ''
-        }
-      </div>
-      <button
-        id="popup-view-more-btn"
-        style="background: transparent; border: none; padding: 0; font-size: 13px; font-weight: 600; color: #e04f36; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
-      >
-        View more &rarr;
-      </button>
-    `;
-
-    // Hook View More click to open CompanyDrawer
-    const viewMoreBtn = popupContent.querySelector('#popup-view-more-btn');
-    if (viewMoreBtn) {
-      viewMoreBtn.addEventListener('click', () => {
-        if (popupRef.current) {
-          popupRef.current.remove();
-        }
-        onSelectListing(listing);
-      });
-    }
-
-    popupRef.current = new Popup({
-      offset: 18,
-      closeButton: true,
-      closeOnClick: false,
-      className: 'bangalore-style-popup',
-    })
-      .setLngLat(coordinates)
-      .setDOMContent(popupContent)
-      .addTo(map);
+  const handleLocateMe = () => {
+    if (!navigator.geolocation || !mapRef.current) return;
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setIsLocating(false);
+        mapRef.current?.flyTo({
+          center: [pos.coords.longitude, pos.coords.latitude],
+          zoom: 14,
+          duration: 1000,
+        });
+      },
+      () => {
+        setIsLocating(false);
+      },
+      { timeout: 7000 }
+    );
   };
 
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      <div ref={mapContainerRef} className="w-full h-full" />
+    <div
+      className={`relative w-full h-full overflow-hidden bg-[#DDE3E8] select-none ${className}`}
+      aria-label="Map of startups in Visakhapatnam"
+    >
+      {/* MapLibre DOM element with duotone CSS treatment */}
+      <div
+        ref={mapContainerRef}
+        className="w-full h-full absolute inset-0 z-0 [&_.maplibregl-canvas]:filter [&_.maplibregl-canvas]:grayscale-[100%] [&_.maplibregl-canvas]:contrast-[1.12] [&_.maplibregl-canvas]:brightness-[0.94]"
+      />
+
+      {/* Editorial Duotone Wash: Ice Silver base with aubergine multiply overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none z-[1] opacity-20 mix-blend-color"
+        style={{ backgroundColor: '#3A0F34' }}
+      />
+
+      {/* Map Legend (Bottom-Left) */}
+      {showLegend && (
+        <div className="absolute bottom-6 left-6 z-10 hidden sm:block max-w-[200px]">
+          <MapLegend />
+        </div>
+      )}
+
+      {/* Map Controls: Square silver buttons with aubergine icons (Bottom-Right) */}
+      <div className="absolute bottom-6 right-6 z-10 flex flex-col items-center gap-1.5 shadow-[0_4px_16px_rgba(58,15,52,0.12)]">
+        <button
+          type="button"
+          onClick={handleZoomIn}
+          aria-label="Zoom in"
+          className="w-10 h-10 rounded-sm bg-[#DDE3E8] border border-[#3A0F34]/25 flex items-center justify-center text-[#3A0F34] hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          onClick={handleZoomOut}
+          aria-label="Zoom out"
+          className="w-10 h-10 rounded-sm bg-[#DDE3E8] border border-[#3A0F34]/25 flex items-center justify-center text-[#3A0F34] hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors cursor-pointer"
+        >
+          <Minus className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          onClick={handleLocateMe}
+          aria-label="Locate me"
+          className={`w-10 h-10 rounded-sm bg-[#DDE3E8] border border-[#3A0F34]/25 flex items-center justify-center text-[#3A0F34] hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors cursor-pointer ${
+            isLocating ? 'animate-pulse' : ''
+          }`}
+        >
+          <Navigation className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* OpenStreetMap Attribution (Bottom-Right tiny label) */}
+      <div className="absolute bottom-1 right-2 z-10 text-[9px] font-sans text-[#3A0F34]/60 pointer-events-none select-none">
+        Map data © OpenStreetMap
+      </div>
     </div>
   );
 }

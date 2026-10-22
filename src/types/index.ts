@@ -133,6 +133,10 @@ export interface FilterState {
   fundingRange?: string;
 }
 
+export type ListingFilters = Partial<FilterState> & {
+  hiring_only?: boolean;
+};
+
 export interface NewsItem {
   title: string;
   link: string;

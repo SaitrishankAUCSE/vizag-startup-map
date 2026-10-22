@@ -1,99 +1,130 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --background: #fbf9f5;
-    --foreground: #13222a;
-    --primary: #0e4d64;
-    --primary-hover: #093345;
-    --accent-rust: #e04f36;
-    --accent-sand: #f3efe6;
-    --surface: #ffffff;
-    --border: #e6e0d4;
-  }
+@theme {
+  --color-silver: #DDE3E8;
+  --color-aubergine: #3A0F34;
+  --color-marigold: #EAAA00;
+  --font-display: var(--font-bricolage), "Bricolage Grotesque", -apple-system, sans-serif;
+  --font-sans: var(--font-dmsans), "DM Sans", -apple-system, sans-serif;
 }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+:root {
+  --silver: #DDE3E8;
+  --aubergine: #3A0F34;
+  --marigold: #EAAA00;
+}
+
+/* Strict color system reset: Ice Silver background, Deep Aubergine text */
+html, body {
+  background-color: #DDE3E8;
+  color: #3A0F34;
+  font-family: var(--font-dmsans), "DM Sans", -apple-system, sans-serif;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Custom scrollbars for directory list */
+/* Micro labels */
+.micro-label {
+  font-family: var(--font-dmsans), "DM Sans", sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+/* Display font class */
+.font-display {
+  font-family: var(--font-bricolage), "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+/* Focus ring for keyboard accessibility: 2px marigold with 2px aubergine offset */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #3A0F34, 0 0 0 4px #EAAA00 !important;
+}
+
+/* Custom scrollbars using Aubergine at lower opacity */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(58, 15, 52, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: rgba(58, 15, 52, 0.25);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(58, 15, 52, 0.45);
 }
 
-/* MapLibre popup custom styles matching Bangalore Startup Map */
+/* MapLibre popup custom styles strictly in the 3-color palette */
 .maplibregl-popup-content {
   padding: 0 !important;
-  border-radius: 18px !important;
-  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid rgba(228, 228, 231, 0.8) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 16px 36px -6px rgba(58, 15, 52, 0.22) !important;
+  border: 1px solid rgba(58, 15, 52, 0.18) !important;
+  background-color: #DDE3E8 !important;
+  color: #3A0F34 !important;
   overflow: hidden;
-  background-color: #ffffff !important;
 }
 
 .maplibregl-popup-anchor-top .maplibregl-popup-tip {
-  border-bottom-color: #ffffff !important;
+  border-bottom-color: #DDE3E8 !important;
 }
 .maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
-  border-top-color: #ffffff !important;
+  border-top-color: #DDE3E8 !important;
 }
 .maplibregl-popup-anchor-left .maplibregl-popup-tip {
-  border-right-color: #ffffff !important;
+  border-right-color: #DDE3E8 !important;
 }
 .maplibregl-popup-anchor-right .maplibregl-popup-tip {
-  border-left-color: #ffffff !important;
+  border-left-color: #DDE3E8 !important;
 }
 
 .maplibregl-popup-close-button {
-  padding: 3px 8px !important;
+  padding: 4px 8px !important;
   font-size: 16px !important;
-  color: #71717a !important;
-  top: 8px !important;
-  right: 8px !important;
+  color: #3A0F34 !important;
+  top: 6px !important;
+  right: 6px !important;
   border-radius: 9999px !important;
   transition: all 0.15s ease !important;
 }
 
 .maplibregl-popup-close-button:hover {
-  background-color: #f4f4f5 !important;
-  color: #18181b !important;
+  background-color: rgba(58, 15, 52, 0.1) !important;
+  color: #3A0F34 !important;
 }
 
-/* Custom map marker styles */
-.custom-map-marker {
-  will-change: transform;
-}
-
-/* Pulse animation for Featured listings */
-@keyframes featured-pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(224, 79, 54, 0.6);
+/* Pulsing hiring ring around marker */
+@keyframes hiring-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(234, 170, 0, 0.75);
   }
-  50% {
-    transform: scale(1.08);
-    box-shadow: 0 0 0 8px rgba(224, 79, 54, 0);
+  70% {
+    box-shadow: 0 0 0 9px rgba(234, 170, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(234, 170, 0, 0);
   }
 }
 
-.animate-featured-pulse {
-  animation: featured-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.pulse-hiring {
+  animation: hiring-pulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

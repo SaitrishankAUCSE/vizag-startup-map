@@ -1,52 +1,42 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { Bricolage_Grotesque, DM_Sans } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({
-  variable: '--font-inter',
+const bricolage = Bricolage_Grotesque({
   subsets: ['latin'],
+  weight: ['700', '800'],
+  variable: '--font-bricolage',
   display: 'swap',
 });
 
-const jakarta = Plus_Jakarta_Sans({
-  variable: '--font-heading',
+const dmSans = DM_Sans({
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-dmsans',
   display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'Vizag Startup Map | Interactive Visakhapatnam Startup Directory',
+  title: 'Vizag Startup Map | Visakhapatnam Startup & Tech Ecosystem',
   description:
-    'Free interactive directory and ecosystem map of startups, venture investors, incubators, colleges, and coworking spaces in Visakhapatnam (Vizag), India.',
-  keywords: [
-    'Vizag startups',
-    'Visakhapatnam startup map',
-    'Andhra Pradesh startups',
-    'Vizag tech ecosystem',
-    'Rushikonda IT SEZ',
-    'Andhra University startups',
-    'GITAM venture',
-  ],
-  authors: [{ name: 'Vizag Startup Map Community' }],
+    'An editorial living directory and map of startups, investors, incubators, campuses, and coworking spaces in Visakhapatnam (Vizag), India.',
+  icons: {
+    icon: '/favicon.svg',
+  },
+  authors: [{ name: 'Vizag Startup Map' }],
   openGraph: {
-    title: 'Vizag Startup Map - Discover the Tech Ecosystem of Visakhapatnam',
+    title: 'Vizag Startup Map — An Ecosystem Mapped',
     description:
-      'Explore active startups, investors, incubators, universities, and coworking spaces across Vizag on an interactive map.',
+      'Every startup, investor, campus, and workspace in Visakhapatnam on one living map.',
     url: 'https://vizagstartupmap.com',
     siteName: 'Vizag Startup Map',
     locale: 'en_IN',
     type: 'website',
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Vizag Startup Map',
-    description:
-      'Interactive map and directory of startups, investors, and hubs in Visakhapatnam.',
-  },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0E4D64',
+  themeColor: '#3A0F34',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -58,8 +48,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jakarta.variable} h-full`}>
-      <body className="h-full flex flex-col font-sans antialiased bg-[#FBF9F5] text-[#13222A]">
+    <html
+      lang="en"
+      className={`${bricolage.variable} ${dmSans.variable} h-full antialiased`}
+    >
+      <body className="h-full flex flex-col font-sans bg-[#DDE3E8] text-[#3A0F34]">
         {children}
       </body>
     </html>

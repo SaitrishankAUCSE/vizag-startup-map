@@ -1,0 +1,80 @@
+[
+  {
+    "id": "f0000000-0000-0000-0000-000000000001",
+    "listing_id": "b0000000-0000-0000-0000-000000000003",
+    "title": "Senior Full Stack Engineer (Next.js / Node.js)",
+    "location": "Rushikonda, Visakhapatnam (Hybrid)",
+    "apply_url": "https://example.com/jobs/sample-baysaas-fullstack",
+    "is_active": true,
+    "company_name": "Sample BaySaaS Analytics",
+    "company_slug": "sample-baysaas-analytics",
+    "company_area": "Rushikonda",
+    "created_at": "2026-10-15T09:00:00Z",
+    "updated_at": "2026-10-15T09:00:00Z"
+  },
+  {
+    "id": "f0000000-0000-0000-0000-000000000002",
+    "listing_id": "b0000000-0000-0000-0000-000000000003",
+    "title": "Growth Marketing Manager - B2B SaaS",
+    "location": "Rushikonda, Visakhapatnam",
+    "apply_url": "https://example.com/jobs/sample-baysaas-growth",
+    "is_active": true,
+    "company_name": "Sample BaySaaS Analytics",
+    "company_slug": "sample-baysaas-analytics",
+    "company_area": "Rushikonda",
+    "created_at": "2026-10-16T10:00:00Z",
+    "updated_at": "2026-10-16T10:00:00Z"
+  },
+  {
+    "id": "f0000000-0000-0000-0000-000000000003",
+    "listing_id": "b0000000-0000-0000-0000-000000000004",
+    "title": "Robotics & Embedded Firmware Engineer",
+    "location": "Beach Road, Visakhapatnam (On-site)",
+    "apply_url": "https://example.com/jobs/sample-marinetech-firmware",
+    "is_active": true,
+    "company_name": "Sample Vizag MarineTech",
+    "company_slug": "sample-vizag-marinetech",
+    "company_area": "Beach Road",
+    "created_at": "2026-10-17T11:00:00Z",
+    "updated_at": "2026-10-17T11:00:00Z"
+  },
+  {
+    "id": "f0000000-0000-0000-0000-000000000004",
+    "listing_id": "b0000000-0000-0000-0000-000000000007",
+    "title": "Machine Learning Scientist (Medical Imaging)",
+    "location": "Siripuram, Visakhapatnam",
+    "apply_url": "https://example.com/jobs/sample-coastal-ai-ml",
+    "is_active": true,
+    "company_name": "Sample Coastal AI Health",
+    "company_slug": "sample-coastal-ai-health",
+    "company_area": "Siripuram",
+    "created_at": "2026-10-18T12:00:00Z",
+    "updated_at": "2026-10-18T12:00:00Z"
+  },
+  {
+    "id": "f0000000-0000-0000-0000-000000000005",
+    "listing_id": "b0000000-0000-0000-0000-000000000008",
+    "title": "Fintech DevOps & Security Lead",
+    "location": "Dwaraka Nagar, Visakhapatnam",
+    "apply_url": "https://example.com/jobs/sample-fincloud-devops",
+    "is_active": true,
+    "company_name": "Sample Andhra FinCloud",
+    "company_slug": "sample-andhra-fincloud",
+    "company_area": "Dwaraka Nagar",
+    "created_at": "2026-10-19T14:00:00Z",
+    "updated_at": "2026-10-19T14:00:00Z"
+  },
+  {
+    "id": "f0000000-0000-0000-0000-000000000006",
+    "listing_id": "b0000000-0000-0000-0000-000000000013",
+    "title": "IoT Hardware Engineer (Aquaculture Sensors)",
+    "location": "Rushikonda, Visakhapatnam",
+    "apply_url": "https://example.com/jobs/sample-dolphin-iot",
+    "is_active": true,
+    "company_name": "Sample Dolphin DeepTech",
+    "company_slug": "sample-dolphin-deeptech",
+    "company_area": "Rushikonda",
+    "created_at": "2026-10-20T16:00:00Z",
+    "updated_at": "2026-10-20T16:00:00Z"
+  }
+]

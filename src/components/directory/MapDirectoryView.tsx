@@ -4,23 +4,26 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Listing, Job, FilterState } from '@/types';
 import dynamic from 'next/dynamic';
-import { BangaloreToolbar } from '@/components/layout/BangaloreToolbar';
-import { FloatingNewsRail } from '@/components/layout/FloatingNewsRail';
+import { Header } from '@/components/layout/Header';
+import { HeroPanel } from '@/components/directory/HeroPanel';
 import { CompanyDrawer } from './CompanyDrawer';
 import { BangaloreGridView } from './BangaloreGridView';
 import { JobAlertModal } from './JobAlertModal';
 import { ProLockModal } from './ProLockModal';
-import { Mail, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { FilterChip, SegmentedToggle } from '@/components/ui/Button';
+import { Search, RotateCcw, Map as MapIcon, LayoutGrid, Briefcase } from 'lucide-react';
+import { COPY } from '@/content/copy';
 
 const MapContainer = dynamic(
   () => import('@/components/map/MapContainer').then((mod) => mod.MapContainer),
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full w-full items-center justify-center bg-zinc-50">
+      <div className="flex h-full w-full items-center justify-center bg-[#DDE3E8]">
         <div className="text-center">
-          <div className="w-9 h-9 border-3 border-[#0E4D64] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-          <p className="text-xs text-zinc-500 font-semibold tracking-wide">
+          <div className="w-9 h-9 border-2 border-[#3A0F34] border-t-[#EAAA00] rounded-full animate-spin mx-auto mb-2" />
+          <p className="text-xs text-[#3A0F34] font-semibold tracking-wider uppercase">
             Loading Vizag Map...
           </p>
         </div>
@@ -32,17 +35,40 @@ const MapContainer = dynamic(
 interface MapDirectoryViewProps {
   initialListings: Listing[];
   initialJobs: Job[];
+  ecosystemStats: {
+    startups: number;
+    investors: number;
+    incubators: number;
+    campuses: number;
+    coworking: number;
+    jobs: number;
+    total: number;
+  };
   hasSampleData: boolean;
 }
 
 export function MapDirectoryView({
   initialListings,
   initialJobs,
+  ecosystemStats,
   hasSampleData,
 }: MapDirectoryViewProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // State A (Hero state) vs State B (Explore state)
+  // If URL has filters or search active, start directly in State B
+  const hasActiveUrlParams = Boolean(
+    searchParams.get('type') ||
+      searchParams.get('area') ||
+      searchParams.get('stage') ||
+      searchParams.get('sector') ||
+      searchParams.get('hiring') ||
+      searchParams.get('search')
+  );
+
+  const [isHeroState, setIsHeroState] = useState(!hasActiveUrlParams);
 
   // View mode: map vs grid (default: map)
   const [viewMode, setViewMode] = useState<'map' | 'grid'>('map');
@@ -59,14 +85,8 @@ export function MapDirectoryView({
   const [proFeatureTitle, setProFeatureTitle] = useState('Pro Feature');
   const [proFeatureDesc, setProFeatureDesc] = useState('');
 
-  // Floating open roles banner dismiss state
-  const [rolesPillDismissed, setRolesPillDismissed] = useState(false);
-
-  // Sample banner dismiss state
-  const [sampleBannerDismissed, setSampleBannerDismissed] = useState(false);
-
-  // Saved listings state
-  const [savedListingIds, setSavedListingIds] = useState<string[]>([]);
+  // Active quick search input
+  const [showSearchInput, setShowSearchInput] = useState(false);
 
   // Initialize filters from URL parameters
   const [filters, setFilters] = useState<FilterState>(() => ({
@@ -76,12 +96,6 @@ export function MapDirectoryView({
     sector: searchParams.get('sector') || 'all',
     hiringOnly: searchParams.get('hiring') === 'true',
     search: searchParams.get('search') || '',
-    maxBeachDistance: searchParams.get('beach')
-      ? Number(searchParams.get('beach'))
-      : undefined,
-    foundedYearMax: searchParams.get('year')
-      ? Number(searchParams.get('year'))
-      : undefined,
   }));
 
   // Sync state to URL search parameters without page refresh
@@ -104,6 +118,7 @@ export function MapDirectoryView({
   );
 
   const handleFilterChange = (updates: Partial<FilterState>) => {
+    setIsHeroState(false); // Any filter interaction smoothly opens Explore State B
     setFilters((prev) => {
       const next = { ...prev, ...updates };
       syncUrlParams(next);
@@ -119,46 +134,36 @@ export function MapDirectoryView({
       sector: 'all',
       hiringOnly: false,
       search: '',
-      maxBeachDistance: undefined,
-      foundedYearMax: undefined,
     };
     setFilters(cleared);
     syncUrlParams(cleared);
   };
 
+  const hasActiveFilters = Boolean(
+    filters.type !== 'all' ||
+      filters.area !== 'all' ||
+      filters.stage !== 'all' ||
+      filters.sector !== 'all' ||
+      filters.hiringOnly ||
+      filters.search.trim()
+  );
+
   // Filter listings based on active criteria
   const filteredListings = useMemo(() => {
     return initialListings.filter((item) => {
-      // Type
-      if (filters.type !== 'all' && item.type !== filters.type) {
-        return false;
-      }
-      // Area
-      if (filters.area !== 'all' && item.area !== filters.area) {
-        return false;
-      }
-      // Stage
-      if (filters.stage !== 'all' && item.stage !== filters.stage) {
-        return false;
-      }
-      // Sector
-      if (filters.sector !== 'all' && item.sector !== filters.sector) {
-        return false;
-      }
-      // Hiring
-      if (filters.hiringOnly && (!item.jobs_count || item.jobs_count === 0)) {
-        return false;
-      }
-      // Search
+      if (filters.type !== 'all' && item.type !== filters.type) return false;
+      if (filters.area !== 'all' && item.area !== filters.area) return false;
+      if (filters.stage !== 'all' && item.stage !== filters.stage) return false;
+      if (filters.sector !== 'all' && item.sector !== filters.sector) return false;
+      if (filters.hiringOnly && (!item.jobs_count || item.jobs_count === 0)) return false;
+
       if (filters.search.trim()) {
         const query = filters.search.toLowerCase();
         const matchName = item.name.toLowerCase().includes(query);
         const matchDesc = item.description.toLowerCase().includes(query);
         const matchSector = item.sector.toLowerCase().includes(query);
         const matchArea = item.area.toLowerCase().includes(query);
-        if (!matchName && !matchDesc && !matchSector && !matchArea) {
-          return false;
-        }
+        if (!matchName && !matchDesc && !matchSector && !matchArea) return false;
       }
 
       return true;
@@ -167,142 +172,233 @@ export function MapDirectoryView({
 
   // Select listing (opens drawer and flies to pin on map)
   const handleSelectListing = (listing: Listing) => {
+    setIsHeroState(false);
     setSelectedListing(listing);
     setDrawerOpen(true);
   };
 
-  const handleSaveListing = (listing: Listing) => {
-    if (savedListingIds.includes(listing.id)) {
-      setSavedListingIds((prev) => prev.filter((id) => id !== listing.id));
-    } else {
-      setProFeatureTitle('Save Favourites & Named Lists');
-      setProFeatureDesc(
-        'Track promising Visakhapatnam startups, create custom watchlists, and receive alerts with a Pro subscription.'
-      );
-      setProModalOpen(true);
-    }
-  };
-
   return (
-    <main className="relative h-[100dvh] w-full overflow-hidden bg-zinc-50 select-none">
-      {/* 1. Main Canvas: Full Bleed Map or Grid View */}
-      {viewMode === 'grid' ? (
-        <BangaloreGridView
-          listings={filteredListings}
-          onSelectListing={handleSelectListing}
-          onResetFilters={handleResetFilters}
-        />
-      ) : (
-        <div className="relative h-full w-full">
-          <MapContainer
-            listings={filteredListings}
-            selectedListing={selectedListing}
-            onSelectListing={handleSelectListing}
-          />
-        </div>
-      )}
-
-      {/* 2. Floating Header Island Toolbar (data-map-chrome="toolbar") */}
-      <BangaloreToolbar
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        totalResults={filteredListings.length}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        jobsCount={initialJobs.length}
-        onResetFilters={handleResetFilters}
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-[#DDE3E8] flex flex-col font-sans text-[#3A0F34]">
+      {/* 1. Thin Editorial Top Bar */}
+      <Header
+        onSearchClick={() => {
+          setIsHeroState(false);
+          setShowSearchInput(!showSearchInput);
+        }}
+        onExploreClick={() => {
+          setIsHeroState(false);
+          setViewMode('map');
+        }}
+        onGridClick={() => {
+          setIsHeroState(false);
+          setViewMode('grid');
+        }}
+        onJobsClick={() => {
+          setIsHeroState(false);
+          handleFilterChange({ hiringOnly: true });
+        }}
       />
 
-      {/* 3. Floating News Rail (data-map-chrome="news") */}
-      <FloatingNewsRail />
+      {/* 2. Main Visual Canvas */}
+      <div className="relative flex-1 w-full h-[calc(100%-3.5rem)] overflow-hidden">
+        {viewMode === 'grid' ? (
+          <BangaloreGridView
+            listings={filteredListings}
+            onSelectListing={handleSelectListing}
+            onResetFilters={handleResetFilters}
+          />
+        ) : (
+          <div className="relative w-full h-full">
+            <MapContainer
+              listings={filteredListings}
+              selectedListing={selectedListing}
+              onSelectListing={handleSelectListing}
+              onMapInteraction={() => {
+                if (isHeroState) setIsHeroState(false);
+              }}
+              showLegend={!isHeroState}
+            />
+          </div>
+        )}
 
-      {/* 4. Center-Bottom Floating "View open roles" Pill (matching Bangalore Startup Map) */}
-      {!rolesPillDismissed && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-6 sm:bottom-8 z-[1200] flex justify-center px-3">
-          <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-zinc-200/90 bg-white/95 py-2 pl-4 pr-3 shadow-[0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-md transition-transform hover:-translate-y-0.5">
-            <button
-              type="button"
-              onClick={() => handleFilterChange({ hiringOnly: !filters.hiringOnly })}
-              className="flex items-center gap-2.5 whitespace-nowrap text-xs sm:text-sm font-semibold text-zinc-800 hover:text-[#0E4D64] transition-colors"
-            >
-              <span>{filters.hiringOnly ? 'Showing open roles' : 'View open roles'}</span>
-              <span className="shrink-0 rounded-full bg-[#E04F36] px-2 py-0.5 text-xs font-bold text-white shadow-2xs">
-                {initialJobs.length}
+        {/* 3. State A: Landing Page Hero Panel */}
+        <AnimatePresence>
+          {isHeroState && (
+            <HeroPanel
+              onExplore={() => setIsHeroState(false)}
+              stats={ecosystemStats}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* 4. State B: Floating Filter Bar under Header */}
+        {!isHeroState && (
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute top-3 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-2.5 pointer-events-none"
+          >
+            {/* Pill chips row */}
+            <div className="pointer-events-auto flex flex-wrap items-center gap-2 bg-[#DDE3E8]/95 backdrop-blur-md border border-[#3A0F34]/20 p-2 rounded-full shadow-[0_8px_24px_rgba(58,15,52,0.12)]">
+              {/* Type Chip */}
+              <select
+                aria-label="Filter by type"
+                value={filters.type}
+                onChange={(e) => handleFilterChange({ type: e.target.value })}
+                className="bg-transparent text-[11px] font-semibold uppercase tracking-wider text-[#3A0F34] px-3 py-1 rounded-full border border-[#3A0F34]/30 hover:border-[#3A0F34] cursor-pointer outline-none"
+              >
+                <option value="all">ALL ENTITIES</option>
+                <option value="startup">STARTUPS</option>
+                <option value="investor">INVESTORS</option>
+                <option value="incubator">INCUBATORS</option>
+                <option value="campus">CAMPUSES</option>
+                <option value="coworking">COWORKING</option>
+              </select>
+
+              {/* Area Chip */}
+              <select
+                aria-label="Filter by area"
+                value={filters.area}
+                onChange={(e) => handleFilterChange({ area: e.target.value })}
+                className="bg-transparent text-[11px] font-semibold uppercase tracking-wider text-[#3A0F34] px-3 py-1 rounded-full border border-[#3A0F34]/30 hover:border-[#3A0F34] cursor-pointer outline-none"
+              >
+                <option value="all">ALL AREAS</option>
+                <option value="Rushikonda">RUSHIKONDA</option>
+                <option value="Madhurawada">MADHURAWADA</option>
+                <option value="MVP Colony">MVP COLONY</option>
+                <option value="Siripuram">SIRIPURAM</option>
+                <option value="Dwaraka Nagar">DWARAKA NAGAR</option>
+                <option value="Seethammadhara">SEETHAMMADHARA</option>
+                <option value="Beach Road">BEACH ROAD</option>
+                <option value="Gajuwaka">GAJUWAKA</option>
+              </select>
+
+              {/* Sector Chip */}
+              <select
+                aria-label="Filter by sector"
+                value={filters.sector}
+                onChange={(e) => handleFilterChange({ sector: e.target.value })}
+                className="hidden sm:block bg-transparent text-[11px] font-semibold uppercase tracking-wider text-[#3A0F34] px-3 py-1 rounded-full border border-[#3A0F34]/30 hover:border-[#3A0F34] cursor-pointer outline-none"
+              >
+                <option value="all">ALL SECTORS</option>
+                <option value="SaaS">SAAS</option>
+                <option value="AI">AI</option>
+                <option value="Fintech">FINTECH</option>
+                <option value="Healthtech">HEALTHTECH</option>
+                <option value="Deeptech">DEEPTECH</option>
+                <option value="Logistics and Port">LOGISTICS & PORT</option>
+                <option value="Edtech">EDTECH</option>
+              </select>
+
+              {/* Hiring Now Toggle */}
+              <button
+                type="button"
+                onClick={() => handleFilterChange({ hiringOnly: !filters.hiringOnly })}
+                className={`px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider border transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  filters.hiringOnly
+                    ? 'bg-[#EAAA00] text-[#3A0F34] border-[#3A0F34]'
+                    : 'bg-transparent text-[#3A0F34] border-[#3A0F34]/30 hover:border-[#3A0F34]'
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-[#EAAA00] border border-[#3A0F34]" />
+                <span>HIRING NOW</span>
+              </button>
+
+              {/* Results Count */}
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 text-[#3A0F34]/70">
+                {filteredListings.length} RESULTS
               </span>
-            </button>
+
+              {/* Clear Filters Button */}
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#3A0F34] hover:opacity-70 px-2 py-1 rounded-full bg-[#3A0F34]/10 cursor-pointer"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>CLEAR</span>
+                </button>
+              )}
+            </div>
+
+            {/* Right: Map / Grid Toggle */}
+            <div className="pointer-events-auto bg-[#DDE3E8]/95 backdrop-blur-md rounded-full shadow-[0_8px_24px_rgba(58,15,52,0.12)]">
+              <SegmentedToggle
+                value={viewMode}
+                onChange={(val) => setViewMode(val as 'map' | 'grid')}
+                options={[
+                  {
+                    value: 'map',
+                    label: 'MAP',
+                    icon: <MapIcon className="w-3.5 h-3.5" />,
+                  },
+                  {
+                    value: 'grid',
+                    label: 'GRID',
+                    icon: <LayoutGrid className="w-3.5 h-3.5" />,
+                  },
+                ]}
+              />
+            </div>
+          </motion.div>
+        )}
+
+        {/* Quick Search bar if opened */}
+        {showSearchInput && !isHeroState && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute top-16 left-4 z-30 max-w-md w-full bg-[#DDE3E8] border border-[#3A0F34] rounded-full p-1.5 shadow-xl flex items-center gap-2"
+          >
+            <Search className="w-4 h-4 ml-3 text-[#3A0F34]" />
+            <input
+              type="text"
+              autoFocus
+              value={filters.search}
+              onChange={(e) => handleFilterChange({ search: e.target.value })}
+              placeholder={COPY.explore.searchPlaceholder}
+              className="w-full bg-transparent text-xs text-[#3A0F34] placeholder-[#3A0F34]/50 outline-none pr-3"
+            />
+          </motion.div>
+        )}
+
+        {/* Floating Job Alerts Pro Prompt (Bottom-Right, above controls) */}
+        {!isHeroState && (
+          <div className="absolute bottom-6 left-6 z-10 hidden md:block">
             <button
               type="button"
-              onClick={() => setRolesPillDismissed(true)}
-              aria-label="Hide open roles pill"
-              className="grid h-5 w-5 place-items-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition"
+              onClick={() => setAlertModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#EAAA00] text-[#3A0F34] border border-[#3A0F34] font-sans font-bold text-[11px] uppercase tracking-wider shadow-lg hover:bg-[#3A0F34] hover:text-[#EAAA00] transition-colors cursor-pointer"
             >
-              <X className="w-3.5 h-3.5" />
+              <Briefcase className="w-3.5 h-3.5" />
+              <span>GET JOB ALERTS</span>
             </button>
           </div>
-        </div>
-      )}
-
-      {/* 5. Bottom-Left Floating Badges (Results count, Get job alerts, Credit) */}
-      <div className="pointer-events-none absolute bottom-2 left-2 sm:bottom-3 sm:left-3 z-[1200] flex flex-col items-start gap-1.5">
-        <button
-          type="button"
-          onClick={() => setAlertModalOpen(true)}
-          className="pointer-events-auto flex items-center gap-1.5 rounded-full bg-[#E04F36] hover:bg-[#c93f28] text-white px-3.5 py-1 text-xs font-semibold shadow-md backdrop-blur-md transition hover:-translate-y-0.5"
-        >
-          <Mail className="w-3 h-3" />
-          <span>Get job alerts</span>
-        </button>
-
-        <span className="pointer-events-auto rounded-full border border-zinc-200/90 bg-white/95 px-3 py-1 text-xs shadow-sm backdrop-blur-md">
-          <span className="font-bold text-zinc-900">{filteredListings.length}</span>{' '}
-          <span className="text-zinc-500">results</span>
-        </span>
-
-        <span className="pointer-events-auto flex items-center gap-1.5 rounded-full bg-white/85 px-3 py-0.5 text-[11px] text-zinc-500 shadow-2xs backdrop-blur-md">
-          <span>Vizag Tech Ecosystem</span>
-        </span>
+        )}
       </div>
 
-      {/* 6. Sample Data Warning Banner (Subtle Top-left pill below toolbar) */}
-      {hasSampleData && !sampleBannerDismissed && (
-        <div className="pointer-events-none absolute left-3 top-[78px] sm:top-[74px] z-[1100]">
-          <div className="pointer-events-auto flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50/95 px-3 py-1 text-xs text-amber-800 shadow-sm backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-amber-500" />
-            <span className="font-medium">Previewing Vizag Ecosystem listings</span>
-            <button
-              onClick={() => setSampleBannerDismissed(true)}
-              className="text-amber-600 hover:text-amber-900 ml-1 font-bold"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* 7. Slide-over Company Detail Drawer */}
+      {/* Company Detail Drawer */}
       <CompanyDrawer
         listing={selectedListing}
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        jobs={initialJobs}
-        onSave={handleSaveListing}
-        isSaved={selectedListing ? savedListingIds.includes(selectedListing.id) : false}
       />
 
-      {/* 8. Job Alert Modal */}
+      {/* Job Alert Modal */}
       <JobAlertModal
         isOpen={alertModalOpen}
         onClose={() => setAlertModalOpen(false)}
-        onViewRoles={() => handleFilterChange({ hiringOnly: true })}
       />
 
-      {/* 9. Pro Upgrade Modal */}
+      {/* Pro Lock Modal */}
       <ProLockModal
         isOpen={proModalOpen}
         onClose={() => setProModalOpen(false)}
         featureTitle={proFeatureTitle}
         featureDescription={proFeatureDesc}
       />
-    </main>
+    </div>
   );
 }
