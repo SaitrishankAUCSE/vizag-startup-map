@@ -39,27 +39,47 @@ body {
   background: #94a3b8;
 }
 
-/* MapLibre popup custom styles */
+/* MapLibre popup custom styles matching Bangalore Startup Map */
 .maplibregl-popup-content {
   padding: 0 !important;
-  border-radius: 12px !important;
-  box-shadow: 0 10px 25px -5px rgba(14, 77, 100, 0.25), 0 8px 10px -6px rgba(14, 77, 100, 0.2) !important;
-  border: 1px solid #e2e8f0 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(228, 228, 231, 0.8) !important;
   overflow: hidden;
+  background-color: #ffffff !important;
+}
+
+.maplibregl-popup-anchor-top .maplibregl-popup-tip {
+  border-bottom-color: #ffffff !important;
+}
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+  border-top-color: #ffffff !important;
+}
+.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+  border-right-color: #ffffff !important;
+}
+.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+  border-left-color: #ffffff !important;
 }
 
 .maplibregl-popup-close-button {
-  padding: 4px 8px !important;
-  font-size: 18px !important;
-  color: #64748b !important;
-  top: 6px !important;
-  right: 6px !important;
-  border-radius: 6px !important;
+  padding: 3px 8px !important;
+  font-size: 16px !important;
+  color: #71717a !important;
+  top: 8px !important;
+  right: 8px !important;
+  border-radius: 9999px !important;
+  transition: all 0.15s ease !important;
 }
 
 .maplibregl-popup-close-button:hover {
-  background-color: #f1f5f9 !important;
-  color: #0f172a !important;
+  background-color: #f4f4f5 !important;
+  color: #18181b !important;
+}
+
+/* Custom map marker styles */
+.custom-map-marker {
+  will-change: transform;
 }
 
 /* Pulse animation for Featured listings */

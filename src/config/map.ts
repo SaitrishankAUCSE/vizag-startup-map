@@ -11,7 +11,7 @@
 // =========================================================================
 
 export const MAP_CONFIG = {
-  // Tile URL: Put in ONE place as requested so providers can be swapped effortlessly.
+  // Tile URL: Clean OpenStreetMap raster tiles (no watermark, free)
   tileUrl:
     process.env.NEXT_PUBLIC_MAP_TILE_URL ||
     'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
