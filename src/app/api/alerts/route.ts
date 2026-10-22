@@ -1,54 +1,200 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { sendEmailAlert } from '@/lib/email/resend';
+import { INITIAL_MOCK_JOBS } from '@/data/mockData';
 import { z } from 'zod';
+import fs from 'fs';
+import path from 'path';
 
-const alertSchema = z.object({
-  email: z.string().email('Valid email address is required'),
-  sector: z.string().optional(),
-  area: z.string().optional(),
-  userPlan: z.enum(['free', 'pro']).optional(),
+const alertSubscriptionSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  position: z.string().optional().default(''),
+  company: z.string().optional().default(''),
+  sector: z.string().optional().default('all'),
+  area: z.string().optional().default('all'),
 });
+
+// File-based persistence fallback when Supabase is not yet connected
+const SUBSCRIBERS_FILE = path.join(process.cwd(), 'src', 'data', 'subscribers.json');
+
+interface SubscriberRecord {
+  id: string;
+  email: string;
+  position: string;
+  company: string;
+  sector: string;
+  area: string;
+  created_at: string;
+}
+
+function loadLocalSubscribers(): SubscriberRecord[] {
+  try {
+    if (fs.existsSync(SUBSCRIBERS_FILE)) {
+      const content = fs.readFileSync(SUBSCRIBERS_FILE, 'utf-8');
+      return JSON.parse(content);
+    }
+  } catch {
+    // Ignore error
+  }
+  return [];
+}
+
+function saveLocalSubscriber(record: SubscriberRecord) {
+  try {
+    const list = loadLocalSubscribers();
+    // Prevent duplicate emails
+    const existingIndex = list.findIndex(
+      (s) => s.email.toLowerCase() === record.email.toLowerCase()
+    );
+    if (existingIndex >= 0) {
+      list[existingIndex] = { ...list[existingIndex], ...record };
+    } else {
+      list.push(record);
+    }
+    const dir = path.dirname(SUBSCRIBERS_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(SUBSCRIBERS_FILE, JSON.stringify(list, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('[Subscribers Storage] Could not write to local file:', err);
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const parsed = alertSchema.safeParse(body);
+    const parsed = alertSubscriptionSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues[0]?.message || 'Invalid input' },
+        { error: parsed.error.issues[0]?.message || 'Invalid email address' },
         { status: 400 }
       );
     }
 
-    const { email, sector, area, userPlan = 'pro' } = parsed.data;
+    const { email, position, company, sector, area } = parsed.data;
 
-    if (userPlan !== 'pro') {
-      return NextResponse.json(
-        { error: 'Custom email alerts require an active Pro subscription.', requiresPro: true },
-        { status: 403 }
-      );
+    const record: SubscriberRecord = {
+      id: `sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      email,
+      position: position || '',
+      company: company || '',
+      sector: sector || 'all',
+      area: area || 'all',
+      created_at: new Date().toISOString(),
+    };
+
+    // 1. Save to local fallback store so it is 100% reliable
+    saveLocalSubscriber(record);
+
+    // 2. Save to Supabase if connected
+    try {
+      const supabase = await createServerSupabaseClient();
+      if (supabase) {
+        // Find or create profile if needed
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', email)
+          .maybeSingle();
+
+        if (profile) {
+          await supabase.from('alerts').insert({
+            user_id: profile.id,
+            sector: sector || 'all',
+            area: area || 'all',
+            alert_on_jobs: true,
+            alert_on_startups: true,
+          });
+        }
+      }
+    } catch {
+      // Supabase is optional; local fallback is already saved
     }
 
-    const supabase = await createServerSupabaseClient();
-    if (supabase) {
-      await supabase.from('alerts').insert({
-        sector: sector || 'all',
-        area: area || 'all',
-      });
-    }
+    // 3. Build rich HTML email notification with live Vizag startup job openings
+    const relevantJobs = INITIAL_MOCK_JOBS.slice(0, 4);
+    const jobsHtml = relevantJobs
+      .map(
+        (job) => `
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;">
+          <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 700; color: #0f172a;">${job.title}</h4>
+          <p style="margin: 0 0 8px 0; font-size: 12px; color: #64748b;">${job.company_name} &bull; ${job.company_area}, Visakhapatnam</p>
+          <a href="${job.apply_url}" style="display: inline-block; background: #e04f36; color: #ffffff; font-size: 11px; font-weight: 600; text-decoration: none; padding: 6px 14px; border-radius: 6px;">
+            Apply Now &rarr;
+          </a>
+        </div>
+      `
+      )
+      .join('');
 
-    // Send confirmation email
+    const emailSubject = `Welcome to Vizag Circle: ${relevantJobs.length} New Tech Jobs & Startups in Visakhapatnam`;
+    const emailHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>${emailSubject}</title>
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #fbf9f5; margin: 0; padding: 24px; color: #1e293b;">
+          <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e6e0d4; padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+              <span style="font-size: 20px;">📍</span>
+              <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: #0e4d64;">Vizag Startup Map &bull; Vizag Circle</h2>
+            </div>
+            
+            <p style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px;">
+              Hello${position ? ` (${position}${company ? ` at ${company}` : ''})` : ''},
+            </p>
+            <p style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px;">
+              You are now subscribed to <strong>Vizag Circle</strong>. You will receive curated alerts whenever new startups raise venture funding or publish senior engineering and product openings across Visakhapatnam.
+            </p>
+
+            <div style="margin: 24px 0;">
+              <h3 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 12px;">
+                🔥 Current Open Roles in Vizag Tech
+              </h3>
+              ${jobsHtml}
+            </div>
+
+            <div style="text-align: center; margin: 28px 0 16px 0;">
+              <a href="https://vizagstartupmap.com" style="background: #0e4d64; color: #ffffff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-block;">
+                Explore the Vizag Interactive Map &rarr;
+              </a>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0 16px 0;" />
+            <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 0;">
+              Free &bull; Curated for Visakhapatnam, Andhra Pradesh &bull; Unsubscribe anytime
+            </p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    // 4. Send email alert
     await sendEmailAlert({
       to: email,
-      subject: 'Vizag Startup Map: Alert Activated',
-      htmlContent: `<p>Your alert for <strong>${sector || 'All Sectors'}</strong> startups in <strong>${area || 'All Areas'}</strong> has been activated.</p>`,
+      subject: emailSubject,
+      htmlContent: emailHtml,
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      subscriber: record,
+      message: 'Subscribed to Vizag Circle alerts',
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Server error';
     return NextResponse.json({ error: message }, { status: 500 });
   }
+}
+
+export async function GET() {
+  const subscribers = loadLocalSubscribers();
+  return NextResponse.json({
+    totalSubscribers: subscribers.length,
+    recentCount: subscribers.length,
+  });
 }

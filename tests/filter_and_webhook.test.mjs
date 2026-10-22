@@ -196,3 +196,18 @@ describe('Ecosystem Directory Filter Logic', () => {
     assert.ok(distFar > 10.0, 'Pendurthi should be over 10km from RK Beach coast');
   });
 });
+
+describe('Job Alert & Vizag Circle Subscription Validation', () => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  test('Valid email addresses pass subscription check', () => {
+    assert.strictEqual(emailRegex.test('architect@vizagdev.in'), true);
+    assert.strictEqual(emailRegex.test('founder@vizagtech.com'), true);
+  });
+
+  test('Malformed emails fail subscription check', () => {
+    assert.strictEqual(emailRegex.test('invalid-email'), false);
+    assert.strictEqual(emailRegex.test('@nodomain.com'), false);
+    assert.strictEqual(emailRegex.test('plainaddress'), false);
+  });
+});

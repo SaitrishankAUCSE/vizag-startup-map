@@ -293,6 +293,7 @@ export function MapDirectoryView({
       <JobAlertModal
         isOpen={alertModalOpen}
         onClose={() => setAlertModalOpen(false)}
+        onViewRoles={() => handleFilterChange({ hiringOnly: true })}
       />
 
       {/* 9. Pro Upgrade Modal */}
