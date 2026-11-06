@@ -216,16 +216,13 @@ export function PricingClient() {
             </ul>
           </div>
 
-          <div className="mt-8 pt-4">
-            <button
-              type="button"
-              onClick={() => {
-                alert(`Featured Listing (${billingCycle}) selected! Demo checkout state.`);
-              }}
-              className="w-full inline-flex items-center justify-center px-5 py-3 rounded-full border-[1.5px] border-[#3A0F34] text-xs font-semibold uppercase tracking-[0.14em] text-[#3A0F34] hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors cursor-pointer"
+          <div className="mt-8 pt-4 space-y-2">
+            <Link
+              href="/ad-slots/submit"
+              className="w-full inline-flex items-center justify-center px-5 py-3 rounded-full bg-[#3A0F34] text-[#DDE3E8] hover:bg-[#EAAA00] hover:text-[#3A0F34] text-xs font-bold uppercase tracking-[0.14em] transition-colors shadow-xs"
             >
-              FEATURE MY STARTUP
-            </button>
+              RESERVE WEEKLY SPOTLIGHT →
+            </Link>
           </div>
         </div>
       </div>

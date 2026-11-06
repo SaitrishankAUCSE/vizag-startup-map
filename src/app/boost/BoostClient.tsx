@@ -61,13 +61,28 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
       </Link>
 
       {/* Page Header */}
-      <header className="space-y-2 mb-12">
+      <header className="space-y-3 mb-10">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/70 border border-[#3A0F34]/15 text-[10px] font-extrabold uppercase tracking-widest text-[#3A0F34]">
+          <Zap className="w-3 h-3 text-[#EAAA00] fill-current" />
+          <span>Priority Pin Illumination</span>
+        </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#3A0F34] font-display">
           Boost listing
         </h1>
         <p className="text-sm text-[#3A0F34]/70 font-light leading-relaxed">
           Acquire elevated prominence on the Vizag Startup Map. Runs for 7 full days from confirmation.
         </p>
+
+        {/* Link to Coastal Showcase Weekly Slots */}
+        <div className="pt-2">
+          <Link
+            href="/ad-slots/submit"
+            className="inline-flex items-center gap-2 p-3 bg-white/80 hover:bg-white border border-[#3A0F34]/15 hover:border-[#EAAA00] rounded-xl text-xs font-bold text-[#3A0F34] transition-all shadow-xs group"
+          >
+            <span className="w-2 h-2 rounded-full bg-[#EAAA00] animate-pulse" />
+            <span>Looking for full directory banner placement? <strong>Explore Weekly Showcase Windows →</strong></span>
+          </Link>
+        </div>
       </header>
 
       {isSuccess ? (

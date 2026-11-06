@@ -1,0 +1,19 @@
+[
+  {
+    "booking_id": "VSM-SHOWCASE-MW4KQBH8",
+    "org_name": "Fluentgrid",
+    "website": "https://fluentgrid.com",
+    "target_url": "https://fluentgrid.com",
+    "headline": "Smart utility software",
+    "pitch": "Leading smart energy software",
+    "cta_label": "Explore ?",
+    "contact_name": "Praveen",
+    "email": "praveen@fluentgrid.com",
+    "slot_type": "FLASH_SPOTLIGHT_7D",
+    "cycle_window": "Nov 9 - Nov 16",
+    "cycle_dates": null,
+    "amount": 4999,
+    "status": "confirmed",
+    "created_at": "2026-11-06T06:08:49.821Z"
+  }
+]
