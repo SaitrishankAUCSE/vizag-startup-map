@@ -11,8 +11,8 @@ import { BangaloreGridView } from './BangaloreGridView';
 import { JobAlertModal } from './JobAlertModal';
 import { ProLockModal } from './ProLockModal';
 import { AnimatePresence, motion } from 'framer-motion';
-import { FilterChip, SegmentedToggle } from '@/components/ui/Button';
-import { Search, RotateCcw, Map as MapIcon, LayoutGrid, Briefcase } from 'lucide-react';
+import { SegmentedToggle } from '@/components/ui/Button';
+import { Search, RotateCcw, Map as MapIcon, LayoutGrid, Briefcase, X } from 'lucide-react';
 import { COPY } from '@/content/copy';
 
 const MapContainer = dynamic(
@@ -35,7 +35,7 @@ const MapContainer = dynamic(
 interface MapDirectoryViewProps {
   initialListings: Listing[];
   initialJobs: Job[];
-  ecosystemStats: {
+  ecosystemStats?: {
     startups: number;
     investors: number;
     incubators: number;
@@ -44,14 +44,22 @@ interface MapDirectoryViewProps {
     jobs: number;
     total: number;
   };
-  hasSampleData: boolean;
+  hasSampleData?: boolean;
 }
 
 export function MapDirectoryView({
   initialListings,
   initialJobs,
-  ecosystemStats,
-  hasSampleData,
+  ecosystemStats = {
+    startups: 0,
+    investors: 0,
+    incubators: 0,
+    campuses: 0,
+    coworking: 0,
+    jobs: 0,
+    total: 0,
+  },
+  hasSampleData = false,
 }: MapDirectoryViewProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -87,6 +95,9 @@ export function MapDirectoryView({
 
   // Active quick search input
   const [showSearchInput, setShowSearchInput] = useState(false);
+
+  // Floating open roles banner dismiss state
+  const [rolesPillDismissed, setRolesPillDismissed] = useState(false);
 
   // Initialize filters from URL parameters
   const [filters, setFilters] = useState<FilterState>(() => ({
@@ -161,7 +172,7 @@ export function MapDirectoryView({
         const query = filters.search.toLowerCase();
         const matchName = item.name.toLowerCase().includes(query);
         const matchDesc = item.description.toLowerCase().includes(query);
-        const matchSector = item.sector.toLowerCase().includes(query);
+        const matchSector = item.sector ? item.sector.toLowerCase().includes(query) : false;
         const matchArea = item.area.toLowerCase().includes(query);
         if (!matchName && !matchDesc && !matchSector && !matchArea) return false;
       }
@@ -179,11 +190,11 @@ export function MapDirectoryView({
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden bg-[#DDE3E8] flex flex-col font-sans text-[#3A0F34]">
-      {/* 1. Thin Editorial Top Bar */}
+      {/* 1. Thin Editorial Top Bar with Ice Silver, Logo, and Links */}
       <Header
         onSearchClick={() => {
           setIsHeroState(false);
-          setShowSearchInput(!showSearchInput);
+          setShowSearchInput((prev) => !prev);
         }}
         onExploreClick={() => {
           setIsHeroState(false);
@@ -221,7 +232,7 @@ export function MapDirectoryView({
           </div>
         )}
 
-        {/* 3. State A: Landing Page Hero Panel */}
+        {/* 3. State A: Landing Page Hero Panel with Botanical Lily & Editorial Strips */}
         <AnimatePresence>
           {isHeroState && (
             <HeroPanel
@@ -364,7 +375,33 @@ export function MapDirectoryView({
           </motion.div>
         )}
 
-        {/* Floating Job Alerts Pro Prompt (Bottom-Right, above controls) */}
+        {/* Floating "View open roles" Pill matching Bangalore Startup Map */}
+        {!isHeroState && !rolesPillDismissed && (
+          <div className="pointer-events-none fixed inset-x-0 bottom-6 sm:bottom-8 z-[1200] flex justify-center px-3">
+            <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-[#3A0F34]/20 bg-[#DDE3E8]/95 py-2 pl-4 pr-3 shadow-[0_8px_24px_rgba(58,15,52,0.14)] backdrop-blur-md transition-transform hover:-translate-y-0.5">
+              <button
+                type="button"
+                onClick={() => handleFilterChange({ hiringOnly: !filters.hiringOnly })}
+                className="flex items-center gap-2.5 whitespace-nowrap text-xs sm:text-sm font-semibold text-[#3A0F34] hover:opacity-80 transition-opacity cursor-pointer"
+              >
+                <span>{filters.hiringOnly ? 'Showing open roles' : 'View open roles'}</span>
+                <span className="shrink-0 rounded-full bg-[#EAAA00] px-2 py-0.5 text-xs font-bold text-[#3A0F34] shadow-xs">
+                  {initialJobs.length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRolesPillDismissed(true)}
+                aria-label="Hide open roles pill"
+                className="grid h-5 w-5 place-items-center rounded-full text-[#3A0F34]/60 hover:bg-[#3A0F34]/10 hover:text-[#3A0F34] transition cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Floating Job Alerts Button (Bottom-Left) */}
         {!isHeroState && (
           <div className="absolute bottom-6 left-6 z-10 hidden md:block">
             <button

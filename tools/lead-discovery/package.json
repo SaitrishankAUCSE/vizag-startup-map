@@ -1,0 +1,13 @@
+{
+  "name": "lead-discovery",
+  "version": "1.0.0",
+  "description": "Legitimate, verified startup lead discovery pipeline for Visakhapatnam",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",
+    "dry-run": "node index.js --dry-run",
+    "commit": "node index.js --commit"
+  }
+}
+

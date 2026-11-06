@@ -1,80 +1,287 @@
 [
   {
-    "id": "f0000000-0000-0000-0000-000000000001",
-    "listing_id": "b0000000-0000-0000-0000-000000000003",
-    "title": "Senior Full Stack Engineer (Next.js / Node.js)",
+    "id": "job-aqua-iot-1",
+    "listing_id": "vizag-aquaexchange",
+    "title": "Senior IoT Firmware Engineer (C/Embedded)",
+    "company_name": "AquaExchange",
+    "department": "Hardware Engineering",
+    "employment_type": "Full-time",
+    "location": "Rushikonda IT SEZ, Visakhapatnam (On-site)",
+    "salary_range": "₹12,00,000 – ₹18,00,000 / year",
+    "description": "Architect and build robust embedded C/C++ firmware for PowerMon IoT devices measuring continuous 3-phase farm power, telemetry, and automated aeration systems in extreme coastal humidity.",
+    "requirements": [
+      "3+ years in STM32 / ESP32 firmware",
+      "FreeRTOS & MQTT telemetry protocols",
+      "Experience with hardware modbus & ADC sensors"
+    ],
+    "apply_url": "https://aquaexchange.com/careers",
+    "is_active": true,
+    "created_at": "2024-03-10T09:00:00.000Z"
+  },
+  {
+    "id": "job-aqua-fullstack-2",
+    "listing_id": "vizag-aquaexchange",
+    "title": "Full-Stack React & Node.js Developer",
+    "company_name": "AquaExchange",
+    "department": "Software Engineering",
+    "employment_type": "Full-time",
+    "location": "Rushikonda IT SEZ, Visakhapatnam (Hybrid)",
+    "salary_range": "₹8,00,000 – ₹14,00,000 / year",
+    "description": "Build real-time farm monitoring web dashboards, pond health alerts, and fintech loan disbursal workflows using Next.js, Node.js, and PostgreSQL.",
+    "requirements": [
+      "Next.js / React with TypeScript",
+      "PostgreSQL / TimescaleDB experience",
+      "RESTful API and WebSocket design"
+    ],
+    "apply_url": "https://aquaexchange.com/careers",
+    "is_active": true,
+    "created_at": "2024-03-12T10:00:00.000Z"
+  },
+  {
+    "id": "job-fluentgrid-grid-1",
+    "listing_id": "vizag-fluentgrid",
+    "title": "Smart Grid Data Architect",
+    "company_name": "Fluentgrid",
+    "department": "Data Engineering",
+    "employment_type": "Full-time",
+    "location": "Hill No. 2, Rushikonda, Visakhapatnam (On-site)",
+    "salary_range": "₹18,00,000 – ₹28,00,000 / year",
+    "description": "Design distributed time-series ingestion pipelines for smart electrical meters streaming billions of hourly telemetry records across power utility grids.",
+    "requirements": [
+      "Kafka & Apache Spark streaming",
+      "Cassandra / ScyllaDB or TimescaleDB",
+      "Experience in utility smart grid domain (AMI / SCADA)"
+    ],
+    "apply_url": "https://fluentgrid.com/careers",
+    "is_active": true,
+    "created_at": "2024-03-11T11:00:00.000Z"
+  },
+  {
+    "id": "job-bytebeam-go-1",
+    "listing_id": "vizag-bytebeam",
+    "title": "Senior Go / Cloud Backend Engineer",
+    "company_name": "Bytebeam",
+    "department": "Backend Engineering",
+    "employment_type": "Full-time",
     "location": "Rushikonda, Visakhapatnam (Hybrid)",
-    "apply_url": "https://example.com/jobs/sample-baysaas-fullstack",
+    "salary_range": "₹15,00,000 – ₹24,00,000 / year",
+    "description": "Build high-throughput MQTT broker clusters, device shadowing microservices, and OTA firmware release pipelines in Go and Kubernetes.",
+    "requirements": [
+      "Proficient in Go (Golang)",
+      "Distributed systems, gRPC, and MQTT",
+      "AWS / Kubernetes cloud infrastructure"
+    ],
+    "apply_url": "https://bytebeam.io/careers",
     "is_active": true,
-    "company_name": "Sample BaySaaS Analytics",
-    "company_slug": "sample-baysaas-analytics",
-    "company_area": "Rushikonda",
-    "created_at": "2026-10-15T09:00:00Z",
-    "updated_at": "2026-10-15T09:00:00Z"
+    "created_at": "2024-03-14T09:00:00.000Z"
   },
   {
-    "id": "f0000000-0000-0000-0000-000000000002",
-    "listing_id": "b0000000-0000-0000-0000-000000000003",
-    "title": "Growth Marketing Manager - B2B SaaS",
-    "location": "Rushikonda, Visakhapatnam",
-    "apply_url": "https://example.com/jobs/sample-baysaas-growth",
+    "id": "job-sandlogic-ai-1",
+    "listing_id": "vizag-sandlogic",
+    "title": "Computer Vision & Edge AI Engineer",
+    "company_name": "SandLogic Technologies",
+    "department": "AI & Research",
+    "employment_type": "Full-time",
+    "location": "Madhurawada IT Park, Visakhapatnam (On-site)",
+    "salary_range": "₹14,00,000 – ₹22,00,000 / year",
+    "description": "Optimize PyTorch deep learning vision models (YOLOv8, transformers) for low-bit quantization (INT8, FP16) to deploy on SandLogics DeepSea edge inference hardware.",
+    "requirements": [
+      "PyTorch, ONNX, and TensorRT",
+      "Model quantization & pruning",
+      "C++ runtime integration for embedded NPUs"
+    ],
+    "apply_url": "https://sandlogic.com/careers",
     "is_active": true,
-    "company_name": "Sample BaySaaS Analytics",
-    "company_slug": "sample-baysaas-analytics",
-    "company_area": "Rushikonda",
-    "created_at": "2026-10-16T10:00:00Z",
-    "updated_at": "2026-10-16T10:00:00Z"
+    "created_at": "2024-03-15T12:00:00.000Z"
   },
   {
-    "id": "f0000000-0000-0000-0000-000000000003",
-    "listing_id": "b0000000-0000-0000-0000-000000000004",
-    "title": "Robotics & Embedded Firmware Engineer",
-    "location": "Beach Road, Visakhapatnam (On-site)",
-    "apply_url": "https://example.com/jobs/sample-marinetech-firmware",
+    "id": "job-spotmies-ops-1",
+    "listing_id": "vizag-spotmies",
+    "title": "Fleet Operations & Dispatch Lead",
+    "company_name": "Spotmies",
+    "department": "Operations",
+    "employment_type": "Full-time",
+    "location": "MVP Colony, Visakhapatnam (On-site)",
+    "salary_range": "₹4,50,000 – ₹7,00,000 / year",
+    "description": "Manage real-time mechanic dispatch SLAs, roadside assistance network coverage across coastal AP highways, and partner mechanic onboarding.",
+    "requirements": [
+      "Operations dispatch experience",
+      "Fluent in Telugu and English",
+      "Customer escalation management"
+    ],
+    "apply_url": "https://spotmies.com/careers",
     "is_active": true,
-    "company_name": "Sample Vizag MarineTech",
-    "company_slug": "sample-vizag-marinetech",
-    "company_area": "Beach Road",
-    "created_at": "2026-10-17T11:00:00Z",
-    "updated_at": "2026-10-17T11:00:00Z"
+    "created_at": "2024-03-16T14:00:00.000Z"
   },
   {
-    "id": "f0000000-0000-0000-0000-000000000004",
-    "listing_id": "b0000000-0000-0000-0000-000000000007",
-    "title": "Machine Learning Scientist (Medical Imaging)",
-    "location": "Siripuram, Visakhapatnam",
-    "apply_url": "https://example.com/jobs/sample-coastal-ai-ml",
+    "id": "job-spotmies-react-2",
+    "listing_id": "vizag-spotmies",
+    "title": "Mobile App Developer (React Native)",
+    "company_name": "Spotmies",
+    "department": "Mobile Engineering",
+    "employment_type": "Full-time",
+    "location": "MVP Colony, Visakhapatnam (On-site)",
+    "salary_range": "₹6,00,000 – ₹11,00,000 / year",
+    "description": "Develop user-facing and partner mechanic mobile applications with live background GPS tracking, push notifications, and payment gateways.",
+    "requirements": [
+      "React Native & TypeScript",
+      "Mapbox / Google Maps SDK integration",
+      "State management (Zustand / Redux)"
+    ],
+    "apply_url": "https://spotmies.com/careers",
     "is_active": true,
-    "company_name": "Sample Coastal AI Health",
-    "company_slug": "sample-coastal-ai-health",
-    "company_area": "Siripuram",
-    "created_at": "2026-10-18T12:00:00Z",
-    "updated_at": "2026-10-18T12:00:00Z"
+    "created_at": "2024-03-17T15:00:00.000Z"
   },
   {
-    "id": "f0000000-0000-0000-0000-000000000005",
-    "listing_id": "b0000000-0000-0000-0000-000000000008",
-    "title": "Fintech DevOps & Security Lead",
-    "location": "Dwaraka Nagar, Visakhapatnam",
-    "apply_url": "https://example.com/jobs/sample-fincloud-devops",
+    "id": "job-greenjams-rd-1",
+    "listing_id": "vizag-greenjams",
+    "title": "Materials R&D Chemist (Carbon-Negative Composites)",
+    "company_name": "GreenJams Cleantech",
+    "department": "R&D",
+    "employment_type": "Full-time",
+    "location": "Siripuram / AU Incubation, Visakhapatnam (On-site)",
+    "salary_range": "₹6,00,000 – ₹10,00,000 / year",
+    "description": "Formulate and test alkali-activated binders, agricultural residue fiber treatments, and compressive strength curing for next-gen Agrocrete building blocks.",
+    "requirements": [
+      "M.Sc / M.Tech in Chemistry or Materials Science",
+      "Testing compressive strength & thermal conductivity (ASTM / IS standards)",
+      "Passion for climate tech and circular materials"
+    ],
+    "apply_url": "https://greenjams.org",
     "is_active": true,
-    "company_name": "Sample Andhra FinCloud",
-    "company_slug": "sample-andhra-fincloud",
-    "company_area": "Dwaraka Nagar",
-    "created_at": "2026-10-19T14:00:00Z",
-    "updated_at": "2026-10-19T14:00:00Z"
+    "created_at": "2024-03-18T10:00:00.000Z"
   },
   {
-    "id": "f0000000-0000-0000-0000-000000000006",
-    "listing_id": "b0000000-0000-0000-0000-000000000013",
-    "title": "IoT Hardware Engineer (Aquaculture Sensors)",
-    "location": "Rushikonda, Visakhapatnam",
-    "apply_url": "https://example.com/jobs/sample-dolphin-iot",
+    "id": "job-interviewbuddy-eval-1",
+    "listing_id": "vizag-interviewbuddy",
+    "title": "AI Behavioral Analytics Engineer",
+    "company_name": "InterviewBuddy",
+    "department": "AI Engineering",
+    "employment_type": "Full-time",
+    "location": "Dwaraka Nagar, Visakhapatnam (Hybrid)",
+    "salary_range": "₹8,00,000 – ₹13,00,000 / year",
+    "description": "Build NLP and audio speech analysis pipelines to evaluate interview clarity, filler word frequency, and technical response depth in real time.",
+    "requirements": [
+      "Python, Whisper, and Hugging Face transformers",
+      "Speech-to-text and LLM evaluation prompts",
+      "FastAPI microservices"
+    ],
+    "apply_url": "https://interviewbuddy.in",
     "is_active": true,
-    "company_name": "Sample Dolphin DeepTech",
-    "company_slug": "sample-dolphin-deeptech",
-    "company_area": "Rushikonda",
-    "created_at": "2026-10-20T16:00:00Z",
-    "updated_at": "2026-10-20T16:00:00Z"
+    "created_at": "2024-03-19T11:00:00.000Z"
+  },
+  {
+    "id": "job-amtz-qa-1",
+    "listing_id": "vizag-amtz-medivalley",
+    "title": "Medical Device Regulatory & Quality Assurance Lead",
+    "company_name": "AIC-AMTZ MediValley",
+    "department": "Quality & Regulatory",
+    "employment_type": "Full-time",
+    "location": "AMTZ Campus, Gajuwaka, Visakhapatnam (On-site)",
+    "salary_range": "₹12,00,000 – ₹18,00,000 / year",
+    "description": "Guide incubated medtech startups through CDSCO, CE, and US FDA 510(k) submissions, ISO 13485 quality systems, and risk management documentation.",
+    "requirements": [
+      "5+ years in medical device regulatory filings",
+      "Deep expertise in ISO 13485 & IEC 60601",
+      "Experience working with CDSCO / notified bodies"
+    ],
+    "apply_url": "https://amtz.in",
+    "is_active": true,
+    "created_at": "2024-03-20T12:00:00.000Z"
+  },
+  {
+    "id": "job-dnaxperts-scientist-1",
+    "listing_id": "vizag-dna-xperts",
+    "title": "Molecular Diagnostics Assay Scientist",
+    "company_name": "DNA Xperts",
+    "department": "R&D",
+    "employment_type": "Full-time",
+    "location": "Bio Valley, AMTZ, Gajuwaka (On-site)",
+    "salary_range": "₹7,00,000 – ₹12,00,000 / year",
+    "description": "Design and validate multiplex RT-PCR primers and fluorescent probe chemistry for rapid detection of viral pathogens and genetic oncology markers.",
+    "requirements": [
+      "M.Sc / Ph.D. in Molecular Biology or Biotechnology",
+      "Hands-on experience in qPCR primer design",
+      "Quality control under ISO 13485"
+    ],
+    "apply_url": "https://dnaxperts.in",
+    "is_active": true,
+    "created_at": "2024-03-21T13:00:00.000Z"
+  },
+  {
+    "id": "job-dronamaps-gis-1",
+    "listing_id": "vizag-dronamaps",
+    "title": "Drone GIS & Photogrammetry Specialist",
+    "company_name": "DronaMaps",
+    "department": "Geospatial Engineering",
+    "employment_type": "Full-time",
+    "location": "Millennium Tower, Rushikonda, Visakhapatnam (Hybrid)",
+    "salary_range": "₹7,50,000 – ₹12,00,000 / year",
+    "description": "Process high-resolution drone imagery into orthomosaics, digital elevation models (DEM), and textured 3D point clouds for state mapping projects.",
+    "requirements": [
+      "Proficiency with Pix4D, Agisoft Metashape, and QGIS",
+      "Python GDAL / rasterio scripting",
+      "Understanding of georeferencing and RTK GPS"
+    ],
+    "apply_url": "https://dronamaps.com",
+    "is_active": true,
+    "created_at": "2024-03-22T14:00:00.000Z"
+  },
+  {
+    "id": "job-imaginnovate-arch-1",
+    "listing_id": "vizag-imaginnovate",
+    "title": "Logistics SaaS Solutions Architect",
+    "company_name": "Imaginnovate",
+    "department": "Enterprise Architecture",
+    "employment_type": "Full-time",
+    "location": "Hill No. 3, Rushikonda, Visakhapatnam (Hybrid)",
+    "salary_range": "₹22,00,000 – ₹32,00,000 / year",
+    "description": "Architect distributed TMS (Transportation Management Systems), EDI integration hubs, and automated dispatch engines for freight carriers.",
+    "requirements": [
+      "10+ years software engineering, 3+ years as Architect",
+      "Deep domain knowledge of supply chain / freight forwarding",
+      "Microservices on AWS / Azure"
+    ],
+    "apply_url": "https://imaginnovate.com/careers",
+    "is_active": true,
+    "created_at": "2024-03-23T15:00:00.000Z"
+  },
+  {
+    "id": "job-nugen-bms-1",
+    "listing_id": "vizag-nugen-systems",
+    "title": "BMS Firmware & Embedded Hardware Engineer",
+    "company_name": "NuGen Systems",
+    "department": "Hardware Engineering",
+    "employment_type": "Full-time",
+    "location": "Rushikonda IT SEZ, Visakhapatnam (On-site)",
+    "salary_range": "₹8,00,000 – ₹14,00,000 / year",
+    "description": "Design and validate battery management system (BMS) circuits, cell balancing algorithms, and CANbus communication for heavy robotics battery packs.",
+    "requirements": [
+      "Schematic design in KiCad / Altium",
+      "C/C++ firmware for automotive microcontrollers",
+      "Understanding of LiFePO4 / NMC battery chemistries"
+    ],
+    "apply_url": "https://nugensystems.com",
+    "is_active": true,
+    "created_at": "2024-03-24T09:00:00.000Z"
+  },
+  {
+    "id": "job-patra-rpa-1",
+    "listing_id": "vizag-patra-corp",
+    "title": "RPA & Automation Solutions Developer",
+    "company_name": "Patra Corp India",
+    "department": "Automation Engineering",
+    "employment_type": "Full-time",
+    "location": "Dwaraka Nagar / CBM Compound, Visakhapatnam (On-site)",
+    "salary_range": "₹6,50,000 – ₹10,50,000 / year",
+    "description": "Build robotic process automations in UiPath and Python to extract unstructured insurance policy documents and feed automated underwriting systems.",
+    "requirements": [
+      "Certified UiPath Developer or strong Python automation",
+      "Regular expressions & OCR document parsing",
+      "SQL database queries"
+    ],
+    "apply_url": "https://patracorp.com",
+    "is_active": true,
+    "created_at": "2024-03-25T10:00:00.000Z"
   }
 ]

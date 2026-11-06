@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { approveSubmission } from '@/lib/supabase/service';
+import { approveSubmission } from '@/lib/firebase/service';
 
 export async function POST(req: NextRequest) {
   try {

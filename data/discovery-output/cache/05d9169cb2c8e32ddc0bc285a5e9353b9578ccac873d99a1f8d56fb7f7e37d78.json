@@ -1,0 +1,10 @@
+{
+  "url": "https://www.conduiraonline.com/about-us",
+  "finalUrl": "https://www.conduiraonline.com/about-us",
+  "status": 200,
+  "ok": true,
+  "isHttps": true,
+  "text": "<!DOCTYPE html><html><head><script>window.onload=function(){window.location.href=\"/lander\"}</script></head></html>",
+  "contentType": "text/html",
+  "error": null
+}

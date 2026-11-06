@@ -47,57 +47,86 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Right on Desktop: Tiny uppercase links, search icon, outlined button, login */}
       <nav className="hidden lg:flex items-center gap-6">
-        <button
-          type="button"
-          onClick={onExploreClick}
-          className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity cursor-pointer"
-        >
-          {COPY.nav.explore}
-        </button>
+        {onExploreClick ? (
+          <button
+            type="button"
+            onClick={onExploreClick}
+            className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity cursor-pointer font-bold tracking-[0.14em] text-[11px]"
+          >
+            MAP
+          </button>
+        ) : (
+          <Link
+            href="/"
+            className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity font-bold tracking-[0.14em] text-[11px]"
+          >
+            MAP
+          </Link>
+        )}
 
-        <button
-          type="button"
-          onClick={onGridClick}
-          className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity cursor-pointer"
-        >
-          {COPY.nav.grid}
-        </button>
+        {onGridClick ? (
+          <button
+            type="button"
+            onClick={onGridClick}
+            className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity cursor-pointer font-bold tracking-[0.14em] text-[11px]"
+          >
+            GRID
+          </button>
+        ) : (
+          <Link
+            href="/grid"
+            className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity font-bold tracking-[0.14em] text-[11px]"
+          >
+            GRID
+          </Link>
+        )}
 
-        <button
-          type="button"
-          onClick={onJobsClick}
-          className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity cursor-pointer"
-        >
-          {COPY.nav.jobs}
-        </button>
+        {onJobsClick ? (
+          <button
+            type="button"
+            onClick={onJobsClick}
+            className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity cursor-pointer font-bold tracking-[0.14em] text-[11px]"
+          >
+            JOBS
+          </button>
+        ) : (
+          <Link
+            href="/jobs"
+            className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity font-bold tracking-[0.14em] text-[11px]"
+          >
+            JOBS
+          </Link>
+        )}
 
         <Link
           href="/news"
-          className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity"
+          className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity font-bold tracking-[0.14em] text-[11px]"
         >
-          {COPY.nav.news}
+          NEWS
         </Link>
 
         <Link
           href="/pricing"
-          className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity"
+          className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity font-bold tracking-[0.14em] text-[11px]"
         >
-          {COPY.nav.pricing}
+          PRICING
         </Link>
 
-        <button
-          type="button"
-          onClick={onSearchClick}
-          aria-label="Search ecosystem"
-          className="p-1.5 rounded-full hover:bg-[#3A0F34]/[0.08] text-[#3A0F34] transition-colors cursor-pointer"
-        >
-          <Search className="w-4 h-4" />
-        </button>
+        {onSearchClick && (
+          <button
+            type="button"
+            onClick={onSearchClick}
+            aria-label="Search ecosystem"
+            className="p-1.5 rounded-full hover:bg-[#3A0F34]/[0.08] text-[#3A0F34] transition-colors cursor-pointer"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+        )}
 
         {/* Small outlined button: ADD YOUR STARTUP */}
         <Link
           href="/submit"
-          className="px-4 py-1.5 rounded-full border-[1.5px] border-[#3A0F34] font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-[#3A0F34] hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors"
+          className="px-4 py-1.5 rounded-full border-[1.5px] border-[#3A0F34] font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-[#3A0F34] hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors"
         >
           {COPY.nav.addStartup}
         </Link>
@@ -105,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Text link: LOGIN */}
         <Link
           href="/login"
-          className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity ml-1"
+          className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity ml-1 font-bold tracking-[0.14em] text-[11px]"
         >
           {COPY.nav.login}
         </Link>
@@ -113,14 +142,16 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile Actions Right */}
       <div className="flex lg:hidden items-center gap-2">
-        <button
-          type="button"
-          onClick={onSearchClick}
-          aria-label="Search directory"
-          className="p-2 text-[#3A0F34] cursor-pointer"
-        >
-          <Search className="w-4 h-4" />
-        </button>
+        {onSearchClick && (
+          <button
+            type="button"
+            onClick={onSearchClick}
+            aria-label="Search directory"
+            className="p-2 text-[#3A0F34] cursor-pointer"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+        )}
 
         <Link
           href="/submit"
@@ -133,57 +164,64 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="absolute top-14 left-0 w-full bg-[#DDE3E8] border-b border-[#3A0F34]/20 p-5 flex flex-col gap-4 shadow-xl z-50 lg:hidden">
-          <button
-            type="button"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onExploreClick?.();
-            }}
-            className="text-left font-display text-lg text-[#3A0F34]"
+          <Link
+            href="/"
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-left font-display font-bold text-sm tracking-wider text-[#3A0F34]"
           >
-            {COPY.nav.explore}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onGridClick?.();
-            }}
-            className="text-left font-display text-lg text-[#3A0F34]"
+            MAP
+          </Link>
+          <Link
+            href="/grid"
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-left font-display font-bold text-sm tracking-wider text-[#3A0F34]"
           >
-            {COPY.nav.grid}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onJobsClick?.();
-            }}
-            className="text-left font-display text-lg text-[#3A0F34]"
+            GRID
+          </Link>
+          <Link
+            href="/jobs"
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-left font-display font-bold text-sm tracking-wider text-[#3A0F34]"
           >
-            {COPY.nav.jobs}
-          </button>
+            JOBS
+          </Link>
           <Link
             href="/news"
             onClick={() => setMobileMenuOpen(false)}
-            className="font-display text-lg text-[#3A0F34]"
+            className="font-display font-bold text-sm tracking-wider text-[#3A0F34]"
           >
-            {COPY.nav.news}
+            NEWS
           </Link>
           <Link
             href="/pricing"
             onClick={() => setMobileMenuOpen(false)}
-            className="font-display text-lg text-[#3A0F34]"
+            className="font-display font-bold text-sm tracking-wider text-[#3A0F34]"
           >
-            {COPY.nav.pricing}
+            PRICING
           </Link>
           <Link
-            href="/login"
+            href="/about"
             onClick={() => setMobileMenuOpen(false)}
-            className="font-display text-lg text-[#3A0F34]"
+            className="font-display font-bold text-sm tracking-wider text-[#3A0F34]"
           >
-            {COPY.nav.login}
+            ABOUT
           </Link>
+          <div className="pt-2 border-t border-[#3A0F34]/15 flex flex-col gap-3">
+            <Link
+              href="/submit"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full text-center py-2.5 rounded-full bg-[#EAAA00] text-[#3A0F34] font-bold text-xs uppercase tracking-wider"
+            >
+              ADD YOUR STARTUP
+            </Link>
+            <Link
+              href="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full text-center py-2 rounded-full border border-[#3A0F34] text-[#3A0F34] font-bold text-xs uppercase tracking-wider"
+            >
+              LOGIN
+            </Link>
+          </div>
         </div>
       )}
     </header>

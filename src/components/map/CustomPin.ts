@@ -9,11 +9,15 @@ export function createCustomMarkerElement(
   onClick: () => void
 ): HTMLElement {
   const el = document.createElement('div');
-  el.className = 'custom-map-pin cursor-pointer select-none transition-transform duration-200';
-  el.style.transformOrigin = 'center center';
+  el.className = 'custom-map-pin cursor-pointer select-none';
   el.setAttribute('role', 'button');
   el.setAttribute('tabindex', '0');
   el.setAttribute('aria-label', `${listing.name} (${listing.type})`);
+
+  const inner = document.createElement('div');
+  inner.className = 'transition-transform duration-200';
+  inner.style.transformOrigin = 'center center';
+  inner.style.transform = isSelected ? 'scale(1.15)' : 'scale(1)';
 
   const isFeatured = listing.is_featured;
   const isHiring = (listing.jobs_count || 0) > 0;
@@ -26,13 +30,13 @@ export function createCustomMarkerElement(
     el.style.borderRadius = '9999px';
   }
 
-  // Hover and selection scaling
+  // Hover and selection scaling (applied to inner element so MapLibre's marker coordinates are preserved)
   el.onmouseenter = () => {
-    el.style.transform = 'scale(1.22)';
+    inner.style.transform = 'scale(1.22)';
     el.style.zIndex = '50';
   };
   el.onmouseleave = () => {
-    el.style.transform = isSelected ? 'scale(1.15)' : 'scale(1)';
+    inner.style.transform = isSelected ? 'scale(1.15)' : 'scale(1)';
     el.style.zIndex = isSelected ? '40' : '10';
   };
   el.onclick = (e) => {
@@ -47,7 +51,6 @@ export function createCustomMarkerElement(
   };
 
   if (isSelected) {
-    el.style.transform = 'scale(1.15)';
     el.style.zIndex = '40';
   }
 
@@ -120,6 +123,7 @@ export function createCustomMarkerElement(
       `;
   }
 
-  el.innerHTML = svgContent;
+  inner.innerHTML = svgContent;
+  el.appendChild(inner);
   return el;
 }

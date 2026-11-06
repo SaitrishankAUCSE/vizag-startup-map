@@ -1,0 +1,10 @@
+{
+  "url": "https://www.returntrucks.com/contact-us",
+  "finalUrl": "https://www.returntrucks.com/contact-us",
+  "status": 200,
+  "ok": true,
+  "isHttps": true,
+  "text": "<!DOCTYPE html><html><head><script>window.onload=function(){window.location.href=\"/lander\"}</script></head></html>",
+  "contentType": "text/html",
+  "error": null
+}

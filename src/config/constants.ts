@@ -1,21 +1,29 @@
-// Directory filters, type mappings, color codes, and coastal geometry
+// Directory filters, type mappings — STRICT 3-COLOR PALETTE
+// Palette: #DDE3E8 Ice Silver | #3A0F34 Deep Aubergine | #EAAA00 Marigold
 
 export const LISTING_TYPES = [
-  { id: 'all', label: 'All', color: '#0E4D64' },
-  { id: 'startup', label: 'Startups', color: '#0E4D64', icon: 'Rocket' },
-  { id: 'investor', label: 'Investors', color: '#059669', icon: 'Briefcase' },
-  { id: 'incubator', label: 'Incubators', color: '#7C3AED', icon: 'Sparkles' },
-  { id: 'campus', label: 'Campuses', color: '#D97706', icon: 'GraduationCap' },
-  { id: 'coworking', label: 'Coworking', color: '#DB2777', icon: 'Building2' },
+  { id: 'all', label: 'All', color: '#3A0F34' },
+  { id: 'startup', label: 'Startups', icon: 'Rocket', color: '#3A0F34' },
+  { id: 'investor', label: 'Investors', icon: 'Briefcase', color: '#EAAA00' },
+  { id: 'incubator', label: 'Incubators', icon: 'Sparkles', color: '#3A0F34' },
+  { id: 'campus', label: 'Campuses', icon: 'GraduationCap', color: '#EAAA00' },
+  { id: 'coworking', label: 'Coworking', icon: 'Building2', color: '#3A0F34' },
 ] as const;
 
-export const TYPE_COLORS: Record<string, { bg: string; text: string; hex: string; ring: string }> = {
-  startup: { bg: 'bg-[#0E4D64]/10', text: 'text-[#0E4D64]', hex: '#0E4D64', ring: 'ring-[#0E4D64]' },
-  investor: { bg: 'bg-emerald-500/10', text: 'text-emerald-700', hex: '#059669', ring: 'ring-emerald-500' },
-  incubator: { bg: 'bg-purple-500/10', text: 'text-purple-700', hex: '#7C3AED', ring: 'ring-purple-500' },
-  campus: { bg: 'bg-amber-500/10', text: 'text-amber-800', hex: '#D97706', ring: 'ring-amber-500' },
-  coworking: { bg: 'bg-pink-500/10', text: 'text-pink-700', hex: '#DB2777', ring: 'ring-pink-500' },
+// All type colors strictly within the 3-color system
+export const TYPE_COLORS: Record<string, { bg: string; text: string; ring: string; hex: string }> = {
+  startup:  { bg: 'bg-[#3A0F34]/10',  text: 'text-[#3A0F34]',   ring: 'ring-[#3A0F34]', hex: '#3A0F34' },
+  investor: { bg: 'bg-[#EAAA00]/20',  text: 'text-[#3A0F34]',   ring: 'ring-[#EAAA00]', hex: '#EAAA00' },
+  incubator:{ bg: 'bg-[#3A0F34]/10',  text: 'text-[#3A0F34]',   ring: 'ring-[#3A0F34]', hex: '#3A0F34' },
+  campus:   { bg: 'bg-[#EAAA00]/15',  text: 'text-[#3A0F34]',   ring: 'ring-[#EAAA00]', hex: '#EAAA00' },
+  coworking:{ bg: 'bg-[#3A0F34]/8',   text: 'text-[#3A0F34]',   ring: 'ring-[#3A0F34]', hex: '#3A0F34' },
 };
+
+// Pin tile colors for logo fallback tiles (alternates by name hash)
+export const PIN_TILE_VARIANTS = [
+  { bg: '#EAAA00', text: '#3A0F34' }, // marigold bg, aubergine text
+  { bg: '#3A0F34', text: '#DDE3E8' }, // aubergine bg, silver text
+] as const;
 
 export const AREAS = [
   'Rushikonda',
@@ -69,7 +77,7 @@ export const FUNDING_RANGES = [
   '₹100 Cr+',
 ] as const;
 
-// Coastline points for Visakhapatnam to compute distance to beach (lat, lng)
+// Coastline points for Visakhapatnam (lat, lng pairs) for distance-to-beach computation
 export const VIZAG_COASTLINE_POINTS: [number, number][] = [
   [17.6833, 83.2980], // Dolphin's Nose Lighthouse
   [17.6970, 83.3080], // Port & Naval Base

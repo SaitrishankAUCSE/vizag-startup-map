@@ -1,91 +1,51 @@
 import React from 'react';
 import { Metadata } from 'next';
-import Link from 'next/link';
-import { getActiveJobs, getListings } from '@/lib/supabase/service';
-import {
-  Briefcase,
-  MapPin,
-  ExternalLink,
-  Building,
-  ArrowLeft,
-  PlusCircle,
-  Search,
-  Sparkles,
-} from 'lucide-react';
+import { getJobs, getListings } from '@/lib/data';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+import { Strips } from '@/components/ui/Strips';
+import { BlurHeadline } from '@/components/ui/BlurHeadline';
 import { JobsDirectoryClient } from './JobsDirectoryClient';
 
 export const metadata: Metadata = {
-  title: 'Startup Jobs in Visakhapatnam (Vizag) | Tech Careers & Open Roles',
+  title: 'Startup Jobs in Visakhapatnam | Tech Careers & Open Roles',
   description:
-    'Discover open engineering, product, marketing, and design jobs at high-growth startups, AI labs, and tech companies across Visakhapatnam, Andhra Pradesh.',
-  openGraph: {
-    title: 'Startup Jobs in Visakhapatnam (Vizag) | Tech Careers',
-    description:
-      'Explore tech, SaaS, AI, and robotics jobs in Visakhapatnam. Direct apply links to top Vizag startups.',
-    url: 'https://vizagstartupmap.com/jobs',
-  },
+    'Discover open engineering, product, marketing, and design roles at high-growth startups and tech labs across Visakhapatnam.',
 };
 
+export const revalidate = 300;
+
 export default async function JobsPage() {
-  const [jobs, listings] = await Promise.all([
-    getActiveJobs(),
-    getListings(),
-  ]);
+  const [jobs, listings] = await Promise.all([getJobs(), getListings()]);
 
   return (
-    <div className="min-h-screen bg-[#FBF9F5] text-gray-900 flex flex-col">
-      {/* Top Navigation */}
-      <header className="h-14 bg-[#0E4D64] text-white px-4 md:px-8 flex items-center justify-between border-b border-[#093345] shadow-xs">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-xs font-semibold text-teal-100 hover:text-white transition-colors group"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-          <span>Back to Interactive Map</span>
-        </Link>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/20 text-white transition-colors"
-          >
-            <PlusCircle className="w-3.5 h-3.5 text-teal-300" />
-            <span>Post a Job</span>
-          </Link>
-          <Link
-            href="/submit"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#E04F36] hover:bg-[#c93e27] text-white transition-all shadow-xs"
-          >
-            <span>Add Your Startup</span>
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#DDE3E8] text-[#3A0F34] flex flex-col font-sans relative selection:bg-[#3A0F34] selection:text-[#EAAA00]">
+      <Header />
 
-      {/* Hero Banner */}
-      <div className="bg-gradient-to-b from-[#0E4D64] to-[#0A394B] text-white py-10 px-4 md:px-8 border-b border-teal-900/60">
-        <div className="max-w-5xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-teal-500/20 text-teal-200 text-xs font-semibold mb-3 border border-teal-500/30">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>Vizag Tech Hiring Board</span>
+      <main className="flex-1 relative overflow-hidden py-10 lg:py-16 px-4 md:px-8 max-w-7xl w-full mx-auto">
+        <Strips animate={false} />
+
+        <div className="relative z-10 max-w-3xl mb-10">
+          <div className="inline-block px-3 py-1 rounded-full border border-[#3A0F34]/25 bg-[#DDE3E8]/90 text-[10px] font-bold uppercase tracking-[0.2em] text-[#3A0F34] mb-3">
+            VIZAG TECH TALENT & CAREERS
           </div>
-          <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight">
-            Startup Jobs in Visakhapatnam
-          </h1>
-          <p className="mt-2 text-sm md:text-base text-teal-100/90 max-w-2xl leading-relaxed">
-            Join innovative tech teams shaping AI, SaaS, deeptech, healthtech, and maritime logistics
-            by the Bay of Bengal.
+
+          <BlurHeadline
+            lines={['Startup Roles,', 'By the Bay.']}
+            mixedCase={true}
+          />
+
+          <p className="mt-4 text-sm sm:text-base text-[#3A0F34]/80 leading-relaxed max-w-xl">
+            {jobs.length} active opportunities across engineering, product, design, and growth at Visakhapatnam ventures.
           </p>
         </div>
-      </div>
 
-      {/* Main Interactive Jobs Directory Client */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 md:px-8 py-8">
-        <JobsDirectoryClient initialJobs={jobs} totalListingsCount={listings.length} />
+        <div className="relative z-10">
+          <JobsDirectoryClient initialJobs={jobs} totalListingsCount={listings.length} />
+        </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-auto py-6 border-t border-[#E6E0D4] bg-white text-center text-xs text-gray-500">
-        <p>© {new Date().getFullYear()} Vizag Startup Map. Built for the Andhra Pradesh tech ecosystem.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

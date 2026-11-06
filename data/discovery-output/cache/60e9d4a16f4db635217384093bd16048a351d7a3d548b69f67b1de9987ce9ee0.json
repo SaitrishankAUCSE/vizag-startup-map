@@ -1,0 +1,10 @@
+{
+  "url": "https://www.cogmac.com/contact",
+  "finalUrl": "https://www.cogmac.com/contact",
+  "status": 200,
+  "ok": true,
+  "isHttps": true,
+  "text": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <link rel=\"icon\" type=\"image/svg+xml\" href=\"/logo.png\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>Cogmac</title>\n\n    <!-- Fonts -->\n    <!-- Inter -->\n    <link\n      href=\"https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap\"\n      rel=\"stylesheet\"\n    />\n    <!-- Plus Jakarta Sans -->\n    <link\n      href=\"https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap\"\n      rel=\"stylesheet\"\n    />\n    <!-- Marcellus SC -->\n    <link\n      href=\"https://fonts.googleapis.com/css2?family=Marcellus+SC&family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap\"\n      rel=\"stylesheet\"\n    />\n    <script type=\"module\" crossorigin src=\"/assets/index-D8mmOJTT.js\"></script>\n    <link rel=\"stylesheet\" crossorigin href=\"/assets/index-BGbMD6jE.css\">\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script\n      src=\"https://code.jquery.com/jquery-3.7.1.js\"\n      integrity=\"sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=\"\n      crossorigin=\"anonymous\"\n    ></script>\n    <script src=\"/assets/js/main.js\"></script>\n  </body>\n</html>\n",
+  "contentType": "text/html",
+  "error": null
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { getListings, getActiveJobs } from '@/lib/supabase/service';
+import { getListings, getActiveJobs } from '@/lib/firebase/service';
 import { ArrowLeft, Sparkles, Building, Briefcase, BarChart3, CheckCircle2 } from 'lucide-react';
 import { FounderDashboardClient } from './FounderDashboardClient';
 

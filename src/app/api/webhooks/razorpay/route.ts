@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyRazorpayWebhookSignature } from '@/lib/payments/razorpay';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { getAdminFirestore } from '@/lib/firebase/admin';
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,7 +24,6 @@ export async function POST(req: NextRequest) {
 
     const {
       id: razorpaySubId,
-      status: subStatus,
       current_end: currentEndUnix,
       notes = {},
     } = subscription;
@@ -36,81 +35,92 @@ export async function POST(req: NextRequest) {
       ? new Date(currentEndUnix * 1000).toISOString()
       : new Date(Date.now() + 30 * 86400000).toISOString();
 
-    const supabaseAdmin = createAdminClient();
+    const db = getAdminFirestore();
+    const now = new Date().toISOString();
 
     switch (event) {
       case 'subscription.authenticated':
       case 'subscription.activated': {
-        // Upgrade user plan or mark startup as featured
-        if (supabaseAdmin) {
+        if (db) {
+          // Upgrade user plan to pro by email
           if (product === 'pro' && customerEmail) {
-            await supabaseAdmin
-              .from('profiles')
-              .update({ plan: 'pro', updated_at: new Date().toISOString() })
-              .eq('email', customerEmail);
+            const profileSnap = await db
+              .collection('profiles')
+              .where('email', '==', customerEmail)
+              .limit(1)
+              .get();
+            if (!profileSnap.empty) {
+              await profileSnap.docs[0].ref.update({ plan: 'pro', updated_at: now });
+            }
           } else if (product === 'featured' && listingId) {
-            await supabaseAdmin
-              .from('listings')
-              .update({
-                is_featured: true,
-                featured_until: currentPeriodEnd,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('id', listingId);
+            await db.collection('listings').doc(listingId).update({
+              is_boosted: true,
+              boosted_until: currentPeriodEnd,
+              updated_at: now,
+            });
           }
 
-          // Record in subscriptions table
-          await supabaseAdmin.from('subscriptions').upsert(
-            {
-              razorpay_subscription_id: razorpaySubId,
-              product,
-              listing_id: listingId || null,
-              status: 'active',
-              current_period_end: currentPeriodEnd,
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: 'razorpay_subscription_id' }
-          );
+          // Upsert subscription record
+          const subSnap = await db
+            .collection('subscriptions')
+            .where('razorpay_subscription_id', '==', razorpaySubId)
+            .limit(1)
+            .get();
+
+          const subData = {
+            razorpay_subscription_id: razorpaySubId,
+            product,
+            listing_id: listingId || null,
+            status: 'active',
+            current_period_end: currentPeriodEnd,
+            updated_at: now,
+          };
+
+          if (subSnap.empty) {
+            await db.collection('subscriptions').add({ ...subData, created_at: now });
+          } else {
+            await subSnap.docs[0].ref.update(subData);
+          }
         }
         break;
       }
 
       case 'subscription.charged': {
-        // Renewed: extend period end
-        if (supabaseAdmin) {
+        if (db) {
           if (product === 'featured' && listingId) {
-            await supabaseAdmin
-              .from('listings')
-              .update({
-                is_featured: true,
-                featured_until: currentPeriodEnd,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('id', listingId);
+            await db.collection('listings').doc(listingId).update({
+              is_boosted: true,
+              boosted_until: currentPeriodEnd,
+              updated_at: now,
+            });
           }
 
-          await supabaseAdmin
-            .from('subscriptions')
-            .update({
+          const subSnap = await db
+            .collection('subscriptions')
+            .where('razorpay_subscription_id', '==', razorpaySubId)
+            .limit(1)
+            .get();
+          if (!subSnap.empty) {
+            await subSnap.docs[0].ref.update({
               status: 'active',
               current_period_end: currentPeriodEnd,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('razorpay_subscription_id', razorpaySubId);
+              updated_at: now,
+            });
+          }
         }
         break;
       }
 
       case 'subscription.cancelled': {
-        // Cancelled: retain access until current_period_end, mark status
-        if (supabaseAdmin) {
-          await supabaseAdmin
-            .from('subscriptions')
-            .update({
-              status: 'cancelled',
-              updated_at: new Date().toISOString(),
-            })
-            .eq('razorpay_subscription_id', razorpaySubId);
+        if (db) {
+          const subSnap = await db
+            .collection('subscriptions')
+            .where('razorpay_subscription_id', '==', razorpaySubId)
+            .limit(1)
+            .get();
+          if (!subSnap.empty) {
+            await subSnap.docs[0].ref.update({ status: 'cancelled', updated_at: now });
+          }
         }
         break;
       }
@@ -118,37 +128,37 @@ export async function POST(req: NextRequest) {
       case 'subscription.completed':
       case 'subscription.expired':
       case 'subscription.halted': {
-        // When plan ends, quietly return the user to Free and remove premium features
-        if (supabaseAdmin) {
+        if (db) {
           if (product === 'pro' && customerEmail) {
-            await supabaseAdmin
-              .from('profiles')
-              .update({ plan: 'free', updated_at: new Date().toISOString() })
-              .eq('email', customerEmail);
+            const profileSnap = await db
+              .collection('profiles')
+              .where('email', '==', customerEmail)
+              .limit(1)
+              .get();
+            if (!profileSnap.empty) {
+              await profileSnap.docs[0].ref.update({ plan: 'free', updated_at: now });
+            }
           } else if (product === 'featured' && listingId) {
-            await supabaseAdmin
-              .from('listings')
-              .update({
-                is_featured: false,
-                featured_until: null,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('id', listingId);
+            await db.collection('listings').doc(listingId).update({
+              is_boosted: false,
+              boosted_until: null,
+              updated_at: now,
+            });
           }
 
-          await supabaseAdmin
-            .from('subscriptions')
-            .update({
-              status: 'expired',
-              updated_at: new Date().toISOString(),
-            })
-            .eq('razorpay_subscription_id', razorpaySubId);
+          const subSnap = await db
+            .collection('subscriptions')
+            .where('razorpay_subscription_id', '==', razorpaySubId)
+            .limit(1)
+            .get();
+          if (!subSnap.empty) {
+            await subSnap.docs[0].ref.update({ status: 'expired', updated_at: now });
+          }
         }
         break;
       }
 
       case 'payment.failed': {
-        // Log payment failure
         console.warn(`[Razorpay Webhook] Payment failed for subscription: ${razorpaySubId}`);
         break;
       }

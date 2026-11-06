@@ -7,11 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test tests/filter_and_webhook.test.mjs"
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.12.7",
-    "@supabase/supabase-js": "^2.118.0",
+    "firebase": "^13.1.0",
+    "firebase-admin": "^14.5.0",
     "framer-motion": "^14.6.0",
     "lucide-react": "^1.61.0",
     "maplibre-gl": "^6.15.0",

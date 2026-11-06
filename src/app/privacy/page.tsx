@@ -72,9 +72,9 @@ export default function PrivacyPage() {
           </section>
 
           <section className="space-y-3 text-xs sm:text-sm text-gray-700 leading-relaxed">
-            <h2 className="text-base font-bold text-gray-950">3. Data Security and Row Level Security (RLS)</h2>
+            <h2 className="text-base font-bold text-gray-950">3. Data Security and Firestore Rules</h2>
             <p>
-              All application data is protected by strict PostgreSQL Row Level Security (RLS) policies. Only public directory attributes are readable by anonymous visitors. Sensitive submission records and billing tokens are accessible only by authorized administrative credentials.
+              All application data is protected by strict Firestore Security Rules. Only public directory attributes are readable by anonymous visitors. Sensitive submission records, internal claim reviews, and billing tokens are accessible only by authorized administrative credentials via the Firebase Admin SDK.
             </p>
           </section>
 
@@ -84,7 +84,7 @@ export default function PrivacyPage() {
               We integrate with trusted infrastructure providers operating under strict security standards:
             </p>
             <ul className="list-disc list-inside space-y-1.5 ml-2 text-xs sm:text-sm text-gray-600">
-              <li><strong>Supabase:</strong> Encrypted PostgreSQL database and authentication infrastructure.</li>
+              <li><strong>Firebase (Google Cloud):</strong> Encrypted NoSQL Firestore database and Firebase Authentication infrastructure.</li>
               <li><strong>Razorpay:</strong> PCI-DSS Level 1 certified payment gateway handling INR recurring subscriptions.</li>
               <li><strong>Vercel:</strong> Secure global application hosting.</li>
             </ul>

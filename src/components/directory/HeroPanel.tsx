@@ -46,13 +46,10 @@ export const HeroPanel: React.FC<HeroPanelProps> = ({ onExplore, stats }) => {
           </span>
         </div>
 
-        {/* Top: Tiny Label & Sample Tag */}
+        {/* Top: Tiny Label */}
         <div className="relative z-10 flex items-center justify-between">
           <span className="micro-label text-[#3A0F34]">
             {COPY.hero.microLabel}
-          </span>
-          <span className="px-2.5 py-0.5 rounded-full border border-[#3A0F34]/25 text-[9px] font-bold uppercase tracking-wider text-[#3A0F34] bg-[#DDE3E8]/90">
-            {COPY.hero.sampleBadge}
           </span>
         </div>
 
@@ -96,9 +93,6 @@ export const HeroPanel: React.FC<HeroPanelProps> = ({ onExplore, stats }) => {
         <div className="relative z-10 flex items-center justify-between">
           <span className="micro-label text-[10px] text-[#3A0F34]">
             {COPY.hero.microLabel}
-          </span>
-          <span className="px-2 py-0.5 rounded-full border border-[#3A0F34]/25 text-[8.5px] font-bold uppercase tracking-wider text-[#3A0F34]">
-            {COPY.hero.sampleBadge}
           </span>
         </div>
 

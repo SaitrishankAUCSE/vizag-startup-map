@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { recordAnalyticsEvent, getListingAnalytics } from '@/lib/supabase/service';
+import { recordAnalyticsEvent, getListingAnalytics } from '@/lib/firebase/service';
 
 export async function GET(req: NextRequest) {
   try {
@@ -23,9 +23,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { listingId, event } = body;
 
-    if (!listingId || (event !== 'view' && event !== 'website_click')) {
+    if (!listingId || (event !== 'view' && event !== 'website_click' && event !== 'apply_click')) {
       return NextResponse.json(
-        { error: 'Valid listingId and event ("view" | "website_click") required' },
+        { error: 'Valid listingId and event ("view" | "website_click" | "apply_click") required' },
         { status: 400 }
       );
     }

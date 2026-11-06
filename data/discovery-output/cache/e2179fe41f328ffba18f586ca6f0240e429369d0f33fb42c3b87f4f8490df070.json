@@ -1,0 +1,10 @@
+{
+  "url": "https://mediklaud.com/contact",
+  "finalUrl": "https://mediklaud.com/contact",
+  "status": 404,
+  "ok": false,
+  "isHttps": true,
+  "text": "404 Not Found",
+  "contentType": "text/html; charset=iso-8859-1",
+  "error": "HTTP_404"
+}

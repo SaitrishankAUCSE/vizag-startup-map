@@ -14,13 +14,29 @@
   --marigold: #EAAA00;
 }
 
-/* Strict color system reset: Ice Silver background, Deep Aubergine text */
+/* Strict color system: Ice Silver background, Deep Aubergine text */
+*, html, body {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M4 2L18 15L11 16L14.5 23.5L12 25L8.5 17.5L4 22V2Z" fill="%232A0826" stroke="%23EAAA00" stroke-width="1.8" stroke-linejoin="round"/></svg>') 3 2, auto;
+}
+
 html, body {
   background-color: #DDE3E8;
   color: #3A0F34;
   font-family: var(--font-dmsans), "DM Sans", -apple-system, sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+button, a, input, select, textarea, [role="button"], .cursor-pointer, .custom-map-marker, .vsm-marker-root {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M10 2C9.4 2 9 2.4 9 3V12.5L7.8 11.3C7.4 10.9 6.8 10.9 6.4 11.3C6 11.7 6 12.3 6.4 12.7L11.5 17.8C12.4 18.7 13.6 19.2 14.9 19.2H20C21.7 19.2 23 17.9 23 16.2V11C23 10.4 22.6 10 22 10C21.4 10 21 10.4 21 11V12H20V9C20 8.4 19.6 8 19 8C18.4 8 18 8.4 18 9V12H17V8C17 7.4 16.6 7 16 7C15.4 7 15 7.4 15 8V12H14V4C14 3.4 13.6 3 13 3C12.4 3 12 3.4 12 4V12H11V3C11 2.4 10.6 2 10 2Z" fill="%232A0826" stroke="%23EAAA00" stroke-width="1.2" stroke-linejoin="round"/></svg>') 10 2, pointer !important;
+}
+
+.maplibregl-canvas-container.maplibregl-interactive, .maplibregl-map {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M9 11V6C9 4.9 9.9 4 11 4C12.1 4 13 4.9 13 6V11M13 8C13 6.9 13.9 6 15 6C16.1 6 17 6.9 17 8V11M17 9C17 7.9 17.9 7 19 7C20.1 7 21 7.9 21 9V14C21 17.9 17.9 21 14 21C11.5 21 9.3 19.7 8 17.7L5.5 13.8C5 13 5.2 12 6 11.5C6.8 11 7.8 11.2 8.3 12L9 13V6C9 4.9 9.9 4 11 4" fill="%232A0826" stroke="%23EAAA00" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>') 14 14, grab !important;
+}
+
+.maplibregl-canvas-container.maplibregl-interactive:active {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M7 13C7 10 9 8 12 8C12 7 13 6 14.5 6C16 6 17 7 17 8C17.5 8 18 8.5 18.5 9C19 9.5 20 10.5 20 12V15C20 18.3 17.3 21 14 21C10.7 21 8 18.3 8 15V13" fill="%232A0826" stroke="%23EAAA00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>') 14 14, grabbing !important;
 }
 
 /* Micro labels */
@@ -32,39 +48,120 @@ html, body {
   letter-spacing: 0.18em;
 }
 
-/* Display font class */
+/* Display font */
 .font-display {
   font-family: var(--font-bricolage), "Bricolage Grotesque", sans-serif;
   font-weight: 800;
   letter-spacing: -0.03em;
 }
 
-/* Focus ring for keyboard accessibility: 2px marigold with 2px aubergine offset */
+/* Focus ring: 2px marigold with 2px aubergine inner offset */
 :focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px #3A0F34, 0 0 0 4px #EAAA00 !important;
 }
 
-/* Custom scrollbars using Aubergine at lower opacity */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+/* Custom scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: rgba(58, 15, 52, 0.05); }
+::-webkit-scrollbar-thumb { background: rgba(58, 15, 52, 0.25); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(58, 15, 52, 0.45); }
+
+/* =============================================
+   MAP: Logo Tile Pins
+   ============================================= */
+/* ── MapLibre Marker Architecture (Zero-Displacement Guaranteed) ── */
+/* The outer marker wrapper is positioned solely by MapLibre via translate(x, y).
+   We never apply CSS transform to .maplibregl-marker or the marker root! */
+.vsm-marker-root {
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
 }
 
-::-webkit-scrollbar-track {
-  background: rgba(58, 15, 52, 0.05);
+/* Cluster badge: hover scale applies purely to this inner element */
+.vsm-cluster-badge {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: #059669;
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 3px 10px rgba(5, 150, 105, 0.38);
+  font-family: var(--font-bricolage), "Bricolage Grotesque", -apple-system, sans-serif;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease;
+  will-change: transform;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(58, 15, 52, 0.25);
-  border-radius: 9999px;
+.vsm-marker-root:hover .vsm-cluster-badge {
+  transform: scale(1.12);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.55);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(58, 15, 52, 0.45);
+/* Pin container & inner tile */
+.vsm-pin-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
-/* MapLibre popup custom styles strictly in the 3-color palette */
+.vsm-pin-tile {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: #FFFFFF;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease;
+  will-change: transform;
+}
+
+.vsm-marker-root:hover .vsm-pin-tile {
+  transform: translateY(-2px) scale(1.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+.vsm-pin-tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #18181B;
+  color: #FFFFFF;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: var(--font-dmsans), "DM Sans", -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  z-index: 30;
+}
+
+.vsm-marker-root:hover .vsm-pin-tooltip {
+  opacity: 1;
+}
+
+/* Type corner icons on pins */
+.pin-type-corner {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+}
+
+/* MapLibre popup */
 .maplibregl-popup-content {
   padding: 0 !important;
   border-radius: 6px !important;
@@ -75,18 +172,10 @@ html, body {
   overflow: hidden;
 }
 
-.maplibregl-popup-anchor-top .maplibregl-popup-tip {
-  border-bottom-color: #DDE3E8 !important;
-}
-.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
-  border-top-color: #DDE3E8 !important;
-}
-.maplibregl-popup-anchor-left .maplibregl-popup-tip {
-  border-right-color: #DDE3E8 !important;
-}
-.maplibregl-popup-anchor-right .maplibregl-popup-tip {
-  border-left-color: #DDE3E8 !important;
-}
+.maplibregl-popup-anchor-top .maplibregl-popup-tip { border-bottom-color: #DDE3E8 !important; }
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: #DDE3E8 !important; }
+.maplibregl-popup-anchor-left .maplibregl-popup-tip { border-right-color: #DDE3E8 !important; }
+.maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color: #DDE3E8 !important; }
 
 .maplibregl-popup-close-button {
   padding: 4px 8px !important;
@@ -100,27 +189,94 @@ html, body {
 
 .maplibregl-popup-close-button:hover {
   background-color: rgba(58, 15, 52, 0.1) !important;
+}
+
+/* MapLibre ctrl (zoom/locate) — override to match silver/aubergine system */
+.maplibregl-ctrl-group {
+  background: #DDE3E8 !important;
+  border: 1px solid rgba(58, 15, 52, 0.20) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(58, 15, 52, 0.12) !important;
+}
+
+.maplibregl-ctrl-group button {
+  width: 32px !important;
+  height: 32px !important;
+  background: #DDE3E8 !important;
   color: #3A0F34 !important;
 }
 
-/* Pulsing hiring ring around marker */
+.maplibregl-ctrl-group button + button {
+  border-top: 1px solid rgba(58, 15, 52, 0.12) !important;
+}
+
+.maplibregl-ctrl-group button:hover {
+  background: rgba(58, 15, 52, 0.07) !important;
+}
+
+.maplibregl-ctrl span svg path {
+  fill: #3A0F34 !important;
+}
+
+/* MapLibre attribution */
+.maplibregl-ctrl-attrib {
+  font-size: 10px !important;
+  color: rgba(58, 15, 52, 0.6) !important;
+  background: rgba(221, 227, 232, 0.9) !important;
+}
+
+/* Hiring pulse ring */
 @keyframes hiring-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(234, 170, 0, 0.75);
-  }
-  70% {
-    box-shadow: 0 0 0 9px rgba(234, 170, 0, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(234, 170, 0, 0);
-  }
+  0%   { box-shadow: 0 0 0 0 rgba(234, 170, 0, 0.75); }
+  70%  { box-shadow: 0 0 0 9px rgba(234, 170, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(234, 170, 0, 0); }
 }
 
 .pulse-hiring {
   animation: hiring-pulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Reduced motion preference */
+/* Pulsing status dot */
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.dot-pulse {
+  animation: dot-pulse 1.8s ease-in-out infinite;
+}
+
+/* Slide-in card from left */
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+.slide-in-left {
+  animation: slide-in-left 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Bottom sheet slide-up */
+@keyframes slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+.slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Fade in */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fade-in 0.2s ease forwards;
+}
+
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;

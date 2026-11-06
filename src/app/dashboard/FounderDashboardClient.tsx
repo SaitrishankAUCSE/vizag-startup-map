@@ -54,9 +54,11 @@ export function FounderDashboardClient({
   // Profile Edit State
   const [editDesc, setEditDesc] = useState(selectedListing?.description || '');
   const [editWebsite, setEditWebsite] = useState(selectedListing?.website || '');
-  const [editLinkedin, setEditLinkedin] = useState(selectedListing?.linkedin || '');
+  const [editLinkedin, setEditLinkedin] = useState(selectedListing?.linkedin_url || selectedListing?.linkedin || '');
+  const [editLogoUrl, setEditLogoUrl] = useState(selectedListing?.logo_url || '');
+  const [editAtsUrl, setEditAtsUrl] = useState('');
   const [editTeamSize, setEditTeamSize] = useState(selectedListing?.team_size || '1-10');
-  const [editFunding, setEditFunding] = useState(selectedListing?.funding_range || 'Bootstrapped');
+  const [editFunding, setEditFunding] = useState(selectedListing?.funding_text || selectedListing?.funding_range || 'Bootstrapped');
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSuccess, setProfileSuccess] = useState('');
 
@@ -71,17 +73,18 @@ export function FounderDashboardClient({
   const [claimError, setClaimError] = useState('');
 
   // Analytics Stats state
-  const [analytics, setAnalytics] = useState({ views: 42, clicks: 18 });
+  const [analytics, setAnalytics] = useState({ views: 0, clicks: 0 });
 
   // Update form fields when selected listing changes
   useEffect(() => {
     if (selectedListing) {
       setEditDesc(selectedListing.description || '');
       setEditWebsite(selectedListing.website || '');
-      setEditLinkedin(selectedListing.linkedin || '');
+      setEditLinkedin(selectedListing.linkedin_url || selectedListing.linkedin || '');
+      setEditLogoUrl(selectedListing.logo_url || '');
       setEditTeamSize(selectedListing.team_size || '1-10');
-      setEditFunding(selectedListing.funding_range || 'Bootstrapped');
-      setJobLocation(`${selectedListing.area}, Visakhapatnam`);
+      setEditFunding(selectedListing.funding_text || selectedListing.funding_range || 'Bootstrapped');
+      setJobLocation(selectedListing.area ? `${selectedListing.area}, Visakhapatnam` : 'Rushikonda, Visakhapatnam');
     }
   }, [selectedListing]);
 
@@ -155,6 +158,26 @@ export function FounderDashboardClient({
     }
   };
 
+  // One-click renew job post for 60 days
+  const handleRenewJob = async (jobId: string) => {
+    try {
+      const res = await fetch('/api/jobs', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId, action: 'renew' }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || 'Job post renewed for an additional 60 days!');
+        setJobs((prev) =>
+          prev.map((j) => (j.id === jobId ? { ...j, is_active: true } : j))
+        );
+      }
+    } catch {
+      alert('Failed to renew job');
+    }
+  };
+
   // Handle Delete Job
   const handleDeleteJob = async (jobId: string) => {
     if (!confirm('Are you sure you want to delete this job listing?')) return;
@@ -165,6 +188,37 @@ export function FounderDashboardClient({
       }
     } catch {
       // Ignore
+    }
+  };
+
+  // Handle Save Profile
+  const handleSaveProfile = async () => {
+    if (!selectedListing?.id) return;
+    try {
+      setProfileSaving(true);
+      setProfileSuccess('');
+      const res = await fetch('/api/founder/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          listingId: selectedListing.id,
+          description: editDesc,
+          website: editWebsite,
+          linkedin: editLinkedin,
+          logo_url: editLogoUrl,
+          team_size: editTeamSize,
+          funding_text: editFunding,
+          ats_url: editAtsUrl,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setProfileSuccess(data.message || 'Profile updated successfully!');
+      }
+    } catch {
+      // Error
+    } finally {
+      setProfileSaving(false);
     }
   };
 
@@ -477,6 +531,15 @@ export function FounderDashboardClient({
                     </div>
 
                     <div className="flex items-center gap-2">
+                      {j.is_active && (
+                        <button
+                          onClick={() => handleRenewJob(j.id)}
+                          className="text-xs px-2.5 py-1 rounded-md font-semibold bg-teal-50 text-teal-800 hover:bg-teal-100 transition-colors cursor-pointer"
+                          title="Renew active status for 60 days"
+                        >
+                          Renew (60d)
+                        </button>
+                      )}
                       <button
                         onClick={() => handleToggleJob(j.id, j.is_active)}
                         className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors ${
@@ -533,6 +596,47 @@ export function FounderDashboardClient({
               />
             </div>
 
+            {/* Logo Upload Section */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Company Logo (PNG, SVG, or WebP · Max 500 KB)
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2 mb-2">
+                <input
+                  type="file"
+                  accept=".png,.svg,.webp,.jpg,.jpeg"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 512 * 1024) {
+                      alert('Logo file size must be 500 KB or less.');
+                      return;
+                    }
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    try {
+                      const res = await fetch('/api/upload/logo', { method: 'POST', body: fd });
+                      const data = await res.json();
+                      if (data.url) setEditLogoUrl(data.url);
+                    } catch {
+                      alert('Failed to upload logo.');
+                    }
+                  }}
+                  className="text-xs text-gray-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
+                />
+              </div>
+              <input
+                type="url"
+                placeholder="Or enter logo URL (https://...)"
+                value={editLogoUrl}
+                onChange={(e) => setEditLogoUrl(e.target.value)}
+                className="w-full text-xs px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0E4D64]"
+              />
+              <p className="text-[10px] text-gray-500 mt-1">
+                Upload your own logo or one you have permission to use.
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">Website URL</label>
@@ -553,6 +657,23 @@ export function FounderDashboardClient({
                   className="w-full text-xs px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0E4D64]"
                 />
               </div>
+            </div>
+
+            {/* ATS Board Link */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                ATS Careers Board Link (Greenhouse, Lever, Ashby)
+              </label>
+              <input
+                type="url"
+                placeholder="e.g. jobs.lever.co/company or boards.greenhouse.io/company"
+                value={editAtsUrl}
+                onChange={(e) => setEditAtsUrl(e.target.value)}
+                className="w-full text-xs px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0E4D64]"
+              />
+              <p className="text-[10px] text-gray-500 mt-1">
+                We will automatically sync public jobs every 6 hours and display live openings.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -589,15 +710,9 @@ export function FounderDashboardClient({
 
             <div className="pt-3">
               <button
-                onClick={() => {
-                  setProfileSaving(true);
-                  setTimeout(() => {
-                    setProfileSaving(false);
-                    setProfileSuccess('Profile changes saved successfully!');
-                  }, 500);
-                }}
+                onClick={handleSaveProfile}
                 disabled={profileSaving}
-                className="px-4 py-2 bg-[#0E4D64] hover:bg-[#093345] text-white rounded-lg text-xs font-semibold transition-all shadow-xs flex items-center gap-1.5"
+                className="px-4 py-2 bg-[#0E4D64] hover:bg-[#093345] text-white rounded-lg text-xs font-semibold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>{profileSaving ? 'Saving...' : 'Save Profile Changes'}</span>

@@ -53,7 +53,7 @@ export function FloatingNewsRail({ initialNews = [] }: FloatingNewsRailProps) {
     (page + 1) * ITEMS_PER_PAGE
   );
 
-  const getDomainFromSource = (source: string, link: string) => {
+  const getDomainFromSource = (source?: string, link?: string) => {
     try {
       if (link && link.startsWith('http')) {
         return new URL(link).hostname;
@@ -61,7 +61,7 @@ export function FloatingNewsRail({ initialNews = [] }: FloatingNewsRailProps) {
     } catch {
       // Fallback
     }
-    const s = source.toLowerCase();
+    const s = (source || '').toLowerCase();
     if (s.includes('hindu')) return 'thehindu.com';
     if (s.includes('times of india')) return 'timesofindia.indiatimes.com';
     if (s.includes('economic times')) return 'economictimes.indiatimes.com';

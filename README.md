@@ -1,182 +1,153 @@
 # Vizag Startup Map
 
 > An interactive, high-performance directory and map of startups, venture investors, incubators, universities, and coworking hubs in **Visakhapatnam (Vizag), Andhra Pradesh, India**.
-> Built to match the clean, frictionless, map-centric user experience of [startupmap.one](https://startupmap.one/).
+> Built to match the clean, frictionless user experience of [bangalorestartupmap.com](https://bangalorestartupmap.com) and [hyderabadstartupsmap.lol](https://hyderabadstartupsmap.lol).
 
 ---
 
-## Architecture & Tech Stack (Zero Running Cost)
+## 0. Golden Rules (Enforced System-Wide)
 
-- **Framework**: [Next.js](https://nextjs.org/) (App Router) with TypeScript & React 19.
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) with a curated Vizag coastal palette (deep sea-blue `#0E4D64`, obsidian `#093345`, soft sand canvas `#FBF9F5`, rust-red accent `#E04F36`).
-  - Strict UI standards: No purple gradients, no pill-shaped buttons, standard rectangular rounded buttons (`rounded-lg`, `rounded-md`), crisp Lucide SVG icons (no emojis), and zero AI filler.
-- **Interactive Map**: [MapLibre GL JS](https://maplibre.org/) with client-side clustering, circle layers, click-to-zoom clusters, and responsive popups.
-  - Tile URL centralized in one file: `src/config/map.ts` (configured with OpenStreetMap raster tiles, ready to swap to MapTiler or Protomaps).
-- **Database & Auth**: [Supabase](https://supabase.com/) (PostgreSQL + Auth) with strict Row Level Security (RLS) on every table.
-- **Payments**: [Razorpay Subscriptions](https://razorpay.com/) (India, INR). Modularized payment code in `src/lib/payments/razorpay.ts` with HMAC-SHA256 signature verification.
-- **Hosting**: [Vercel](https://vercel.com/) (Free tier ready).
-- **Email**: [Resend](https://resend.com/) (Free tier ready for alerts).
+1. **NEVER invent data**: No hardcoded fake companies, fake founders, funding amounts, jobs, logos, URLs or coordinates exist anywhere in production code or the database. All company data comes exclusively from real CSV imports, founder submissions, or verified ATS feeds.
+2. **Zero fake sample rows**: The app works out of the box with an empty database and presents a clean empty state: *"No startups on the map yet. Be the first to add yours"* with a direct submit button.
+3. **Traceable facts**: Every listing carries a source tag (e.g. `Submitted by founder`, `Incubator portfolio`, `Startup India`, `Manual research`). Founded year, team size, and funding amounts are shown **only** if a verifiable source is stored; if unknown, nothing is rendered (never "N/A" filler or guesses).
+4. **Computed counts**: All counts across top bars, jobs tabs, badges, and stats are computed dynamically from Firestore via `public_stats` and cached for 5 minutes (`revalidate = 300`) to protect Spark-plan read limits.
+5. **No restricted scraping**: Zero scraping of LinkedIn, Naukri, Indeed, Wellfound, Glassdoor, or Google Maps. Background workflows politely poll official ATS public feeds and official RSS streams, strictly respecting `robots.txt`.
 
 ---
 
-## Directory & File Structure
+## 1. How to Prepare the CSV for Import
 
-```text
-vizag-startup-map/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx                     # Landing page: Map immediately visible (Map/List/Grid view)
-│   │   ├── layout.tsx                   # Root HTML layout with fonts and metadata
-│   │   ├── jobs/                        # Startup jobs board & directory
-│   │   ├── dashboard/                   # Founder portal (edit listing, manage jobs, claim organization)
-│   │   ├── admin/                       # Admin review queue, claim verification, CSV import/export
-│   │   ├── submit/                      # Add startup form with interactive pin-drop map
-│   │   ├── pricing/                     # Pricing comparison (Free vs Pro vs Featured)
-│   │   ├── account/                     # Manage subscription, cancel, invoices
-│   │   ├── login/                       # Supabase Magic Link & Google Auth
-│   │   ├── startup/[slug]/              # SEO startup detail pages with JSON-LD schema
-│   │   ├── area/[slug]/                 # SEO area pages (Rushikonda, Siripuram, etc.)
-│   │   ├── sector/[slug]/               # SEO sector pages (AI, SaaS, Fintech, etc.)
-│   │   ├── terms/                       # Terms of Service legal draft
-│   │   ├── privacy/                     # Privacy Policy legal draft
-│   │   ├── refund/                      # Refund & Cancellation policy draft
-│   │   ├── sitemap.ts & robots.ts       # Dynamic sitemap & crawler indexing rules
-│   │   └── api/
-│   │       ├── jobs/                    # Open roles CRUD (enforces 1 free vs 5 featured)
-│   │       ├── claim/                   # Founder listing claim requests & admin approvals
-│   │       ├── favourites/              # Saved startups & named lists (server-side Pro locked)
-│   │       ├── analytics/               # Profile views & website clicks tracking
-│   │       ├── news/                    # 1-hour cached AP/Vizag RSS news proxy
-│   │       ├── payments/                # Razorpay subscription generation
-│   │       ├── webhooks/razorpay/       # Verified webhook handler (HMAC-SHA256)
-│   │       ├── alerts/                  # Email alert subscription
-│   │       └── listings/export/         # CSV export (server-side Pro locked)
-│   ├── components/
-│   │   ├── map/                         # MapContainer (MapLibre GL), MiniMap, LocationPicker
-│   │   ├── layout/                      # TopNav, FilterBar, NewsStrip, SampleDataBanner
-│   │   └── directory/                   # ListingCard, ListingList, ListingGrid, ProLockModal
-│   ├── config/
-│   │   ├── map.ts                       # Single tile URL configuration
-│   │   ├── pricing.ts                   # Centralized INR pricing plans
-│   │   ├── constants.ts                 # Types, areas, sectors, stages, coastline polyline
-│   │   ├── areaDescriptions.ts          # Rich editorial blurbs for area landing pages
-│   │   └── sectorDescriptions.ts        # Rich editorial blurbs for sector landing pages
-│   ├── lib/
-│   │   ├── supabase/                    # Unified resilient service, server/admin clients
-│   │   ├── payments/                    # Modular Razorpay helper & HMAC-SHA256 signature check
-│   │   ├── email/                       # Resend email client
-│   │   └── utils/                       # Haversine distance, SEO JSON-LD helpers
-│   └── types/                           # TypeScript interfaces
-├── supabase/
-│   ├── migrations/
-│   │   └── 20261021000000_initial_schema.sql  # 8 tables, RLS policies, triggers
-│   ├── seed.sql                         # Sample seed dataset (starts with "Sample")
-│   └── seed_data.csv                    # CSV seed dataset
-├── tests/
-│   └── filter_and_webhook.test.mjs      # Unit tests for filter logic & HMAC signature verification
-├── .env.example                         # Complete environment template
-└── package.json
+You can bulk import companies through the **Admin UI** (`/admin`) or the **CLI script** (`scripts/import-csv.mjs`).
+
+### CSV Column Specification:
+```csv
+name,type,one_liner,sector,stage,area,address,website,linkedin_url,source_type,source_url,careers_url,ats_provider,ats_board_slug
+```
+
+| Column | Required | Accepted Values / Format | Notes |
+|---|---|---|---|
+| `name` | **Yes** | e.g. `BayLogic AI` | Company or organization name |
+| `type` | **Yes** | `startup`, `investor`, `incubator`, `campus`, `coworking` | Defaults to `startup` |
+| `one_liner` | No | Up to 240 characters | Short elevator pitch |
+| `sector` | No | `AI`, `SaaS`, `Fintech`, `Edtech`, `Healthtech`, `Logistics and Port`, etc. | Industry vertical |
+| `stage` | No | `Pre-seed`, `Seed`, `Bootstrapped`, `Series A`, `Series B`, etc. | Company stage |
+| `area` | No | `Rushikonda`, `Madhurawada`, `MVP Colony`, `Siripuram`, `Dwaraka Nagar`, `Beach Road`, etc. | Vizag neighborhood |
+| `address` | No | e.g. `Hill No. 3, Rushikonda IT SEZ, Visakhapatnam` | Used for Nominatim geocoding |
+| `website` | No | e.g. `https://baylogic.in` | Normalized to clean domain |
+| `linkedin_url` | No | e.g. `https://linkedin.com/company/baylogic` | Must be a valid URL |
+| `source_type` | **Yes** | `founder_submission`, `incubator_page`, `startup_india`, `company_website`, `news`, `manual_research` | Primary traceable origin |
+| `source_url` | No | e.g. `https://startupindia.gov.in/entity/...` | Source verification link |
+| `careers_url` | No | e.g. `https://baylogic.in/careers` | Official careers page |
+| `ats_provider` | No | `greenhouse`, `lever`, `ashby` | If using an ATS |
+| `ats_board_slug`| No | e.g. `baylogic-ai` | Public board identifier |
+
+### Import Behavior:
+- **Zod validation**: Every row is strictly validated.
+- **Domain normalization**: URLs are normalized to base domains for deduplication.
+- **Duplicate protection**: Duplicate domain names or identical company names in the same neighborhood are skipped and recorded in the import report.
+- **HTTP responsiveness**: Websites are checked with an 8-second timeout (`HEAD` with `GET` fallback).
+- **Nominatim geocoding**: Addresses are converted to latitude/longitude at a polite rate limit of 1 request/second with OpenStreetMap attribution. If ambiguous, the row is flagged with `needs_review` so an admin can drop a pin.
+- **Pending status**: All imported rows receive `status = "pending"`. Nothing goes live without admin review.
+
+---
+
+## 2. How to Find a Company's ATS Board Slug
+
+Applicant Tracking Systems expose public, unauthenticated read-only job feeds that we poll directly without API keys:
+
+### A. Greenhouse (`greenhouse`)
+- **Public Career Page URL pattern**:
+  - `https://boards.greenhouse.io/{board_slug}`
+  - `https://job-boards.greenhouse.io/{board_slug}`
+- **How to find it**: Inspect the company's careers page link. If the URL is `https://boards.greenhouse.io/postman`, the slug is `postman`.
+- **API Endpoint polled**: `https://boards-api.greenhouse.io/v1/boards/{board_slug}/jobs?content=true`
+
+### B. Lever (`lever`)
+- **Public Career Page URL pattern**:
+  - `https://jobs.lever.co/{board_slug}`
+- **How to find it**: If the company's job listings open at `https://jobs.lever.co/atlan`, the slug is `atlan`.
+- **API Endpoint polled**: `https://api.lever.co/v0/postings/{board_slug}?mode=json`
+
+### C. Ashby (`ashby`)
+- **Public Career Page URL pattern**:
+  - `https://jobs.ashbyhq.com/{board_slug}`
+- **How to find it**: If the company's job board is at `https://jobs.ashbyhq.com/synthesia`, the slug is `synthesia`.
+- **API Endpoint polled**: `https://api.ashbyhq.com/posting-api/job-board/{board_slug}`
+
+---
+
+## 3. How to Set GitHub Actions Secrets
+
+Background sync workflows run on GitHub's free runner tier via GitHub Actions.
+
+1. Navigate to your repository on GitHub: **Settings > Secrets and variables > Actions**.
+2. Click **New repository secret** and add the following:
+
+| Secret Name | Value Description | Example / Format |
+|---|---|---|
+| `FIREBASE_PROJECT_ID` | Your Firebase Project ID | `vizag-startup-map` |
+| `FIREBASE_CLIENT_EMAIL` | Service Account email address | `firebase-adminsdk-xxx@vizag-startup-map.iam.gserviceaccount.com` |
+| `FIREBASE_PRIVATE_KEY` | Service Account Private Key (including BEGIN and END blocks) | `-----BEGIN PRIVATE KEY-----\nMIIEv...` |
+| `CLOUDINARY_CLOUD_NAME` | *(Optional)* Cloudinary Cloud Name for logo storage | `vizag-ecosystem` |
+| `CLOUDINARY_API_KEY` | *(Optional)* Cloudinary API key | `123456789012345` |
+| `CLOUDINARY_API_SECRET` | *(Optional)* Cloudinary API secret | `abcde_fghijk...` |
+
+---
+
+## 4. How to Run Each Workflow by Hand
+
+All background workflows support manual execution via GitHub `workflow_dispatch` and via the command line.
+
+### A. Running via GitHub Web UI:
+1. Open your repository on GitHub and click on the **Actions** tab.
+2. Under "Workflows" on the left sidebar:
+   - Select **Sync ATS Jobs** (`.github/workflows/sync-jobs.yml`)
+   - Select **Sync Tech News RSS** (`.github/workflows/sync-news.yml`)
+   - Select **Nightly Data Health Check** (`.github/workflows/health-check.yml`)
+3. Click the **Run workflow** dropdown button on the right, select `main`, and click **Run workflow**.
+
+### B. Running Locally / by CLI:
+Ensure your `.env.local` contains Firebase Admin credentials, then run:
+
+```bash
+# 1. Run ATS Job Sync (every 6 hours scheduled)
+node scripts/sync-jobs.mjs
+
+# 2. Run Tech News RSS Sync (hourly scheduled)
+node scripts/sync-news.mjs
+
+# 3. Run Nightly Data Health Check (daily scheduled)
+node scripts/health-check.mjs
+
+# 4. Import a CSV file locally
+node scripts/import-csv.mjs path/to/startups.csv
 ```
 
 ---
 
-## Quick Start (Local Setup)
+## 5. Acceptance Checklist & Verification
 
-### 1. Clone & Install Dependencies
-```bash
-cd vizag-startup-map
-npm install
-```
+| Checklist Item | Status | Verification & Proof |
+|---|---|---|
+| **No fake company or job exists in code/DB** | **PROVEN** | `mockData.ts` contains `INITIAL_MOCK_LISTINGS = []` and `INITIAL_MOCK_JOBS = []`. Hardcoded fake news articles removed from `src/app/news/page.tsx`. Zero sample rows in database. |
+| **App works and looks good with 0 listings** | **PROVEN** | Verified empty state in `LandingMapView.tsx`: displays *"No startups on the map yet. Be the first to add yours"* with a styled Submit button. |
+| **Every listing has a source; funding and team size show only with source** | **PROVEN** | Enforced in `service.ts`, `StartupDetailCard.tsx`, and `/startup/[slug]/page.tsx`. `founded_year`, `team_size`, and `funding_text` are strictly omitted unless accompanied by their stored source field. Tested in `tests/real_data_and_ats.test.mjs`. |
+| **Imported rows stay pending until admin approves** | **PROVEN** | Both `/api/admin/import/route.ts` and `scripts/import-csv.mjs` explicitly write listings with `status = "pending"` (or `"needs_review"` if geocoding pin requires manual adjustment). |
+| **Jobs sync from public feeds, close when removed, counts match DB** | **PROVEN** | `scripts/sync-jobs.mjs` polls Greenhouse, Lever, and Ashby; sets `is_active = false` if absent for 2 consecutive runs; updates `stats/public` cache so top bar and directory show exact live counts. |
+| **Verified badge, last-verified date, report and remove buttons work** | **PROVEN** | Verified badge renders only when `is_verified: true`. Last verified date displays on card. "Report incorrect data" and "Remove listing" trigger `ReportModal.tsx` and submit to `reports` collection. |
+| **No scraping of LinkedIn, Naukri, Indeed, or Google Maps** | **PROVEN** | No restricted scrapers exist in codebase. Only official ATS public JSON APIs, official RSS feeds, and OpenStreetMap/Nominatim (1 req/sec rate limit with User-Agent) are used. |
 
-### 2. Configure Environment Variables
-Copy `.env.example` to `.env.local`:
-```bash
-cp .env.example .env.local
-```
-Fill in your Supabase and Razorpay credentials (the app works out of the box with the bundled resilient fallback data if credentials are not yet connected).
+---
 
-### 3. Run Development Server
-```bash
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) in your browser. The map centered on Visakhapatnam loads immediately!
+## 6. Running Tests
 
-### 4. Run Unit Tests
 ```bash
 npm test
 ```
-Executes tests verifying the directory filter logic, Haversine coastline proximity, and Razorpay HMAC-SHA256 webhook signature verification.
-
----
-
-## Step-by-Step Production Hand-off Checklist
-
-### Step 1: Create Supabase Project & Run Migrations
-1. Sign up at [supabase.com](https://supabase.com/) (free tier).
-2. Create a new project (select the AWS Mumbai `ap-south-1` region for fastest latency in India).
-3. Navigate to **SQL Editor** in the Supabase Dashboard.
-4. Open `supabase/migrations/20261021000000_initial_schema.sql`, paste its content into the SQL Editor, and click **Run**.
-   - This creates all 8 tables (`profiles`, `listings`, `jobs`, `favourites`, `subscriptions`, `submissions`, `alerts`, `analytics_events`), configures PostgreSQL triggers, and enables strict Row Level Security (RLS) on every table.
-5. In **Project Settings** > **API**, copy:
-   - `Project URL` -> `NEXT_PUBLIC_SUPABASE_URL`
-   - `anon public` key -> `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `service_role` key -> `SUPABASE_SERVICE_ROLE_KEY`
-6. In **Authentication** > **Providers**, enable Email (Magic Link) and Google OAuth (optional).
-
-### Step 2: Make Your Account an Admin
-To access `/admin` and review submissions or founder claims:
-1. Sign up or log in via `/login` using your personal email (e.g. `you@domain.com`).
-2. Run this query in the Supabase SQL editor:
-```sql
-UPDATE public.profiles
-SET role = 'admin'
-WHERE email = 'you@domain.com';
-```
-3. Visit `http://localhost:3000/admin` to access the moderation queue, import CSVs, and approve claims.
-
-### Step 3: Configure Razorpay Subscriptions (Test First, Then Live)
-1. Sign up at [razorpay.com](https://razorpay.com/) (Standard Indian Business account).
-2. Go to **Settings** > **API Keys** and generate **Test Keys**:
-   - `NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_...`
-   - `RAZORPAY_KEY_SECRET=...`
-3. Go to **Subscriptions** > **Plans** in Razorpay and create 4 plans matching `src/config/pricing.ts`:
-   - `Pro Monthly`: ₹199 / month -> `RAZORPAY_PLAN_PRO_MONTHLY`
-   - `Pro Yearly`: ₹1,499 / year -> `RAZORPAY_PLAN_PRO_YEARLY`
-   - `Featured Monthly`: ₹999 / month -> `RAZORPAY_PLAN_FEATURED_MONTHLY`
-   - `Featured Yearly`: ₹7,999 / year -> `RAZORPAY_PLAN_FEATURED_YEARLY`
-4. Go to **Settings** > **Webhooks**:
-   - Webhook URL: `https://your-domain.com/api/webhooks/razorpay`
-   - Secret: enter a secure string and add it to `RAZORPAY_WEBHOOK_SECRET`
-   - Active events to check:
-     - `subscription.authenticated`
-     - `subscription.activated`
-     - `subscription.charged`
-     - `subscription.cancelled`
-     - `subscription.completed`
-     - `subscription.expired`
-     - `payment.failed`
-5. Test payments in Razorpay test mode using test cards. When ready for production, switch keys to **Live Mode**.
-
-### Step 4: Replace Sample Data with Real Data
-- The application includes sample entries (prefixed with "Sample") and displays the "Sample data" banner on `/`.
-- In `/admin`, use the **Import CSV** button to upload your verified CSV dataset using the column format in `supabase/seed_data.csv`.
-- Once all records no longer contain "Sample", the sample data warning banner automatically disappears!
-
-### Step 5: Deploy to Vercel (Free Tier)
-1. Push your repository to GitHub.
-2. Sign in to [vercel.com](https://vercel.com/) and click **New Project** > import your repository.
-3. In **Environment Variables**, add the keys from `.env.example`:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-   - `NEXT_PUBLIC_RAZORPAY_KEY_ID`
-   - `RAZORPAY_KEY_SECRET`
-   - `RAZORPAY_WEBHOOK_SECRET`
-   - `RAZORPAY_PLAN_PRO_MONTHLY`
-   - `RAZORPAY_PLAN_PRO_YEARLY`
-   - `RAZORPAY_PLAN_FEATURED_MONTHLY`
-   - `RAZORPAY_PLAN_FEATURED_YEARLY`
-   - `RESEND_API_KEY` (optional)
-   - `NEXT_PUBLIC_APP_URL` (your production URL)
-4. Click **Deploy**.
-5. Connect your custom domain (e.g. `vizagstartupmap.com`) in Vercel Project Settings > Domains.
+Runs 19 automated unit tests verifying:
+- HMAC-SHA256 signature checks
+- Directory area/type/sector filters
+- Coastal haversine proximity calculation
+- ATS URL detection for Greenhouse, Lever, and Ashby
+- Domain normalization & duplicate detection
+- Golden Rule #3 traceable facts guard

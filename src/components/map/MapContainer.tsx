@@ -1,26 +1,34 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import {
   Map as MapLibreMap,
+  NavigationControl,
   Popup,
   Marker,
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Listing } from '@/types';
 import { MAP_CONFIG } from '@/config/map';
-import { createCustomMarkerElement } from './CustomPin';
-import { createPinPopupContent } from './PinPopup';
 import { MapLegend } from '@/components/ui/MapLegend';
-import { Plus, Minus, Navigation } from 'lucide-react';
+import { getOriginalLogoUrl, extractCleanDomain } from '@/lib/logos';
 
 interface MapContainerProps {
   listings: Listing[];
   selectedListing: Listing | null;
   onSelectListing: (listing: Listing) => void;
   onMapInteraction?: () => void;
-  className?: string;
   showLegend?: boolean;
+  className?: string;
+}
+
+interface ClusterGroup {
+  id: string;
+  name: string;
+  count: number;
+  lat: number;
+  lng: number;
+  listings: Listing[];
 }
 
 export function MapContainer({
@@ -28,20 +36,274 @@ export function MapContainer({
   selectedListing,
   onSelectListing,
   onMapInteraction,
-  className = '',
   showLegend = true,
+  className = '',
 }: MapContainerProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const popupRef = useRef<Popup | null>(null);
-  const markersRef = useRef<Map<string, Marker>>(new Map());
-  const [isLocating, setIsLocating] = useState(false);
+  const markersRef = useRef<Marker[]>([]);
+  const [currentZoom, setCurrentZoom] = useState<number>(MAP_CONFIG.defaultZoom);
+  const [mapLoaded, setMapLoaded] = useState<boolean>(false);
 
-  // Initialize Map
+  // Group listings into clusters by geographic proximity / neighborhood
+  const clusters = useMemo(() => {
+    const groups: { [key: string]: Listing[] } = {};
+
+    listings.forEach((item) => {
+      const key = item.area || 'Other';
+      if (!groups[key]) {
+        groups[key] = [];
+      }
+      groups[key].push(item);
+    });
+
+    const result: ClusterGroup[] = [];
+
+    Object.keys(groups).forEach((key) => {
+      const items = groups[key];
+      const avgLat = items.reduce((sum, i) => sum + i.lat, 0) / items.length;
+      const avgLng = items.reduce((sum, i) => sum + i.lng, 0) / items.length;
+
+      result.push({
+        id: key,
+        name: key,
+        count: items.length,
+        lat: avgLat,
+        lng: avgLng,
+        listings: items,
+      });
+    });
+
+    return result;
+  }, [listings]);
+
+  // Speech bubble popup function matching Bangalore Startup Map
+  const showListingPopup = useCallback(
+    (map: MapLibreMap, coordinates: [number, number], listing: Listing) => {
+      if (popupRef.current) {
+        popupRef.current.remove();
+      }
+
+      const popupContent = document.createElement('div');
+      popupContent.className = 'p-3.5 max-w-[280px] font-sans text-left bg-white text-zinc-900 rounded-xl shadow-xl';
+
+      popupContent.innerHTML = `
+        <div style="margin-bottom: 4px;">
+          <h4 style="font-size: 15px; font-weight: 700; color: #18181b; margin: 0; line-height: 1.25;">
+            ${listing.name}
+          </h4>
+        </div>
+        <p style="font-size: 11.5px; color: #52525b; margin: 5px 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+          ${listing.description}
+        </p>
+        <div style="font-size: 10.5px; color: #71717a; margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center;">
+          <span style="font-weight: 600; color: #3A0F34;">${listing.stage || 'Startup'}</span>
+          <span>·</span>
+          <span>${listing.sector || listing.type}</span>
+          <span>·</span>
+          <span style="color: #3f3f46;">${listing.area}</span>
+          ${
+            listing.jobs_count && listing.jobs_count > 0
+              ? `<span>·</span><span style="color: #EAAA00; font-weight: 700;">💼 ${listing.jobs_count} jobs</span>`
+              : ''
+          }
+        </div>
+        <button
+          id="popup-view-btn"
+          style="background: #3A0F34; color: #ffffff; border: none; padding: 6px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+        >
+          View Details &rarr;
+        </button>
+      `;
+
+      const viewBtn = popupContent.querySelector('#popup-view-btn');
+      if (viewBtn) {
+        viewBtn.addEventListener('click', () => {
+          if (popupRef.current) popupRef.current.remove();
+          onSelectListing(listing);
+        });
+      }
+
+      popupRef.current = new Popup({
+        offset: 20,
+        closeButton: true,
+        closeOnClick: false,
+        className: 'bangalore-style-popup',
+      })
+        .setLngLat(coordinates)
+        .setDOMContent(popupContent)
+        .addTo(map);
+    },
+    [onSelectListing]
+  );
+
+  // Render Markers and Clusters
+  const updateMapVisuals = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Clear previous markers
+    markersRef.current.forEach((m) => m.remove());
+    markersRef.current = [];
+
+    const zoom = map.getZoom();
+
+    // CLUSTER MODE: When zoom < 13.2, show Bangalore Startup Map cluster bubbles with exact counts
+    if (zoom < 13.2) {
+      clusters.forEach((cluster) => {
+        const el = document.createElement('div');
+        el.className = 'group cursor-pointer select-none transition-transform duration-200 hover:scale-115 hover:z-50';
+        el.style.transformOrigin = 'center center';
+
+        // Size and color based on company count (matching Bangalore Startup Map)
+        let haloColor = 'rgba(134, 239, 172, 0.55)'; // light green
+        let discColor = '#4ade80';
+        let textColor = '#064e3b';
+        let haloSize = 48;
+        let discSize = 34;
+
+        if (cluster.count >= 4) {
+          haloColor = 'rgba(253, 224, 71, 0.55)'; // warm amber/yellow
+          discColor = '#facc15';
+          textColor = '#713f12';
+          haloSize = 54;
+          discSize = 38;
+        }
+        if (cluster.count >= 7) {
+          haloColor = 'rgba(251, 146, 60, 0.55)'; // warm orange
+          discColor = '#fb923c';
+          textColor = '#ffffff';
+          haloSize = 60;
+          discSize = 44;
+        }
+
+        el.style.width = `${haloSize}px`;
+        el.style.height = `${haloSize + 18}px`; // Extra space for area label
+        el.style.display = 'flex';
+        el.style.flexDirection = 'column';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+
+        el.innerHTML = `
+          <div style="position: relative; width: ${haloSize}px; height: ${haloSize}px; display: flex; align-items: center; justify-content: center;">
+            <!-- Outer glowing halo ring -->
+            <div style="position: absolute; inset: 0; border-radius: 9999px; background-color: ${haloColor};"></div>
+            <!-- Solid disc with count -->
+            <div style="position: relative; z-index: 2; width: ${discSize}px; height: ${discSize}px; border-radius: 9999px; background-color: ${discColor}; border: 2.5px solid #ffffff; box-shadow: 0 4px 14px rgba(0,0,0,0.22); display: flex; align-items: center; justify-content: center;">
+              <span style="font-family: system-ui, -apple-system, sans-serif; font-weight: 800; font-size: ${discSize > 36 ? '16px' : '14px'}; color: ${textColor}; line-height: 1;">
+                ${cluster.count}
+              </span>
+            </div>
+          </div>
+          <!-- Neighborhood Tag Label (Always crisp and readable) -->
+          <div style="margin-top: 2px; white-space: nowrap; background: #3A0F34; color: #DDE3E8; padding: 1.5px 7px; border-radius: 9999px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; box-shadow: 0 2px 6px rgba(0,0,0,0.25); text-align: center;">
+            ${cluster.name}
+          </div>
+        `;
+
+        // Click on cluster: Smoothly fly into that area and expand into company pins
+        el.onclick = (e) => {
+          e.stopPropagation();
+          onMapInteraction?.();
+          map.flyTo({
+            center: [cluster.lng, cluster.lat],
+            zoom: 14.5,
+            duration: 800,
+            essential: true,
+          });
+        };
+
+        const marker = new Marker({ element: el })
+          .setLngLat([cluster.lng, cluster.lat])
+          .addTo(map);
+
+        markersRef.current.push(marker);
+      });
+    } else {
+      // EXPANDED PIN MODE: When zoom >= 13.2, show individual company logo badges
+      listings.forEach((listing) => {
+        const domain = extractCleanDomain(listing.website);
+        const faviconUrl = getOriginalLogoUrl(listing);
+
+        const isHiring = (listing.jobs_count || 0) > 0;
+        const isSelected = selectedListing?.id === listing.id;
+
+        const el = document.createElement('div');
+        el.className =
+          'custom-map-marker group cursor-pointer select-none';
+        el.style.width = '38px';
+        el.style.height = '38px';
+        el.style.zIndex = isSelected ? '40' : '10';
+
+        if (isHiring) {
+          el.classList.add('pulse-hiring');
+          el.style.borderRadius = '9999px';
+        }
+
+        const inner = document.createElement('div');
+        inner.className =
+          'w-full h-full rounded-full bg-white border-2 border-white shadow-md flex items-center justify-center overflow-hidden ring-1 ring-zinc-300 transition-transform duration-200 group-hover:scale-110';
+        inner.style.transform = isSelected ? 'scale(1.2)' : 'scale(1)';
+
+        const fallbackInitial = document.createElement('div');
+        fallbackInitial.className =
+          'w-full h-full bg-[#3A0F34] text-[#EAAA00] font-bold text-xs flex items-center justify-center uppercase';
+        fallbackInitial.textContent = listing.name.slice(0, 2);
+
+        if (faviconUrl) {
+          const img = document.createElement('img');
+          img.src = faviconUrl;
+          img.alt = listing.name;
+          img.className = 'w-5 h-5 object-contain';
+          img.onload = () => {
+            // Reject generic 16x16 fallback
+            if (img.naturalWidth <= 16 && img.naturalHeight <= 16) {
+              img.style.display = 'none';
+              fallbackInitial.style.display = 'flex';
+            }
+          };
+          img.onerror = () => {
+            if (domain && !img.src.includes('unavatar.io')) {
+              img.src = `https://unavatar.io/${domain}?fallback=false`;
+              return;
+            }
+            img.style.display = 'none';
+            fallbackInitial.style.display = 'flex';
+          };
+          inner.appendChild(img);
+          fallbackInitial.style.display = 'none';
+        }
+
+        inner.appendChild(fallbackInitial);
+
+        el.appendChild(inner);
+
+        // Click handler opens popup & drawer
+        el.onclick = (e) => {
+          e.stopPropagation();
+          onMapInteraction?.();
+          onSelectListing(listing);
+          showListingPopup(map, [listing.lng, listing.lat], listing);
+        };
+
+        const marker = new Marker({ element: el })
+          .setLngLat([listing.lng, listing.lat])
+          .addTo(map);
+
+        markersRef.current.push(marker);
+      });
+    }
+  }, [clusters, listings, selectedListing, onSelectListing, onMapInteraction, showListingPopup]);
+
+  // Keep a ref to updateMapVisuals so map.on('load') can safely invoke the latest version
+  const updateMapVisualsRef = useRef(updateMapVisuals);
+  updateMapVisualsRef.current = updateMapVisuals;
+
+  // Initialize MapLibre
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    // Use reliable OpenStreetMap tiles with CSS duotone (no API key required)
     const tileSource =
       process.env.NEXT_PUBLIC_MAP_TILE_URL ||
       MAP_CONFIG.tileUrl ||
@@ -52,7 +314,7 @@ export function MapContainer({
       style: {
         version: 8,
         sources: {
-          'base-tiles': {
+          'osm-tiles': {
             type: 'raster',
             tiles: [tileSource],
             tileSize: 256,
@@ -61,34 +323,40 @@ export function MapContainer({
         },
         layers: [
           {
-            id: 'base-tiles-layer',
+            id: 'osm-tiles-layer',
             type: 'raster',
-            source: 'base-tiles',
+            source: 'osm-tiles',
             minzoom: 0,
             maxzoom: 19,
           },
         ],
       },
-      center: [83.2185, 17.6868], // Vizag city center: 17.6868° N, 83.2185° E
-      zoom: 11.8,
-      minZoom: 9.5,
-      maxZoom: 18,
-      bounds: [
-        [83.05, 17.55],
-        [83.5, 17.95],
-      ],
+      center: MAP_CONFIG.center,
+      zoom: MAP_CONFIG.defaultZoom,
+      minZoom: MAP_CONFIG.minZoom,
+      maxZoom: MAP_CONFIG.maxZoom,
+      bounds: MAP_CONFIG.bounds,
       attributionControl: false,
     });
 
-    // Notify parent if user interacts with the map (drag/zoom)
-    const handleInteraction = () => {
-      if (onMapInteraction) {
-        onMapInteraction();
-      }
-    };
+    // Navigation Controls at bottom right
+    map.addControl(new NavigationControl({ showCompass: true }), 'bottom-right');
 
-    map.on('dragstart', handleInteraction);
-    map.on('zoomstart', handleInteraction);
+    map.on('load', () => {
+      setMapLoaded(true);
+      updateMapVisualsRef.current();
+    });
+
+    map.on('zoom', () => {
+      setCurrentZoom(map.getZoom());
+    });
+
+    map.on('dragstart', () => {
+      onMapInteraction?.();
+    });
+    map.on('zoomstart', () => {
+      onMapInteraction?.();
+    });
 
     mapRef.current = map;
 
@@ -98,171 +366,38 @@ export function MapContainer({
     };
   }, [onMapInteraction]);
 
-  // Update Markers whenever listings change
+  // Update markers whenever zoom, mapLoaded, or listings change
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    // Remove existing markers that are no longer in listings
-    const currentListingIds = new Set(listings.map((l) => l.id));
-    markersRef.current.forEach((marker, id) => {
-      if (!currentListingIds.has(id)) {
-        marker.remove();
-        markersRef.current.delete(id);
-      }
-    });
-
-    // Add or update markers
-    listings.forEach((listing) => {
-      const isSelected = selectedListing?.id === listing.id;
-      const existingMarker = markersRef.current.get(listing.id);
-
-      if (existingMarker) {
-        // Update DOM element if selection state changed
-        const newEl = createCustomMarkerElement(listing, isSelected, () => {
-          onSelectListing(listing);
-        });
-        existingMarker.getElement().replaceWith(newEl);
-      } else {
-        // Create new marker
-        const el = createCustomMarkerElement(listing, isSelected, () => {
-          onSelectListing(listing);
-        });
-
-        const marker = new Marker({ element: el })
-          .setLngLat([listing.lng, listing.lat])
-          .addTo(map);
-
-        markersRef.current.set(listing.id, marker);
-      }
-    });
-  }, [listings, selectedListing, onSelectListing]);
-
-  // Handle selected listing popup & camera pan
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    if (selectedListing) {
-      // Pan smoothly to selected coordinates
-      map.flyTo({
-        center: [selectedListing.lng, selectedListing.lat],
-        zoom: Math.max(map.getZoom(), 13.5),
-        duration: 900,
-        essential: true,
-      });
-
-      // Show silver-and-aubergine popup
-      if (popupRef.current) {
-        popupRef.current.remove();
-      }
-
-      const popup = new Popup({
-        offset: 20,
-        closeButton: true,
-        closeOnClick: false,
-        maxWidth: '320px',
-        className: 'editorial-pin-popup',
-      })
-        .setLngLat([selectedListing.lng, selectedListing.lat])
-        .setHTML(createPinPopupContent(selectedListing))
-        .addTo(map);
-
-      popupRef.current = popup;
-    } else {
-      if (popupRef.current) {
-        popupRef.current.remove();
-        popupRef.current = null;
-      }
+    if (mapLoaded) {
+      updateMapVisuals();
     }
-  }, [selectedListing]);
+  }, [currentZoom, listings, mapLoaded, updateMapVisuals]);
 
-  // Map Controls: Zoom In, Zoom Out, Locate
-  const handleZoomIn = () => {
-    mapRef.current?.zoomIn({ duration: 300 });
-  };
+  // Fly to selected listing if chosen from list/drawer
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !selectedListing) return;
 
-  const handleZoomOut = () => {
-    mapRef.current?.zoomOut({ duration: 300 });
-  };
+    map.flyTo({
+      center: [selectedListing.lng, selectedListing.lat],
+      zoom: 14.5,
+      duration: 800,
+      essential: true,
+    });
 
-  const handleLocateMe = () => {
-    if (!navigator.geolocation || !mapRef.current) return;
-    setIsLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setIsLocating(false);
-        mapRef.current?.flyTo({
-          center: [pos.coords.longitude, pos.coords.latitude],
-          zoom: 14,
-          duration: 1000,
-        });
-      },
-      () => {
-        setIsLocating(false);
-      },
-      { timeout: 7000 }
-    );
-  };
+    showListingPopup(map, [selectedListing.lng, selectedListing.lat], selectedListing);
+  }, [selectedListing, showListingPopup]);
 
   return (
-    <div
-      className={`relative w-full h-full overflow-hidden bg-[#DDE3E8] select-none ${className}`}
-      aria-label="Map of startups in Visakhapatnam"
-    >
-      {/* MapLibre DOM element with duotone CSS treatment */}
-      <div
-        ref={mapContainerRef}
-        className="w-full h-full absolute inset-0 z-0 [&_.maplibregl-canvas]:filter [&_.maplibregl-canvas]:grayscale-[100%] [&_.maplibregl-canvas]:contrast-[1.12] [&_.maplibregl-canvas]:brightness-[0.94]"
-      />
+    <div className={`relative w-full h-full overflow-hidden ${className}`}>
+      <div ref={mapContainerRef} className="w-full h-full" />
 
-      {/* Editorial Duotone Wash: Ice Silver base with aubergine multiply overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none z-[1] opacity-20 mix-blend-color"
-        style={{ backgroundColor: '#3A0F34' }}
-      />
-
-      {/* Map Legend (Bottom-Left) */}
+      {/* Optional Map Legend in bottom-right */}
       {showLegend && (
-        <div className="absolute bottom-6 left-6 z-10 hidden sm:block max-w-[200px]">
+        <div className="absolute bottom-6 right-16 z-10 hidden md:block max-w-[210px]">
           <MapLegend />
         </div>
       )}
-
-      {/* Map Controls: Square silver buttons with aubergine icons (Bottom-Right) */}
-      <div className="absolute bottom-6 right-6 z-10 flex flex-col items-center gap-1.5 shadow-[0_4px_16px_rgba(58,15,52,0.12)]">
-        <button
-          type="button"
-          onClick={handleZoomIn}
-          aria-label="Zoom in"
-          className="w-10 h-10 rounded-sm bg-[#DDE3E8] border border-[#3A0F34]/25 flex items-center justify-center text-[#3A0F34] hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={handleZoomOut}
-          aria-label="Zoom out"
-          className="w-10 h-10 rounded-sm bg-[#DDE3E8] border border-[#3A0F34]/25 flex items-center justify-center text-[#3A0F34] hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors cursor-pointer"
-        >
-          <Minus className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={handleLocateMe}
-          aria-label="Locate me"
-          className={`w-10 h-10 rounded-sm bg-[#DDE3E8] border border-[#3A0F34]/25 flex items-center justify-center text-[#3A0F34] hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors cursor-pointer ${
-            isLocating ? 'animate-pulse' : ''
-          }`}
-        >
-          <Navigation className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* OpenStreetMap Attribution (Bottom-Right tiny label) */}
-      <div className="absolute bottom-1 right-2 z-10 text-[9px] font-sans text-[#3A0F34]/60 pointer-events-none select-none">
-        Map data © OpenStreetMap
-      </div>
     </div>
   );
 }

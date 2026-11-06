@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getAdminFirestore } from '@/lib/firebase/service';
 import { sendEmailAlert } from '@/lib/email/resend';
-import { INITIAL_MOCK_JOBS } from '@/data/mockData';
 import { z } from 'zod';
 import fs from 'fs';
 import path from 'path';
@@ -14,7 +13,7 @@ const alertSubscriptionSchema = z.object({
   area: z.string().optional().default('all'),
 });
 
-// File-based persistence fallback when Supabase is not yet connected
+// File-based persistence fallback when Firestore is not yet connected
 const SUBSCRIBERS_FILE = path.join(process.cwd(), 'src', 'data', 'subscribers.json');
 
 interface SubscriberRecord {
@@ -42,7 +41,6 @@ function loadLocalSubscribers(): SubscriberRecord[] {
 function saveLocalSubscriber(record: SubscriberRecord) {
   try {
     const list = loadLocalSubscribers();
-    // Prevent duplicate emails
     const existingIndex = list.findIndex(
       (s) => s.email.toLowerCase() === record.email.toLowerCase()
     );
@@ -85,95 +83,51 @@ export async function POST(req: NextRequest) {
       created_at: new Date().toISOString(),
     };
 
-    // 1. Save to local fallback store so it is 100% reliable
+    // 1. Save to local fallback so it is 100% reliable
     saveLocalSubscriber(record);
 
-    // 2. Save to Supabase if connected
+    // 2. Save to Firestore if connected
     try {
-      const supabase = await createServerSupabaseClient();
-      if (supabase) {
-        // Find or create profile if needed
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', email)
-          .maybeSingle();
-
-        if (profile) {
-          await supabase.from('alerts').insert({
-            user_id: profile.id,
-            sector: sector || 'all',
-            area: area || 'all',
-            alert_on_jobs: true,
-            alert_on_startups: true,
-          });
-        }
+      const db = getAdminFirestore();
+      if (db) {
+        await db.collection('alert_subscribers').add(record);
       }
     } catch {
-      // Supabase is optional; local fallback is already saved
+      // Firestore is optional; local fallback is already saved
     }
 
-    // 3. Build rich HTML email notification with live Vizag startup job openings
-    const relevantJobs = INITIAL_MOCK_JOBS.slice(0, 4);
-    const jobsHtml = relevantJobs
-      .map(
-        (job) => `
-        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;">
-          <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 700; color: #0f172a;">${job.title}</h4>
-          <p style="margin: 0 0 8px 0; font-size: 12px; color: #64748b;">${job.company_name} &bull; ${job.company_area}, Visakhapatnam</p>
-          <a href="${job.apply_url}" style="display: inline-block; background: #e04f36; color: #ffffff; font-size: 11px; font-weight: 600; text-decoration: none; padding: 6px 14px; border-radius: 6px;">
-            Apply Now &rarr;
-          </a>
-        </div>
-      `
-      )
-      .join('');
-
-    const emailSubject = `Welcome to Vizag Circle: ${relevantJobs.length} New Tech Jobs & Startups in Visakhapatnam`;
+    // 3. Send welcome email
+    const emailSubject = `Welcome to Vizag Circle – Job & Startup Alerts`;
     const emailHtml = `
       <!DOCTYPE html>
       <html>
-        <head>
-          <meta charset="utf-8">
-          <title>${emailSubject}</title>
-        </head>
+        <head><meta charset="utf-8"><title>${emailSubject}</title></head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #fbf9f5; margin: 0; padding: 24px; color: #1e293b;">
           <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e6e0d4; padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
               <span style="font-size: 20px;">📍</span>
-              <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: #0e4d64;">Vizag Startup Map &bull; Vizag Circle</h2>
+              <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: #0e4d64;">Vizag Startup Map · Vizag Circle</h2>
             </div>
-            
             <p style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px;">
               Hello${position ? ` (${position}${company ? ` at ${company}` : ''})` : ''},
             </p>
             <p style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px;">
-              You are now subscribed to <strong>Vizag Circle</strong>. You will receive curated alerts whenever new startups raise venture funding or publish senior engineering and product openings across Visakhapatnam.
+              You are now subscribed to <strong>Vizag Circle</strong>. You will receive curated alerts whenever new startups raise venture funding or publish engineering and product openings across Visakhapatnam.
             </p>
-
-            <div style="margin: 24px 0;">
-              <h3 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 12px;">
-                🔥 Current Open Roles in Vizag Tech
-              </h3>
-              ${jobsHtml}
-            </div>
-
             <div style="text-align: center; margin: 28px 0 16px 0;">
               <a href="https://vizagstartupmap.com" style="background: #0e4d64; color: #ffffff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-block;">
-                Explore the Vizag Interactive Map &rarr;
+                Explore the Interactive Map →
               </a>
             </div>
-
             <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0 16px 0;" />
             <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 0;">
-              Free &bull; Curated for Visakhapatnam, Andhra Pradesh &bull; Unsubscribe anytime
+              Free · Curated for Visakhapatnam, Andhra Pradesh · Unsubscribe anytime
             </p>
           </div>
         </body>
       </html>
     `;
 
-    // 4. Send email alert
     await sendEmailAlert({
       to: email,
       subject: emailSubject,

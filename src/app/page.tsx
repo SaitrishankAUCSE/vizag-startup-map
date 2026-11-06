@@ -1,12 +1,25 @@
-import React, { Suspense } from 'react';
+import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { getListings, getJobs, getEcosystemStats } from '@/lib/data';
-import { MapDirectoryView } from '@/components/directory/MapDirectoryView';
+import { LandingMapView } from '@/components/map/LandingMapView';
 
-export const metadata = {
-  title: 'Vizag Startup Map | Visakhapatnam Startup & Tech Ecosystem',
+export const metadata: Metadata = {
+  title: 'Vizag Startup Map | Visakhapatnam Startup Ecosystem',
   description:
-    'Every startup, investor, campus, and workspace in Visakhapatnam on one living map.',
+    'Discover every startup, investor, incubator, campus, and coworking space in Visakhapatnam on one interactive living map.',
+  openGraph: {
+    title: 'Vizag Startup Map — An Ecosystem Mapped',
+    description:
+      'Every startup, investor, campus, and workspace in Visakhapatnam on one living map.',
+    url: 'https://vizagstartupmap.com',
+    siteName: 'Vizag Startup Map',
+    locale: 'en_IN',
+    type: 'website',
+  },
 };
+
+// Revalidate every 5 minutes (300 seconds) for real-time live counts
+export const revalidate = 300;
 
 export default async function HomePage() {
   const [listings, jobs, stats] = await Promise.all([
@@ -15,27 +28,9 @@ export default async function HomePage() {
     getEcosystemStats(),
   ]);
 
-  const hasSampleData = listings.some((l) => l.name.startsWith('Sample'));
-
   return (
-    <Suspense
-      fallback={
-        <div className="flex h-screen w-full items-center justify-center bg-[#DDE3E8]">
-          <div className="text-center">
-            <div className="w-10 h-10 border-2 border-[#3A0F34] border-t-[#EAAA00] rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#3A0F34]">
-              Loading Vizag Startup Map...
-            </p>
-          </div>
-        </div>
-      }
-    >
-      <MapDirectoryView
-        initialListings={listings}
-        initialJobs={jobs}
-        ecosystemStats={stats}
-        hasSampleData={hasSampleData}
-      />
+    <Suspense fallback={<div className="fixed inset-0 bg-[#DDE3E8]" />}>
+      <LandingMapView initialListings={listings} initialJobs={jobs} initialStats={stats} />
     </Suspense>
   );
 }

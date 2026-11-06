@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getListings } from '@/lib/supabase/service';
+import { getListings } from '@/lib/firebase/service';
 import { AREAS, SECTORS } from '@/config/constants';
 
 function normalizeSlug(str: string): string {

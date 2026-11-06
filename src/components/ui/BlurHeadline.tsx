@@ -6,27 +6,26 @@ import { motion, useReducedMotion } from 'framer-motion';
 interface BlurHeadlineProps {
   lines?: string[];
   className?: string;
+  mixedCase?: boolean;
 }
 
 export const BlurHeadline: React.FC<BlurHeadlineProps> = ({
-  lines = ['Vizag', 'builds', 'by the bay.'],
+  lines = ['Vizag', 'Builds', 'by the Bay.'],
   className = '',
+  mixedCase = true,
 }) => {
   const shouldReduceMotion = useReducedMotion();
 
   return (
     <div
-      className={`relative select-none flex flex-col font-display font-extrabold uppercase tracking-[-0.03em] leading-[0.92] ${className}`}
+      className={`relative select-none flex flex-col font-display font-extrabold tracking-[-0.03em] leading-[0.94] ${
+        mixedCase ? '' : 'uppercase'
+      } ${className}`}
       style={{
-        // clamp dynamically to fit screens cleanly
-        fontSize: 'clamp(38px, 4.8vw, 76px)',
+        fontSize: 'clamp(36px, 5.2vw, 76px)',
       }}
     >
       {lines.map((line, lineIndex) => {
-        const isFirst = lineIndex === 0;
-        const isLast = lineIndex === lines.length - 1;
-        const keepsPermanentTrail = isFirst || isLast;
-
         if (shouldReduceMotion) {
           return (
             <span
@@ -40,65 +39,65 @@ export const BlurHeadline: React.FC<BlurHeadlineProps> = ({
 
         return (
           <div key={lineIndex} className="relative block overflow-visible">
-            {/* Ghost 2 (16px shift, 12px blur, 20% opacity) */}
+            {/* Marigold Ghost 2 (shifted 22px, blurred 14px, 18% opacity) */}
             <motion.span
               aria-hidden="true"
               initial={{
-                x: 28,
-                filter: 'blur(16px)',
-                opacity: 0.45,
+                x: 22,
+                filter: 'blur(14px)',
+                opacity: 0.18,
               }}
               animate={{
-                x: keepsPermanentTrail ? 14 : 0,
-                filter: keepsPermanentTrail ? 'blur(10px)' : 'blur(0px)',
-                opacity: keepsPermanentTrail ? 0.22 : 0,
+                x: 0,
+                filter: 'blur(0px)',
+                opacity: 0,
               }}
               transition={{
                 duration: 1.2,
-                delay: lineIndex * 0.15,
+                delay: lineIndex * 0.1,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="absolute left-0 top-0 text-[#3A0F34] pointer-events-none select-none"
+              className="absolute left-0 top-0 text-[#EAAA00] pointer-events-none select-none"
             >
               {line}
             </motion.span>
 
-            {/* Ghost 1 (8px shift, 6px blur, 35% opacity) */}
+            {/* Marigold Ghost 1 (shifted 10px, blurred 6px, 35% opacity) */}
             <motion.span
               aria-hidden="true"
               initial={{
-                x: 18,
-                filter: 'blur(10px)',
-                opacity: 0.6,
+                x: 10,
+                filter: 'blur(6px)',
+                opacity: 0.35,
               }}
               animate={{
-                x: keepsPermanentTrail ? 7 : 0,
-                filter: keepsPermanentTrail ? 'blur(5px)' : 'blur(0px)',
-                opacity: keepsPermanentTrail ? 0.35 : 0,
+                x: 0,
+                filter: 'blur(0px)',
+                opacity: 0,
               }}
               transition={{
                 duration: 1.2,
-                delay: lineIndex * 0.15 + 0.05,
+                delay: lineIndex * 0.1 + 0.05,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="absolute left-0 top-0 text-[#3A0F34] pointer-events-none select-none"
+              className="absolute left-0 top-0 text-[#EAAA00] pointer-events-none select-none"
             >
               {line}
             </motion.span>
 
-            {/* Sharp front layer */}
+            {/* Sharp Aubergine front layer */}
             <motion.span
               initial={{
                 opacity: 0,
-                y: 16,
+                y: 12,
               }}
               animate={{
                 opacity: 1,
                 y: 0,
               }}
               transition={{
-                duration: 0.9,
-                delay: lineIndex * 0.15,
+                duration: 0.8,
+                delay: lineIndex * 0.1,
                 ease: [0.16, 1, 0.3, 1],
               }}
               className="relative text-[#3A0F34] block z-10"

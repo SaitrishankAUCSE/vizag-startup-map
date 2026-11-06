@@ -5,26 +5,38 @@ import { NewsItem } from '@/types';
 const FALLBACK_NEWS: NewsItem[] = [
   {
     title: 'Andhra Pradesh MedTech Zone (AMTZ) in Vizag expands global medical manufacturing corridor',
+    url: 'https://news.google.com/search?q=AMTZ+Visakhapatnam',
     link: 'https://news.google.com/search?q=AMTZ+Visakhapatnam',
     pubDate: 'Today',
+    published_at: new Date().toISOString(),
+    source_name: 'The Hindu',
     source: 'The Hindu',
   },
   {
     title: 'Rushikonda IT SEZ sees surge in tech exports and AI development hubs',
+    url: 'https://news.google.com/search?q=Rushikonda+IT+Vizag',
     link: 'https://news.google.com/search?q=Rushikonda+IT+Vizag',
     pubDate: 'Yesterday',
+    published_at: new Date(Date.now() - 86400000).toISOString(),
+    source_name: 'Times of India',
     source: 'Times of India',
   },
   {
     title: 'Visakhapatnam Port automation and maritime logistics tech startups gain venture momentum',
+    url: 'https://news.google.com/search?q=Visakhapatnam+port+startups',
     link: 'https://news.google.com/search?q=Visakhapatnam+port+startups',
     pubDate: '2 days ago',
+    published_at: new Date(Date.now() - 172800000).toISOString(),
+    source_name: 'Economic Times',
     source: 'Economic Times',
   },
   {
     title: 'GITAM Venture Development Centre launches coastal entrepreneurship cohort for student founders',
+    url: 'https://news.google.com/search?q=GITAM+venture+development',
     link: 'https://news.google.com/search?q=GITAM+venture+development',
     pubDate: '3 days ago',
+    published_at: new Date(Date.now() - 259200000).toISOString(),
+    source_name: 'Deccan Chronicle',
     source: 'Deccan Chronicle',
   },
 ];
@@ -73,11 +85,15 @@ export async function GET() {
         }
 
         const date = pubDateRaw ? new Date(pubDateRaw).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : 'Recent';
+        const isoDate = pubDateRaw ? new Date(pubDateRaw).toISOString() : new Date().toISOString();
 
         items.push({
           title,
+          url: link,
           link,
           pubDate: date,
+          published_at: isoDate,
+          source_name: source,
           source,
         });
       }

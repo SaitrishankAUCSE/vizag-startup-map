@@ -1,0 +1,32 @@
+name,website,area,decision,checks_passed,reason_if_not_approved,evidence_url_vizag_proof,evidence_url_activity,careers_url,ats_provider,google_place_id,lead_source_urls,number_of_sources,official_site_found,notes
+Saif Automation,https://saifseas.com/,Rushikonda,lead,A;B;C;D;F,"No recent copyright/update (2024-2026), careers, or social links detected",https://saifseas.com/,,,,,https://saifseas.com;https://startuptalky.com/vizag-startups/,2,yes,"No recent copyright/update (2024-2026), careers, or social links detected"
+AgriDNA Ventures,https://agridna.com,Visakhapatnam,rejected,A,site_unreachable_HTTP_403,,,,,,https://a-hub.co/portfolio,1,yes,Homepage did not load: HTTP_403
+Taramandal Technologies,https://taramandal.in,Visakhapatnam,rejected,A,site_unreachable_fetch failed,,,,,,https://a-hub.co/portfolio,1,yes,Homepage did not load: fetch failed
+Der Autobot,https://derautobot.com,Visakhapatnam,rejected,A,site_unreachable_fetch failed,,,,,,https://a-hub.co/portfolio,1,yes,Homepage did not load: fetch failed
+Vyomastra Technologies,https://vyomastra.com,Visakhapatnam,rejected,A,site_unreachable_fetch failed,,,,,,https://a-hub.co/portfolio,1,yes,Homepage did not load: fetch failed
+Return Trucks,https://www.returntrucks.com/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://a-hub.co/portfolio,1,yes,No mention of Visakhapatnam/Vizag on company own website
+Pick a Book,https://pickabook.in,Visakhapatnam,rejected,A,site_unreachable_fetch failed,,,,,,https://a-hub.co/portfolio,1,yes,Homepage did not load: fetch failed
+Homeland Interior Solutions,https://homelandinteriors.in/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://a-hub.co/portfolio,1,yes,No mention of Visakhapatnam/Vizag on company own website
+FURPSQ Technologies,https://furpsq.com/,Siripuram,approved,A;B;C;D;E;F,,https://furpsq.com/,https://furpsq.com/,,,,https://a-hub.co/portfolio,1,yes,
+CogMac Technologies,https://www.cogmac.com/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://amtz.in/incubated-startups,1,yes,No mention of Visakhapatnam/Vizag on company own website
+Mozek HealthTech,https://mozekhealth.com/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://amtz.in/incubated-startups,1,yes,No mention of Visakhapatnam/Vizag on company own website
+Stayfit Healthcare,https://stayfithealthcare.com,Visakhapatnam,rejected,A,site_unreachable_fetch failed,,,,,,https://amtz.in/incubated-startups,1,yes,Homepage did not load: fetch failed
+Healyantra,https://healyantra.com/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://amtz.in/incubated-startups,1,yes,No mention of Visakhapatnam/Vizag on company own website
+Dentic World,https://www.denticworld.com/,Nadupuru (AMTZ),approved,A;B;C;D;E;F,,https://www.denticworld.com/,https://www.denticworld.com/,https://www.denticworld.com/careers,,,https://amtz.in/incubated-startups,1,yes,
+Ksham,https://ksham.in/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://amtz.in/incubated-startups,1,yes,No mention of Visakhapatnam/Vizag on company own website
+Mediklaud,https://mediklaud.com/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://amtz.in/incubated-startups,1,yes,No mention of Visakhapatnam/Vizag on company own website
+Maya Voxel,https://mayavoxel.com/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://amtz.in/incubated-startups,1,yes,No mention of Visakhapatnam/Vizag on company own website
+Synaptvision,https://synaptvision.com/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://amtz.in/incubated-startups,1,yes,No mention of Visakhapatnam/Vizag on company own website
+Ordisun Medical Devices,https://ordisun.com/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://amtz.in/incubated-startups,1,yes,No mention of Visakhapatnam/Vizag on company own website
+E3 Matrix Industries,https://e3matrix.life,Visakhapatnam,rejected,A,site_unreachable_fetch failed,,,,,,https://amtz.in/incubated-startups,1,yes,Homepage did not load: fetch failed
+Shreeyash Electro Medicals,https://www.shreeyashelectromedicals.com/,Nadupuru (AMTZ),approved,A;B;C;D;E;F,,https://www.shreeyashelectromedicals.com/,https://www.shreeyashelectromedicals.com/,,,,https://amtz.in/incubated-startups,1,yes,
+WorkZone Coworking,https://workzonevizag.com,Visakhapatnam,rejected,A,site_unreachable_fetch failed,,,,,,https://workzonevizag.com,1,yes,Homepage did not load: fetch failed
+The V Coworking Space,https://thevcoworking.com,Visakhapatnam,rejected,,excluded_category_spa,,,,,,https://thevcoworking.com,1,yes,Failed Step A pre-filter: excluded_category_spa
+Dwaraka Coworking,https://dwarakacoworking.in,Visakhapatnam,rejected,A,site_unreachable_fetch failed,,,,,,https://dwarakacoworking.in,1,yes,Homepage did not load: fetch failed
+CoKarma Vizag,https://www.cokarma.in/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://cokarma.in,1,yes,No mention of Visakhapatnam/Vizag on company own website
+Sankhya Technologies,https://sankhya.com/,Visakhapatnam,approved,A;B;C;D;E;F,,https://sankhya.com/,https://sankhya.com/,,,,https://sankhya.com,1,yes,
+Conduira Online,https://www.conduiraonline.com/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://startuptalky.com/vizag-startups/,1,yes,No mention of Visakhapatnam/Vizag on company own website
+Proactive Tech Labs,https://proactivetechlabs.com,Visakhapatnam,rejected,A,site_unreachable_fetch failed,,,,,,https://startuptalky.com/vizag-startups/,1,yes,Homepage did not load: fetch failed
+Green Waves Environmental Solutions,https://greenwaves.co.in/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://startuptalky.com/vizag-startups/,1,yes,No mention of Visakhapatnam/Vizag on company own website
+GigaTech,https://gigatech.co.in/,Visakhapatnam,rejected,A;B,no_vizag_office_proof_on_site,,,,,,https://startuptalky.com/vizag-startups/,1,yes,No mention of Visakhapatnam/Vizag on company own website
+Apex Space,https://apexspace.in,Visakhapatnam,rejected,,excluded_category_spa,,,,,,https://apexspace.in,1,yes,Failed Step A pre-filter: excluded_category_spa

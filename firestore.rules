@@ -1,0 +1,121 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ──────────────────────────────────────────────────────
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.role == 'admin';
+    }
+
+    function isFounder() {
+      return request.auth != null &&
+        (request.auth.token.role == 'founder' || request.auth.token.role == 'admin');
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── listings ──────────────────────────────────────────────────────────────
+    // Public: read approved listings only (status == 'approved').
+    // Never expose private fields (owner_id is always redacted by server reads).
+    match /listings/{listingId} {
+      allow read: if resource.data.status == 'approved';
+      allow write: if isAdmin();
+    }
+
+    // ── jobs ──────────────────────────────────────────────────────────────────
+    // Public: read active jobs only.
+    match /jobs/{jobId} {
+      allow read: if resource.data.is_active == true;
+      allow write: if isAdmin() || isFounder();
+    }
+
+    // ── stats ─────────────────────────────────────────────────────────────────
+    // Public read for the pre-aggregated stats/public document.
+    match /stats/{statId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── news_items ────────────────────────────────────────────────────────────
+    match /news_items/{itemId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── submissions ───────────────────────────────────────────────────────────
+    // Anyone can submit; only admins can read all submissions.
+    match /submissions/{submissionId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── reports ───────────────────────────────────────────────────────────────
+    match /reports/{reportId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── claims ────────────────────────────────────────────────────────────────
+    match /claims/{claimId} {
+      allow create: if isAuthenticated();
+      allow read: if isAdmin() || isOwner(resource.data.user_id);
+      allow update, delete: if isAdmin();
+    }
+
+    // ── favourites ────────────────────────────────────────────────────────────
+    match /favourites/{favId} {
+      allow read, create, delete: if isAuthenticated() && isOwner(resource.data.user_id);
+      allow write: if isAdmin();
+    }
+
+    // ── profiles ──────────────────────────────────────────────────────────────
+    // Users can read/write their own profile; admins can read all.
+    match /profiles/{userId} {
+      allow read, write: if isOwner(userId);
+      allow read: if isAdmin();
+    }
+
+    // ── subscriptions ─────────────────────────────────────────────────────────
+    // Written by the Razorpay webhook server handler via Admin SDK (bypasses rules).
+    // Users can read their own subscription; admins can read all.
+    match /subscriptions/{subId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() || resource.data.user_id == request.auth.uid
+      );
+      allow write: if isAdmin();
+    }
+
+    // ── alert_subscribers ─────────────────────────────────────────────────────
+    // Public create (opt-in); admin read.
+    match /alert_subscribers/{subId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── analytics_events ──────────────────────────────────────────────────────
+    // Write-only from server; admin read.
+    match /analytics_events/{eventId} {
+      allow read: if isAdmin();
+      allow write: if false; // only server-side Admin SDK writes
+    }
+
+    // ── sync_logs ─────────────────────────────────────────────────────────────
+    match /sync_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // only GitHub Actions via Admin SDK
+    }
+
+    // ── ats_boards ────────────────────────────────────────────────────────────
+    match /ats_boards/{boardId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+  }
+}

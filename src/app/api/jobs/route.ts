@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getActiveJobs, createJob, toggleJobStatus, deleteJob } from '@/lib/supabase/service';
+import { getActiveJobs, createJob, toggleJobStatus, deleteJob } from '@/lib/firebase/service';
 import { z } from 'zod';
 
 const createJobSchema = z.object({
@@ -48,10 +48,20 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
-    const { jobId, isActive } = body;
+    const { jobId, isActive, action } = body;
 
-    if (!jobId || typeof isActive !== 'boolean') {
-      return NextResponse.json({ error: 'jobId and isActive boolean required' }, { status: 400 });
+    if (!jobId) {
+      return NextResponse.json({ error: 'jobId is required' }, { status: 400 });
+    }
+
+    if (action === 'renew') {
+      const { renewJob } = await import('@/lib/firebase/service');
+      const ok = await renewJob(jobId);
+      return NextResponse.json({ success: ok, message: 'Job renewed for another 60 days!' });
+    }
+
+    if (typeof isActive !== 'boolean') {
+      return NextResponse.json({ error: 'isActive boolean or action="renew" required' }, { status: 400 });
     }
 
     const ok = await toggleJobStatus(jobId, isActive);

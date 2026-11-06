@@ -18,7 +18,6 @@ export const COPY = {
       'Every startup, investor, campus and workspace in Visakhapatnam, on one living map.',
     exploreButton: 'EXPLORE THE MAP',
     coordinates: '17.6868° N, 83.2185° E',
-    sampleBadge: 'SAMPLE DATA',
   },
   nav: {
     explore: 'EXPLORE',
@@ -38,6 +37,9 @@ export const COPY = {
     gridView: 'GRID',
     noResults: 'No matches found in this corner of Vizag.',
     resetPrompt: 'Reset filters to view all listings.',
+    emptyMapTitle: 'No startups on the map yet.',
+    emptyMapSubtitle: 'Be the first to add yours and put your company on the Vizag tech map.',
+    submitButton: '+ Submit Startup',
   },
   filters: {
     type: 'Type',
@@ -53,7 +55,7 @@ export const COPY = {
     location: 'Location',
   },
   jobs: {
-    panelTitle: 'JOBS • 38 OPEN ROLES',
+    panelTitle: 'JOBS',
     applyButton: 'APPLY',
     proPromptTitle: 'Get Instant Job Alerts',
     proPromptDesc:

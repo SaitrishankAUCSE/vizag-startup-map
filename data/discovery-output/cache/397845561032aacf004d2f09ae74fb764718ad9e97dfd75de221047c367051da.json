@@ -1,0 +1,10 @@
+{
+  "url": "https://www.andhrauniversity.edu.in/careers",
+  "finalUrl": "https://www.andhrauniversity.edu.in/careers",
+  "status": 404,
+  "ok": false,
+  "isHttps": true,
+  "text": "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n<html><head>\n<title>404 Not Found</title>\n</head><body>\n<h1>Not Found</h1>\n<p>The requested URL was not found on this server.</p>\n</body></html>\n",
+  "contentType": "text/html; charset=iso-8859-1",
+  "error": "HTTP_404"
+}

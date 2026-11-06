@@ -1,0 +1,10 @@
+{
+  "url": "https://www.nccr.gov.in/contact",
+  "finalUrl": "https://www.nccr.gov.in/contact",
+  "status": 404,
+  "ok": false,
+  "isHttps": true,
+  "text": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\n        <head>\n                <title>Error Message</title>\n\n                <style type=\"text/css\">\n                        /*<![CDATA[*/\n                        body {\n                                background-color: #fff;\n                                color: #000;\n                                font-size: 0.7em;\n                                font-family: sans-serif,helvetica;\n                                margin: 0;\n                                padding: 0;\n                        }\n                        :link {\n                                color: #c00;\n                        }\n                        :visited {\n                                color: #c00;\n                        }\n                        a:hover {\n                                color: #f50;\n                        }\n\t\t\th1 {\n                                text-align: center;\n                                margin: 0;\n                                padding: 0.6em 2em 0.4em;\n                                background-color: #22437f;\n                                color: #fff;\n                                font-weight: normal;\n                                font-size: 1.75em;\n                                border-bottom: 2px solid #000;\n                        }\n                        h1 strong {\n                                font-weight: bold;\n                        }\n\n</style>\n        </head>\n\t\t<br><br>\n        <body>\n                <h1>Error<strong>403/404</strong></h1>\n\t\t<br><br>\n\t\t<h2>You don't have permission to access.</h2>\n\t<body>\n</html>\n",
+  "contentType": "text/html",
+  "error": "HTTP_404"
+}
