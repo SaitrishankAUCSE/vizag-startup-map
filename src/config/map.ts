@@ -31,13 +31,13 @@ export const MAP_CONFIG = {
     process.env.NEXT_PUBLIC_MAP_TILE_URL ||
     'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
 
-  // Visakhapatnam City Center [lng, lat] — MapLibre uses [longitude, latitude]
-  center: [83.3200, 17.7300] as [number, number],
+  // Visakhapatnam Innovation Corridor Center [lng, lat] — Centered on Rushikonda Tech Coast
+  center: [83.3740, 17.7820] as [number, number],
 
-  // Default zoom — whole city visible from Gajuwaka to Rushikonda/Madhurawada
-  defaultZoom: 11.5,
-  minZoom: 9.5,
-  maxZoom: 18,
+  // Default zoom matching exact overview scale of Rushikonda/Endada tech cluster
+  defaultZoom: 13.0,
+  minZoom: 10.5,
+  maxZoom: 17.5,
 
   // Zoom threshold below which we collapse pins into cluster tiles
   clusterZoomThreshold: 13.2,
