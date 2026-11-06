@@ -20,6 +20,7 @@ export const CREATOR_CONFIG = {
   email: 'trishankofficial1311@gmail.com',
   phone: '+91-8179369677',
   phoneFormatted: '+91 81793 69677',
+  whatsappUrl: 'https://wa.me/918179369677?text=Hi%20Trishank,%20I%20saw%20your%20work%20on%20Vizag%20Startup%20Map!',
 
   /** Social & Professional Links */
   linkedinUrl: 'https://linkedin.com/in/saitrishank',

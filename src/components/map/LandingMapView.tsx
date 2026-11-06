@@ -98,7 +98,6 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
   const [showJobsPanel, setShowJobsPanel] = useState(false);
   const [showBoostModal, setShowBoostModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showCreatorCard, setShowCreatorCard] = useState(true);
   const [copied, setCopied] = useState(false);
   const [coastalTourActive, setCoastalTourActive] = useState(false);
   const [coastalStopIndex, setCoastalStopIndex] = useState(0);
@@ -140,23 +139,6 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
   }, []);
 
   // Sync URL when selection changes
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    if (selectedSlug) {
-      url.searchParams.set('startup', selectedSlug);
-    } else {
-      url.searchParams.delete('startup');
-    }
-    router.replace(url.pathname + url.search, { scroll: false });
-  }, [selectedSlug, router]);
-
-  // Check localStorage for creator card dismissed state
-  useEffect(() => {
-    try {
-      const dismissed = localStorage.getItem('creatorCardDismissed');
-      if (dismissed === 'true') setShowCreatorCard(false);
-    } catch {}
-  }, []);
 
   const handleFilterChange = useCallback((updates: Partial<FilterState>) => {
     setFilters((prev) => ({ ...prev, ...updates }));
@@ -190,13 +172,6 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
-  }, []);
-
-  const handleDismissCreatorCard = useCallback(() => {
-    setShowCreatorCard(false);
-    try {
-      localStorage.setItem('creatorCardDismissed', 'true');
-    } catch {}
   }, []);
 
   // Format "Data updated X minutes ago"
@@ -341,11 +316,10 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
 
       {/* ── Bottom left: stats / creator card ── */}
       <div className="absolute bottom-6 left-4 z-[1100] space-y-2 max-w-[420px]">
-        {FEATURES.creatorCard && showCreatorCard && initialListings.length > 0 && (
+        {FEATURES.creatorCard && initialListings.length > 0 && (
           <FloatingCreatorCard
             totalListings={initialListings.length}
             hiringCount={hiringCount}
-            onDismiss={handleDismissCreatorCard}
           />
         )}
         {/* Link row */}
