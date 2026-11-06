@@ -2,7 +2,16 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Briefcase, X, ArrowRight, Clock, MapPin, Filter } from 'lucide-react';
+import {
+  Briefcase,
+  X,
+  ArrowRight,
+  MapPin,
+  ExternalLink,
+  Search,
+  Sparkles,
+  Building,
+} from 'lucide-react';
 import { Job } from '@/types';
 
 interface BottomJobsPillProps {
@@ -17,17 +26,17 @@ export const BottomJobsPill: React.FC<BottomJobsPillProps> = ({ jobs, onOpenJobs
     <button
       type="button"
       onClick={onOpenJobsPanel}
-      className="flex items-center gap-2.5 bg-white/95 border border-[#3A0F34]/15 rounded-full pl-3.5 pr-1.5 py-1.5 shadow-[0_4px_20px_rgba(58,15,52,0.12)] backdrop-blur-md hover:shadow-[0_6px_24px_rgba(58,15,52,0.18)] transition-all group cursor-pointer select-none"
+      className="flex items-center gap-2.5 bg-white/75 border border-[#3A0F34]/20 rounded-2xl rounded-tr-xs rounded-bl-xs pl-4 pr-1.5 py-1.5 shadow-[0_8px_30px_rgba(58,15,52,0.14)] backdrop-blur-xl hover:shadow-[0_12px_36px_rgba(58,15,52,0.2)] hover:scale-[1.02] active:scale-95 transition-all group cursor-pointer select-none"
       aria-label={`View ${activeJobs.length} open jobs`}
     >
       {/* Green active dot */}
-      <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] shrink-0" />
+      <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] shadow-[0_0_8px_rgba(16,185,129,0.7)] shrink-0 animate-pulse" />
 
       {/* Briefcase outline icon */}
       <Briefcase className="w-4 h-4 text-[#3A0F34]/70 shrink-0 stroke-[1.8]" />
 
       {/* Count text */}
-      <span className="text-xs sm:text-[13px] font-semibold text-[#3A0F34] tracking-tight whitespace-nowrap">
+      <span className="text-xs sm:text-[13px] font-display font-extrabold text-[#3A0F34] tracking-tight whitespace-nowrap">
         {activeJobs.length} jobs posted
       </span>
 
@@ -35,9 +44,9 @@ export const BottomJobsPill: React.FC<BottomJobsPillProps> = ({ jobs, onOpenJobs
       <span className="h-4 w-[1px] bg-[#3A0F34]/15 shrink-0 mx-0.5" />
 
       {/* View jobs capsule button */}
-      <span className="flex items-center gap-1.5 bg-[#3A0F34]/10 group-hover:bg-[#3A0F34] group-hover:text-[#EAAA00] text-[#3A0F34] rounded-full px-3 py-1 text-xs font-semibold transition-colors shrink-0">
+      <span className="flex items-center gap-1.5 bg-[#3A0F34] text-[#DDE3E8] group-hover:bg-[#EAAA00] group-hover:text-[#3A0F34] rounded-xl rounded-tr-xs px-3 py-1 text-xs font-display font-bold uppercase tracking-wider transition-colors shrink-0 shadow-xs">
         <span>View jobs</span>
-        <ArrowRight className="w-3.5 h-3.5 text-[#3A0F34] group-hover:text-[#EAAA00] group-hover:translate-x-0.5 transition-transform" />
+        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
       </span>
     </button>
   );
@@ -48,197 +57,244 @@ interface JobsPanelProps {
   onClose: () => void;
 }
 
-function getDaysAgo(dateStr?: string | null): string {
-  if (!dateStr) return 'recently';
+// Format clean freshness label (never shows an embarrassing "900 days ago")
+function getJobFreshnessBadge(job: Job): { label: string; isNew: boolean } {
+  const dateStr = job.posted_at || job.first_seen_at || job.created_at;
+  if (!dateStr) return { label: 'Active', isNew: false };
+
   const diff = Date.now() - new Date(dateStr).getTime();
   const days = Math.floor(diff / 86400000);
-  if (days <= 0) return 'today';
-  if (days === 1) return 'yesterday';
-  return `${days}d ago`;
+
+  if (days <= 0) return { label: 'New Today', isNew: true };
+  if (days === 1) return { label: '1d ago', isNew: true };
+  if (days <= 7) return { label: `${days}d ago`, isNew: true };
+  if (days <= 21) return { label: `${Math.floor(days / 7)}w ago`, isNew: false };
+
+  // For older active postings, display clean active status
+  return { label: 'Actively Hiring', isNew: false };
 }
 
 export const JobsPanel: React.FC<JobsPanelProps> = ({ jobs, onClose }) => {
-  const [filterNewOnly, setFilterNewOnly] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedDept, setSelectedDept] = useState('all');
 
-  const activeJobs = jobs.filter((j) => j.is_active);
-  const sevenDaysAgo = Date.now() - 7 * 86400000;
-
-  const filteredJobs = useMemo(() => {
-    return activeJobs.filter((j) => {
-      if (filterNewOnly) {
-        const time = new Date(j.posted_at || j.first_seen_at || j.created_at).getTime();
-        if (time < sevenDaysAgo) return false;
-      }
-      if (selectedDept !== 'all' && j.department !== selectedDept) {
-        return false;
-      }
-      return true;
-    });
-  }, [activeJobs, filterNewOnly, selectedDept, sevenDaysAgo]);
-
-  const distinctCompanies = useMemo(() => {
-    return new Set(filteredJobs.map((j) => j.company_name || j.listing_id)).size;
-  }, [filteredJobs]);
+  const activeJobs = useMemo(() => jobs.filter((j) => j.is_active), [jobs]);
 
   const departments = useMemo(() => {
     return Array.from(new Set(activeJobs.map((j) => j.department).filter(Boolean))) as string[];
   }, [activeJobs]);
 
-  const byCompany = useMemo(() => {
-    return filteredJobs.reduce<Record<string, Job[]>>((acc, j) => {
-      const key = j.company_name || 'Vizag Company';
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(j);
-      return acc;
-    }, {});
+  const filteredJobs = useMemo(() => {
+    return activeJobs.filter((j) => {
+      if (selectedDept !== 'all' && j.department !== selectedDept) {
+        return false;
+      }
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchesTitle = j.title.toLowerCase().includes(q);
+        const matchesCompany = (j.company_name || '').toLowerCase().includes(q);
+        const matchesLocation = (j.location_text || j.location || '').toLowerCase().includes(q);
+        if (!matchesTitle && !matchesCompany && !matchesLocation) return false;
+      }
+      return true;
+    });
+  }, [activeJobs, selectedDept, searchQuery]);
+
+  const distinctCompanies = useMemo(() => {
+    return new Set(filteredJobs.map((j) => j.company_name || j.listing_id)).size;
   }, [filteredJobs]);
 
   return (
-    <div className="fixed inset-y-0 right-0 z-[1400] flex items-stretch">
+    <div className="fixed inset-y-0 right-0 z-[1400] flex items-stretch font-sans">
       {/* Backdrop */}
       <button
         type="button"
-        className="absolute inset-0 bg-[#3A0F34]/20 backdrop-blur-sm cursor-default"
+        className="fixed inset-0 bg-[#3A0F34]/25 backdrop-blur-xs cursor-default transition-opacity"
         onClick={onClose}
         aria-label="Close jobs panel"
       />
 
-      {/* Panel */}
+      {/* Main Slide-Over Drawer */}
       <div
-        className="relative ml-auto w-full max-w-sm sm:max-w-md bg-[#DDE3E8] border-l border-[#3A0F34]/12 flex flex-col h-full shadow-[0_0_40px_rgba(58,15,52,0.25)] slide-in-left"
-        style={{ animationName: 'slide-in-right' }}
+        className="relative ml-auto w-full max-w-sm sm:max-w-md bg-white border-l border-zinc-200/90 flex flex-col h-full shadow-[0_0_50px_rgba(58,15,52,0.18)] z-10 animate-in slide-in-from-right duration-300"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#3A0F34]/10 bg-white/40">
+        <div className="px-5 py-4.5 border-b border-zinc-100 flex items-center justify-between gap-3 bg-white">
           <div>
-            <h2 className="font-display text-base font-extrabold text-[#3A0F34]">
-              {filteredJobs.length} open {filteredJobs.length === 1 ? 'role' : 'roles'} at {distinctCompanies}{' '}
-              {distinctCompanies === 1 ? 'company' : 'companies'}
+            <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-[#3A0F34]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+              <span>Visakhapatnam Startup Roles</span>
+            </div>
+            <h2 className="font-display text-base font-extrabold text-zinc-900 mt-0.5">
+              {filteredJobs.length} open {filteredJobs.length === 1 ? 'position' : 'positions'} across {distinctCompanies} {distinctCompanies === 1 ? 'company' : 'companies'}
             </h2>
-            <p className="text-[11px] text-[#3A0F34]/65">Live postings synced from official feeds</p>
           </div>
+
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#3A0F34]/8 text-[#3A0F34] cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-600 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            aria-label="Close panel"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Filter chips */}
-        <div className="px-5 py-2.5 border-b border-[#3A0F34]/10 flex items-center gap-2 flex-wrap text-xs bg-white/20">
-          <button
-            type="button"
-            onClick={() => setFilterNewOnly((v) => !v)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors cursor-pointer ${
-              filterNewOnly
-                ? 'bg-[#3A0F34] text-[#EAAA00]'
-                : 'bg-white/80 border border-[#3A0F34]/20 text-[#3A0F34] hover:bg-white'
-            }`}
-          >
-            <Clock className="w-3 h-3" />
-            <span>New in last 7 days</span>
-          </button>
+        {/* Search & Filter Bar */}
+        <div className="px-5 py-3 border-b border-zinc-100 bg-zinc-50/70 space-y-2.5">
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search by role, company, or tech..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white border border-zinc-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-zinc-900 placeholder-zinc-400 outline-none focus:border-zinc-400 transition-colors"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
 
           {departments.length > 0 && (
-            <select
-              value={selectedDept}
-              onChange={(e) => setSelectedDept(e.target.value)}
-              className="bg-white/80 border border-[#3A0F34]/20 rounded-full px-2.5 py-1 text-[11px] font-bold text-[#3A0F34]"
-            >
-              <option value="all">All Depts</option>
-              {departments.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
+              <button
+                type="button"
+                onClick={() => setSelectedDept('all')}
+                className={`px-2.5 py-1 rounded-lg text-[10.5px] font-bold whitespace-nowrap transition-colors cursor-pointer ${
+                  selectedDept === 'all'
+                    ? 'bg-zinc-900 text-white'
+                    : 'bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-100'
+                }`}
+              >
+                All Roles
+              </button>
+              {departments.map((dept) => (
+                <button
+                  key={dept}
+                  type="button"
+                  onClick={() => setSelectedDept(dept)}
+                  className={`px-2.5 py-1 rounded-lg text-[10.5px] font-bold whitespace-nowrap transition-colors cursor-pointer ${
+                    selectedDept === dept
+                      ? 'bg-zinc-900 text-white'
+                      : 'bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-100'
+                  }`}
+                >
+                  {dept}
+                </button>
               ))}
-            </select>
+            </div>
           )}
         </div>
 
-        {/* Scrollable job list */}
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-          {Object.entries(byCompany).map(([company, compJobs]) => (
-            <div key={company}>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-7 h-7 rounded-lg bg-[#3A0F34] text-[#EAAA00] flex items-center justify-center text-xs font-bold shrink-0">
-                  {company.charAt(0)}
-                </div>
-                <div className="font-semibold text-sm text-[#3A0F34]">{company}</div>
-                <div className="text-[10px] text-[#3A0F34]/50 ml-auto shrink-0 font-bold">
-                  {compJobs.length} {compJobs.length === 1 ? 'role' : 'roles'}
-                </div>
-              </div>
-              <div className="space-y-1.5 ml-9">
-                {compJobs.map((j) => {
-                  const dateLabel = j.posted_at
-                    ? `Posted ${getDaysAgo(j.posted_at)}`
-                    : `Seen ${getDaysAgo(j.first_seen_at || j.created_at)}`;
+        {/* Scrollable Job List: Clean, Flat, Professional Cards */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+          {filteredJobs.map((job) => {
+            const freshness = getJobFreshnessBadge(job);
+            const companyName = job.company_name || 'Vizag Tech Venture';
+            const locationDisplay = job.location_text || job.location || 'Visakhapatnam (On-site)';
 
-                  return (
-                    <div
-                      key={j.id}
-                      className="bg-white/60 hover:bg-white border border-[#3A0F34]/8 rounded-xl p-3 transition-colors shadow-xs space-y-1.5"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 pr-2 flex-1">
-                          <div className="text-xs font-bold text-[#3A0F34] truncate">{j.title}</div>
-                          <div className="text-[10px] text-[#3A0F34]/60 mt-0.5 flex items-center gap-2">
-                            <span>{j.location_text || j.location}</span>
-                            <span>·</span>
-                            <span>{dateLabel}</span>
-                          </div>
-                        </div>
-                        <a
-                          href={j.apply_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={() => {
-                            fetch('/api/analytics', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ listingId: j.listing_id, event: 'apply_click' }),
-                            }).catch(() => {});
-                          }}
-                          className="flex items-center gap-1 bg-[#EAAA00] hover:bg-[#d89800] text-[#3A0F34] rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide shrink-0 transition-colors cursor-pointer"
-                        >
-                          Apply
-                        </a>
-                      </div>
-                      <p className="text-[9px] text-[#3A0F34]/55 italic">
-                        You will apply on {company}&apos;s website.
-                      </p>
+            return (
+              <div
+                key={job.id}
+                className="bg-white hover:bg-zinc-50/70 border border-zinc-200/80 hover:border-zinc-300 rounded-2xl p-4 transition-all shadow-2xs hover:shadow-xs group space-y-2.5"
+              >
+                {/* Top Row: Company & Freshness Badge */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-md bg-[#3A0F34] text-[#EAAA00] flex items-center justify-center font-display font-extrabold text-[11px] shrink-0 shadow-2xs">
+                      {companyName.charAt(0).toUpperCase()}
                     </div>
-                  );
-                })}
+                    <span className="text-xs font-bold text-zinc-800 truncate">
+                      {companyName}
+                    </span>
+                  </div>
+
+                  <span
+                    className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                      freshness.isNew
+                        ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                        : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    }`}
+                  >
+                    {!freshness.isNew && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    )}
+                    <span>{freshness.label}</span>
+                  </span>
+                </div>
+
+                {/* Role Title */}
+                <div>
+                  <h3 className="font-display font-bold text-sm text-zinc-900 group-hover:text-[#3A0F34] leading-snug transition-colors">
+                    {job.title}
+                  </h3>
+                </div>
+
+                {/* Bottom Row: Location / Meta & Clean Apply Button */}
+                <div className="pt-2 border-t border-zinc-100 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 min-w-0 truncate">
+                    <MapPin className="w-3 h-3 text-zinc-400 shrink-0" />
+                    <span className="truncate">{locationDisplay}</span>
+                    {job.department && (
+                      <>
+                        <span className="text-zinc-300">·</span>
+                        <span className="bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                          {job.department}
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  <a
+                    href={job.apply_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => {
+                      fetch('/api/analytics', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ listingId: job.listing_id, event: 'apply_click' }),
+                      }).catch(() => {});
+                    }}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-[#3A0F34] text-white text-[11px] font-bold transition-all shadow-xs hover:scale-105 active:scale-95 shrink-0 cursor-pointer"
+                  >
+                    <span>Apply</span>
+                    <ExternalLink className="w-3 h-3 stroke-[2]" />
+                  </a>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {filteredJobs.length === 0 && (
-            <div className="text-center py-16 text-[#3A0F34]/60 space-y-2">
-              <Briefcase className="w-12 h-12 mx-auto mb-2 opacity-30 text-[#3A0F34]" />
-              <p className="font-bold text-sm">No open roles found</p>
-              <p className="text-xs text-[#3A0F34]/60 max-w-xs mx-auto">
-                {activeJobs.length === 0
-                  ? 'No startups have posted open jobs yet. Founders can submit roles on the submit page.'
-                  : 'Try resetting the filters above to view all roles.'}
+            <div className="text-center py-16 text-zinc-400 space-y-2">
+              <Briefcase className="w-10 h-10 mx-auto opacity-30 text-zinc-600" />
+              <p className="font-bold text-sm text-zinc-800">No matching roles found</p>
+              <p className="text-xs text-zinc-500 max-w-xs mx-auto">
+                {searchQuery || selectedDept !== 'all'
+                  ? 'Try clearing your search or department filter.'
+                  : 'New engineering, design, and operations roles are synced weekly from Visakhapatnam companies.'}
               </p>
             </div>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="border-t border-[#3A0F34]/10 px-5 py-3 bg-white/40">
+        {/* Footer Link to Full Directory */}
+        <div className="border-t border-zinc-100 p-4 bg-zinc-50/50">
           <Link
             href="/jobs"
             onClick={onClose}
-            className="w-full flex items-center justify-center gap-2 bg-[#3A0F34] text-[#DDE3E8] rounded-full py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-[#EAAA00] hover:text-[#3A0F34] transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-zinc-900 hover:bg-[#3A0F34] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer group"
           >
-            <span>View full jobs directory</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <span>View Full Jobs Directory ({activeJobs.length})</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
       </div>

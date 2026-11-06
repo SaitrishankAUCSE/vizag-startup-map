@@ -227,7 +227,7 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
       <div className="absolute top-4 right-4 z-[1100] flex items-center gap-2 pointer-events-auto">
         <Link
           href="/submit"
-          className="group flex items-center gap-2 bg-[#3A0F34] hover:bg-[#EAAA00] text-[#DDE3E8] hover:text-[#3A0F34] pl-3.5 pr-4 py-2.5 rounded-full shadow-[0_4px_20px_rgba(58,15,52,0.22)] border border-[#EAAA00]/40 transition-all duration-300 hover:scale-[1.04] active:scale-95 text-xs font-bold uppercase tracking-wider backdrop-blur-md cursor-pointer"
+          className="group flex items-center gap-2 bg-[#3A0F34] hover:bg-[#EAAA00] text-[#DDE3E8] hover:text-[#3A0F34] pl-4 pr-4 py-2.5 rounded-2xl rounded-tr-xs rounded-bl-xs shadow-[0_6px_25px_rgba(58,15,52,0.25)] border border-[#EAAA00]/50 transition-all duration-300 hover:scale-[1.04] active:scale-95 text-xs font-display font-extrabold uppercase tracking-wider backdrop-blur-md cursor-pointer"
           aria-label="Submit your startup to Vizag Startup Map"
         >
           <span className="relative flex h-2 w-2">
@@ -322,10 +322,10 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
             hiringCount={hiringCount}
           />
         )}
-        {/* Link row */}
+        {/* Link row: Sculpted Geometric Micro-Cards */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <div className="bg-[#FAF9F6]/95 border border-[#3A0F34]/15 backdrop-blur-sm text-[#3A0F34] rounded-full px-3 py-1 text-[10px] font-extrabold flex items-center gap-1.5 shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+          <div className="bg-white/75 border border-[#3A0F34]/20 backdrop-blur-md text-[#3A0F34] rounded-xl rounded-tr-xs rounded-bl-xs px-3 py-1.5 text-[10px] font-display font-extrabold uppercase tracking-wider flex items-center gap-1.5 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-[#10B981] shadow-[0_0_6px_rgba(16,185,129,0.8)] animate-pulse" />
             <span>{initialListings.length} startups</span>
           </div>
           {[
@@ -336,7 +336,7 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
             <Link
               key={href}
               href={href}
-              className="bg-[#DDE3E8]/90 border border-[#3A0F34]/15 backdrop-blur-sm text-[#3A0F34] rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors shadow-sm"
+              className="bg-white/70 hover:bg-[#3A0F34] border border-[#3A0F34]/20 hover:border-[#3A0F34] backdrop-blur-md text-[#3A0F34] hover:text-[#DDE3E8] rounded-xl rounded-tr-xs rounded-bl-xs px-3 py-1.5 text-[10px] font-display font-extrabold uppercase tracking-wider transition-all duration-200 shadow-xs hover:scale-105 active:scale-95"
             >
               {label}
             </Link>
@@ -347,7 +347,7 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
       {/* ── Bottom right: Data freshness + Coastal tour & Share button ── */}
       <div className="absolute bottom-6 right-4 z-[1100] flex items-center gap-2">
         {minutesAgo && (
-          <div className="hidden sm:flex items-center gap-1.5 bg-[#DDE3E8]/90 border border-[#3A0F34]/15 backdrop-blur-sm text-[#3A0F34]/70 rounded-full px-3 py-1.5 text-[10px] font-medium shadow-sm">
+          <div className="hidden sm:flex items-center gap-1.5 bg-white/75 border border-[#3A0F34]/20 backdrop-blur-md text-[#3A0F34]/80 rounded-xl rounded-tr-xs rounded-bl-xs px-3 py-1.5 text-[10px] font-medium shadow-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] shrink-0" />
             <span>Data updated {minutesAgo}</span>
           </div>
@@ -356,7 +356,7 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
           <button
             type="button"
             onClick={handleStartCoastalTour}
-            className="flex items-center gap-1.5 bg-[#DDE3E8]/90 border border-[#3A0F34]/15 backdrop-blur-sm text-[#3A0F34] rounded-full px-3 py-2 text-xs font-bold hover:bg-[#3A0F34] hover:text-[#EAAA00] transition-colors shadow-sm cursor-pointer"
+            className="flex items-center gap-1.5 bg-white/75 hover:bg-[#3A0F34] border border-[#3A0F34]/20 hover:border-[#3A0F34] backdrop-blur-md text-[#3A0F34] hover:text-[#EAAA00] rounded-xl rounded-tr-xs rounded-bl-xs px-3.5 py-1.5 text-xs font-display font-extrabold uppercase tracking-wider transition-all duration-200 shadow-xs hover:scale-105 active:scale-95 cursor-pointer"
             aria-label="Start coastal tour"
           >
             <span>🌊</span> Coastal tour
@@ -365,7 +365,7 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
         <button
           type="button"
           onClick={() => setShowShareModal(true)}
-          className="flex items-center gap-1.5 bg-[#DDE3E8]/90 border border-[#3A0F34]/15 backdrop-blur-sm text-[#3A0F34] rounded-full px-3 py-2 text-xs font-bold hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors shadow-sm cursor-pointer"
+          className="flex items-center gap-1.5 bg-white/75 hover:bg-[#3A0F34] border border-[#3A0F34]/20 hover:border-[#3A0F34] backdrop-blur-md text-[#3A0F34] hover:text-[#DDE3E8] rounded-xl rounded-tr-xs rounded-bl-xs px-3.5 py-1.5 text-xs font-display font-extrabold uppercase tracking-wider transition-all duration-200 shadow-xs hover:scale-105 active:scale-95 cursor-pointer"
           aria-label="Share this map"
         >
           <Share2 className="w-3.5 h-3.5" />

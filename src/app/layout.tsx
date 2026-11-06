@@ -50,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bricolage.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${bricolage.variable} ${dmSans.variable} min-h-full antialiased`}
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -60,7 +60,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Caveat:wght@600;700&family=Dancing+Script:wght@600;700&family=Great+Vibes&display=swap"
         />
       </head>
-      <body className="h-full flex flex-col font-sans bg-[#DDE3E8] text-[#3A0F34]">
+      <body className="min-h-screen flex flex-col font-sans bg-[#DDE3E8] text-[#3A0F34]">
         {children}
       </body>
     </html>

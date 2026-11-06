@@ -139,6 +139,7 @@ export interface Job {
   location?: string; // legacy alias
   department?: string | null;
   employment_type?: string | null;
+  salary_range?: string | null;
   apply_url: string;
   source?: 'ats' | 'founder' | 'careers_page' | 'jsonld';
   external_id?: string | null;

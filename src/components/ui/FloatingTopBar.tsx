@@ -121,7 +121,7 @@ export const FloatingTopBar: React.FC<FloatingTopBarProps> = ({
   return (
     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1100] flex flex-col items-center gap-2 w-full max-w-[calc(100%-120px)] sm:max-w-[640px] px-2 sm:px-3 pointer-events-none">
       {/* ── Main pill ── */}
-      <div className="pointer-events-auto w-full bg-[#DDE3E8] border border-[#3A0F34]/15 rounded-full shadow-[0_4px_24px_rgba(58,15,52,0.15)] flex items-center gap-2 px-3 py-2">
+      <div className="pointer-events-auto w-full bg-white/80 backdrop-blur-xl border border-[#3A0F34]/20 rounded-2xl rounded-tr-xs rounded-bl-xs shadow-[0_8px_30px_rgba(58,15,52,0.14)] flex items-center gap-2 px-3.5 py-2">
         {/* Logo mark + short name */}
         <Link href="/" className="flex items-center gap-1.5 shrink-0 select-none group">
           <svg width="22" height="22" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -243,11 +243,11 @@ export const FloatingTopBar: React.FC<FloatingTopBarProps> = ({
         <div className="w-px h-5 bg-[#3A0F34]/15 shrink-0" />
 
         {/* Map / Grid toggle */}
-        <div className="shrink-0 flex items-center bg-[#3A0F34]/8 rounded-full p-0.5 gap-0.5">
+        <div className="shrink-0 flex items-center bg-[#3A0F34]/8 rounded-xl rounded-tr-xs p-0.5 gap-0.5">
           <button
             type="button"
             onClick={() => onViewModeChange('map')}
-            className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+            className={`w-7 h-7 rounded-lg rounded-tr-xs flex items-center justify-center transition-colors cursor-pointer ${
               viewMode === 'map' ? 'bg-[#3A0F34] text-[#DDE3E8]' : 'text-[#3A0F34] hover:bg-[#3A0F34]/10'
             }`}
             aria-label="Map view"
@@ -257,7 +257,7 @@ export const FloatingTopBar: React.FC<FloatingTopBarProps> = ({
           <button
             type="button"
             onClick={() => onViewModeChange('grid')}
-            className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+            className={`w-7 h-7 rounded-lg rounded-tr-xs flex items-center justify-center transition-colors cursor-pointer ${
               viewMode === 'grid' ? 'bg-[#3A0F34] text-[#DDE3E8]' : 'text-[#3A0F34] hover:bg-[#3A0F34]/10'
             }`}
             aria-label="Grid view"
@@ -271,7 +271,7 @@ export const FloatingTopBar: React.FC<FloatingTopBarProps> = ({
         {/* Boost button */}
         <Link
           href="/boost"
-          className="hidden sm:flex shrink-0 items-center gap-1.5 bg-[#EAAA00] text-[#3A0F34] rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] hover:bg-[#3A0F34] hover:text-[#EAAA00] transition-colors cursor-pointer"
+          className="hidden sm:flex shrink-0 items-center gap-1.5 bg-[#EAAA00] text-[#3A0F34] rounded-xl rounded-tr-xs px-3 py-1.5 text-[11px] font-display font-extrabold uppercase tracking-[0.1em] hover:bg-[#3A0F34] hover:text-[#EAAA00] transition-all shadow-xs hover:scale-105 active:scale-95 cursor-pointer"
           aria-label="Boost your startup listing"
         >
           <Zap className="w-3 h-3 fill-current" />
@@ -280,7 +280,7 @@ export const FloatingTopBar: React.FC<FloatingTopBarProps> = ({
       </div>
 
       {/* ── Hiring sub-pill ── */}
-      <div className="pointer-events-auto flex items-center gap-3 bg-[#DDE3E8]/95 border border-[#3A0F34]/12 rounded-full px-4 py-1.5 shadow-[0_2px_12px_rgba(58,15,52,0.10)] text-xs text-[#3A0F34]">
+      <div className="pointer-events-auto flex items-center gap-3 bg-white/75 backdrop-blur-md border border-[#3A0F34]/15 rounded-xl rounded-tr-xs rounded-bl-xs px-4 py-1.5 shadow-[0_2px_12px_rgba(58,15,52,0.10)] text-xs text-[#3A0F34]">
         <button
           type="button"
           onClick={onOpenJobsPanel}

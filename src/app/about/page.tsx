@@ -24,7 +24,7 @@ export default async function AboutPage() {
     <div className="min-h-screen bg-[#DDE3E8] text-[#3A0F34] flex flex-col font-sans relative selection:bg-[#3A0F34] selection:text-[#EAAA00]">
       <Header />
 
-      <main className="flex-1 relative overflow-hidden py-14 lg:py-20 px-6 lg:px-12">
+      <main className="flex-1 relative py-14 lg:py-20 px-6 lg:px-12">
         <Strips animate={false} />
 
         <div className="absolute right-[-20px] bottom-[-30px] w-[260px] lg:w-[340px] h-[340px] lg:h-[440px] pointer-events-none z-0 opacity-40">

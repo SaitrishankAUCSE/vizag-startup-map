@@ -22,7 +22,7 @@ export default async function NewsPage() {
     <div className="min-h-screen bg-[#DDE3E8] text-[#3A0F34] flex flex-col font-sans relative selection:bg-[#3A0F34] selection:text-[#EAAA00]">
       <Header />
 
-      <main className="flex-1 relative overflow-hidden py-14 lg:py-20 px-6 lg:px-12">
+      <main className="flex-1 relative py-14 lg:py-20 px-6 lg:px-12">
         <Strips animate={false} />
 
         <div className="relative z-10 max-w-4xl mx-auto space-y-10">

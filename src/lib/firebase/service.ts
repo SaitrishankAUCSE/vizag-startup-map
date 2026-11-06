@@ -263,7 +263,7 @@ export async function getActiveJobs(): Promise<Job[]> {
         listingsSnap.docs.map((d) => [d.id, docData<Listing>(d)])
       );
 
-      return jobsSnap.docs
+      const firestoreJobs = jobsSnap.docs
         .map((d: any) => docData<Job>(d))
         .filter((j: any) => approvedIds.has(j.listing_id))
         .map((j: any) => {
@@ -277,12 +277,30 @@ export async function getActiveJobs(): Promise<Job[]> {
             company_sector: company?.sector,
           };
         });
+
+      if (firestoreJobs.length > 0) {
+        return firestoreJobs;
+      }
     } catch (err) {
       console.error('[firebase/service] getActiveJobs error:', err);
     }
   }
 
-  return localJobs.filter((j) => j.is_active);
+  // Graceful fallback to verified local jobs enriched with company metadata
+  const listingsMap = new Map(localListings.map((l) => [l.id, l]));
+  return localJobs
+    .filter((j) => j.is_active)
+    .map((j) => {
+      const company = listingsMap.get(j.listing_id);
+      return {
+        ...j,
+        company_name: j.company_name || company?.name,
+        company_slug: j.company_slug || company?.slug,
+        company_logo: j.company_logo || company?.logo_url,
+        company_area: j.company_area || company?.area,
+        company_sector: j.company_sector || company?.sector,
+      };
+    });
 }
 
 // ── Public Stats ──────────────────────────────────────────────────────────────

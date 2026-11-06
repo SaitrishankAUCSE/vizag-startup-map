@@ -18,7 +18,7 @@ export default function PricingPage() {
     <div className="min-h-screen bg-[#DDE3E8] text-[#3A0F34] flex flex-col font-sans relative selection:bg-[#3A0F34] selection:text-[#EAAA00]">
       <Header />
 
-      <main className="flex-1 relative overflow-hidden py-14 lg:py-20 px-4 md:px-8 max-w-6xl w-full mx-auto">
+      <main className="flex-1 relative py-14 lg:py-20 px-4 md:px-8 max-w-6xl w-full mx-auto">
         <Strips animate={false} />
 
         {/* Botanical Lily in corner */}

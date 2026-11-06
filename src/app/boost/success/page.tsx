@@ -12,7 +12,7 @@ export default function BoostSuccessPage() {
     <div className="min-h-screen bg-[#DDE3E8] text-[#3A0F34] flex flex-col font-sans relative selection:bg-[#3A0F34] selection:text-[#EAAA00]">
       <Header />
 
-      <main className="flex-1 relative overflow-hidden py-16 px-4 md:px-8 max-w-2xl w-full mx-auto">
+      <main className="flex-1 relative py-12 sm:py-16 px-4 md:px-8 max-w-2xl w-full mx-auto">
         <Strips animate={false} />
 
         <div className="relative z-10 bg-[#3A0F34] text-[#DDE3E8] rounded-3xl p-8 sm:p-12 shadow-2xl text-center space-y-6 animate-in zoom-in-95">
