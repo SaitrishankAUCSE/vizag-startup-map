@@ -349,7 +349,11 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
           />
         )}
         {/* Link row */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <div className="bg-[#FAF9F6]/95 border border-[#3A0F34]/15 backdrop-blur-sm text-[#3A0F34] rounded-full px-3 py-1 text-[10px] font-extrabold flex items-center gap-1.5 shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+            <span>{initialListings.length} startups</span>
+          </div>
           {[
             { href: '/about', label: 'About' },
             { href: '/news', label: 'News' },

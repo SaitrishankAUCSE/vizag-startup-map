@@ -52,6 +52,14 @@ export default function RootLayout({
       lang="en"
       className={`${bricolage.variable} ${dmSans.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Caveat:wght@600;700&family=Dancing+Script:wght@600;700&family=Great+Vibes&display=swap"
+        />
+      </head>
       <body className="h-full flex flex-col font-sans bg-[#DDE3E8] text-[#3A0F34]">
         {children}
       </body>

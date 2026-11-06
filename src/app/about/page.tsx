@@ -123,7 +123,7 @@ export default async function AboutPage() {
                   <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#EAAA00] bg-[#3A0F34] px-2 py-0.5 rounded-full inline-block mb-1">
                     Creator & Architect
                   </div>
-                  <h3 className="font-display font-bold text-lg text-[#3A0F34]">
+                  <h3 className="font-cursive text-2xl sm:text-3xl text-[#3A0F34] font-bold leading-tight">
                     Venkata Sai Trishank Kamma
                   </h3>
                   <p className="text-xs text-[#3A0F34]/70 font-medium">

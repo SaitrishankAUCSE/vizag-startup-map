@@ -40,22 +40,6 @@ export const Footer: React.FC = () => {
           >
             Terms
           </Link>
-          <a
-            href="https://hyderabadstartupsmap.lol?ref=vizagstartupmap"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-[#EAAA00] hover:text-[#DDE3E8] transition-colors"
-          >
-            Hyd Map ↗
-          </a>
-          <a
-            href="https://bangalorestartupmap.com?ref=vizagstartupmap"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-[#EAAA00] hover:text-[#DDE3E8] transition-colors"
-          >
-            BLR Map ↗
-          </a>
         </nav>
       </div>
 
@@ -66,7 +50,7 @@ export const Footer: React.FC = () => {
             href="https://linkedin.com/in/saitrishank"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#EAAA00] hover:underline font-bold"
+            className="text-[#EAAA00] hover:underline font-cursive text-base font-bold ml-1 inline-block"
           >
             Trishank Kamma
           </a>

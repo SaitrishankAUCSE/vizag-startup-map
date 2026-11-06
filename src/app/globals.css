@@ -8,6 +8,10 @@
   --font-sans: var(--font-dmsans), "DM Sans", -apple-system, sans-serif;
 }
 
+.font-cursive {
+  font-family: 'Dancing Script', 'Caveat', 'Great Vibes', 'Alex Brush', 'Brush Script MT', 'Segoe Script', cursive;
+}
+
 :root {
   --silver: #DDE3E8;
   --aubergine: #3A0F34;
