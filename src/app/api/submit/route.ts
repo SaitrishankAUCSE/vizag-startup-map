@@ -25,13 +25,13 @@ const submissionSchema = z.object({
   ats_url: z.string().optional().or(z.literal('')),
   // Submitter identity & verification
   founder_name: z.string().min(2, 'Submitter name is required'),
-  founder_role: z.string().min(2, 'Submitter role/designation is required'),
-  founder_linkedin: z.string().url('Personal LinkedIn profile URL is required to verify submitter identity').optional().or(z.literal('')),
+  founder_role: z.string().optional().or(z.literal('')),
+  founder_linkedin: z.string().optional().or(z.literal('')),
   contact_email: z.string().email('Valid official contact email is required'),
-  email_verification_token: z.string().min(10, 'Email verification is mandatory. Please verify your email via 6-digit code before submitting.'),
-  // Startup authenticity proof
-  verification_proof_type: z.enum(['dpiit', 'cin', 'gstin', 'incubator', 'media']),
-  verification_proof_value: z.string().min(3, 'Official verification proof ID, registration, or reference is required to prevent fake listings'),
+  email_verification_token: z.string().optional(),
+  // Startup authenticity proof (optional)
+  verification_proof_type: z.enum(['dpiit', 'cin', 'gstin', 'incubator', 'media']).optional(),
+  verification_proof_value: z.string().optional(),
   website_verified: z.boolean().optional(),
   // Honeypot field for bot spam protection
   hp_website_confirm: z.string().optional(),
@@ -72,16 +72,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Submitter Identity Verification: Validate Cryptographic Email OTP Token
-    const isTokenValid = isVerificationTokenValid(
-      validated.contact_email,
-      validated.email_verification_token
-    );
-    if (!isTokenValid) {
-      return NextResponse.json(
-        { error: 'Email verification token is invalid or has expired. Please verify your email again using the 6-digit code.' },
-        { status: 403 }
+    // 4. Submitter Identity Verification: Validate Cryptographic Email OTP Token if provided
+    if (validated.email_verification_token) {
+      const isTokenValid = isVerificationTokenValid(
+        validated.contact_email,
+        validated.email_verification_token
       );
+      if (!isTokenValid) {
+        return NextResponse.json(
+          { error: 'Email verification token is invalid or has expired. Please verify your email again.' },
+          { status: 403 }
+        );
+      }
     }
 
     // 5. Anti-Fake & Duplicate Guard: Check against existing listings
@@ -110,33 +112,22 @@ export async function POST(req: NextRequest) {
       }
     } catch {}
 
-    // 7. Calculate Trust & Verification Score (0 to 100)
-    let verificationScore = 0;
-    // Email verified via OTP: +30 pts
-    verificationScore += 30;
-    // Official Business / Incubation proof provided: +25 pts
+    // Calculate Trust & Verification Score (0 to 100) for Admin insight
+    let verificationScore = 20; // Base score for authentic submission
+    if (validated.email_verification_token) {
+      verificationScore += 30;
+    }
     if (validated.verification_proof_value && validated.verification_proof_value.length >= 4) {
       verificationScore += 25;
     }
-    // Website verified reachable: +20 pts
     if (validated.website_verified) {
-      verificationScore += 20;
-    }
-    // Company domain match (e.g. founder@company.com): +15 pts
-    if (domainMatched) {
       verificationScore += 15;
     }
-    // Founder LinkedIn identity: +10 pts
-    if (validated.founder_linkedin && validated.founder_linkedin.includes('linkedin.com')) {
+    if (domainMatched) {
       verificationScore += 10;
     }
-
-    // Minimum verification threshold
-    if (verificationScore < 50) {
-      return NextResponse.json(
-        { error: 'Verification requirements not met. Please complete email verification, provide a valid live website, and submit corporate or incubator proof.' },
-        { status: 400 }
-      );
+    if (validated.founder_linkedin && validated.founder_linkedin.includes('linkedin.com')) {
+      verificationScore += 10;
     }
 
     // Auto-detect ATS provider & slug
@@ -172,8 +163,8 @@ export async function POST(req: NextRequest) {
         domain_matched: domainMatched,
         website_verified: !!validated.website_verified,
         verification_score: verificationScore,
-        verification_proof_type: validated.verification_proof_type,
-        verification_proof_value: validated.verification_proof_value,
+        verification_proof_type: (validated.verification_proof_type as 'dpiit' | 'cin' | 'gstin' | 'incubator' | 'media') || null,
+        verification_proof_value: validated.verification_proof_value || null,
         verification_details: {
           ip,
           verified_at: new Date().toISOString(),
