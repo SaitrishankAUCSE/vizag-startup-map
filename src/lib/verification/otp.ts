@@ -124,7 +124,9 @@ export async function createAndSendOtp(
     htmlContent,
   });
 
-  console.log(`[OTP] Sent verification code to ${normalizedEmail}: ${code}`);
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[OTP] Sent verification code to ${normalizedEmail} (Masked: ${code.slice(0, 2)}****)`);
+  }
 
   return {
     success: true,
