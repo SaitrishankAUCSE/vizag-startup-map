@@ -6,6 +6,7 @@ import { Listing, Job, FilterState } from '@/types';
 import { LISTING_TYPES, AREAS, STAGES, SECTORS } from '@/config/constants';
 import { Search, ExternalLink, Briefcase, MapPin, ArrowRight, Sparkles, Download } from 'lucide-react';
 import { getOriginalLogoUrl } from '@/lib/logos';
+import { ShowcaseSpotlightBanner } from '@/components/ui/ShowcaseSpotlightBanner';
 
 interface GridDirectoryClientProps {
   initialListings: Listing[];
@@ -229,6 +230,9 @@ export const GridDirectoryClient: React.FC<GridDirectoryClientProps> = ({
           </div>
         </div>
       </div>
+
+      {/* ── Active Weekly Showcase Spotlight Strip ── */}
+      <ShowcaseSpotlightBanner />
 
       {/* ── Results Bar ── */}
       <div className="flex items-center justify-between text-xs font-bold text-[#3A0F34]/70">
