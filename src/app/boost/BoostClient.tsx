@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { Listing } from '@/types';
 import { AREAS, SECTORS } from '@/config/constants';
+import { CartoonButton } from '@/components/ui/cartoon-button';
 
 interface BoostClientProps {
   listings: Listing[];
@@ -646,14 +647,16 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
                 </div>
 
                 {/* Submit Action: Opens Gateway Modal */}
-                <button
+                <CartoonButton
                   type="submit"
                   disabled={(!selectedStartup && !customStartupName.trim()) || !email}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-[#3A0F34] hover:bg-[#EAAA00] text-[#DDE3E8] hover:text-[#3A0F34] font-display font-extrabold text-xs uppercase tracking-wider transition-all shadow-md hover:scale-[1.02] active:scale-95 disabled:opacity-40 disabled:pointer-events-none cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>Continue to Secure Payment (₹499) →</span>
-                </button>
+                  label="Continue to Secure Payment (₹499) →"
+                  variant="marigold"
+                  size="lg"
+                  className="w-full"
+                  icon={<Lock className="w-3.5 h-3.5" />}
+                  iconPosition="left"
+                />
               </form>
 
               {/* Guarantees */}
@@ -882,25 +885,18 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
               )}
 
               {/* Action Buttons */}
-              <div className="space-y-2 pt-2">
-                <button
-                  type="button"
+              <div className="space-y-2 pt-2 flex flex-col items-center">
+                <CartoonButton
                   onClick={handleExecutePayment}
                   disabled={paymentProcessing}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-[#3A0F34] hover:bg-[#EAAA00] text-white hover:text-[#3A0F34] font-display font-extrabold text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {paymentProcessing ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>{processingStep}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="w-3.5 h-3.5" />
-                      <span>Authorize & Pay ₹499.00</span>
-                    </>
-                  )}
-                </button>
+                  loading={paymentProcessing}
+                  label={paymentProcessing ? processingStep : "Authorize & Pay ₹499.00"}
+                  variant="marigold"
+                  size="lg"
+                  className="w-full"
+                  icon={<Lock className="w-3.5 h-3.5" />}
+                  iconPosition="left"
+                />
 
                 {!paymentProcessing && (
                   <button

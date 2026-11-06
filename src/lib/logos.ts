@@ -50,14 +50,14 @@ export function getOriginalLogoUrl(listing: { website?: string | null; logo_url?
     return VERIFIED_VIZAG_LOGOS[domain];
   }
 
-  // If custom logo_url exists and is NOT Google's generic s2 favicon
-  if (listing.logo_url && !listing.logo_url.includes('google.com/s2/favicons')) {
+  // If custom logo_url exists
+  if (listing.logo_url) {
     return listing.logo_url;
   }
 
   if (domain) {
-    // icon.horse fetches the live website's original icon directly without Google's generic globe
-    return `https://icon.horse/icon/${domain}`;
+    // Ultra-reliable favicon CDN with zero ORB/400 failures
+    return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
   }
 
   return null;

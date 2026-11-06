@@ -13,6 +13,38 @@ interface FilterPanelProps {
   totalResults: number;
 }
 
+const Chip = ({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.08em] border transition-all cursor-pointer flex items-center gap-1.5 select-none active:scale-95 ${
+      active
+        ? 'bg-[#3A0F34] text-[#DDE3E8] border-[#3A0F34] shadow-xs'
+        : 'bg-white/70 hover:bg-white text-[#3A0F34] border-[#3A0F34]/20 hover:border-[#3A0F34]'
+    }`}
+  >
+    {active && <Check className="w-3.5 h-3.5 text-[#EAAA00] stroke-[3]" />}
+    <span>{label}</span>
+  </button>
+);
+
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div className="space-y-1.5">
+    <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#3A0F34]/65">
+      {title}
+    </div>
+    <div className="flex flex-wrap gap-1.5">{children}</div>
+  </div>
+);
+
 export const FilterPanel: React.FC<FilterPanelProps> = ({
   filters,
   onFilterChange,
@@ -28,38 +60,6 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
     campus: 'Campuses',
     coworking: 'Coworking',
   };
-
-  const Chip = ({
-    label,
-    active,
-    onClick,
-  }: {
-    label: string;
-    active: boolean;
-    onClick: () => void;
-  }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`px-2.5 py-1 rounded-full text-[10.5px] font-bold uppercase tracking-[0.08em] border transition-all cursor-pointer flex items-center gap-1 select-none active:scale-95 ${
-        active
-          ? 'bg-[#3A0F34] text-[#DDE3E8] border-[#3A0F34] shadow-xs'
-          : 'bg-white/60 hover:bg-white text-[#3A0F34] border-[#3A0F34]/20 hover:border-[#3A0F34]'
-      }`}
-    >
-      {active && <Check className="w-3 h-3 text-[#EAAA00] stroke-[3]" />}
-      <span>{label}</span>
-    </button>
-  );
-
-  const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="space-y-1.5">
-      <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#3A0F34]/65">
-        {title}
-      </div>
-      <div className="flex flex-wrap gap-1.5">{children}</div>
-    </div>
-  );
 
   return (
     <div className="absolute top-[76px] sm:top-[82px] left-1/2 -translate-x-1/2 z-[1300] w-full max-w-[460px] px-3 animate-in fade-in zoom-in-95 duration-200">

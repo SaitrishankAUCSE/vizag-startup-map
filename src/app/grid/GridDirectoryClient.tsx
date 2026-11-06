@@ -31,6 +31,38 @@ function getInitials(name?: string | null): string {
     .join('') || 'VS';
 }
 
+function GridCardLogo({
+  listing,
+  variant,
+  initials,
+}: {
+  listing: Listing;
+  variant: { bg: string; text: string };
+  initials: string;
+}) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const logoUrl = getOriginalLogoUrl(listing);
+
+  if (!logoUrl || imgFailed) {
+    return (
+      <span className="font-display font-extrabold text-base" style={{ color: variant.text }}>
+        {initials}
+      </span>
+    );
+  }
+
+  return (
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img
+      src={logoUrl}
+      alt={listing.name}
+      loading="lazy"
+      className="w-full h-full object-contain p-1.5 bg-white"
+      onError={() => setImgFailed(true)}
+    />
+  );
+}
+
 export const GridDirectoryClient: React.FC<GridDirectoryClientProps> = ({
   initialListings,
   jobs,
@@ -304,30 +336,7 @@ export const GridDirectoryClient: React.FC<GridDirectoryClientProps> = ({
                       className="w-12 h-12 rounded-xl border border-[#3A0F34]/20 shrink-0 flex items-center justify-center overflow-hidden shadow-xs bg-white"
                       style={{ background: variant.bg }}
                     >
-                      {getOriginalLogoUrl(listing) ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={getOriginalLogoUrl(listing)!}
-                          alt={listing.name}
-                          className="w-full h-full object-contain p-1.5 bg-white"
-                          onLoad={(e) => {
-                            const img = e.currentTarget;
-                            if (img.naturalWidth <= 16 && img.naturalHeight <= 16) {
-                              img.style.display = 'none';
-                            }
-                          }}
-                          onError={(e) => {
-                            (e.target as HTMLElement).style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <span
-                          className="font-display font-extrabold text-base"
-                          style={{ color: variant.text }}
-                        >
-                          {initials}
-                        </span>
-                      )}
+                      <GridCardLogo listing={listing} variant={variant} initials={initials} />
                     </div>
 
                     {/* Title + Area */}

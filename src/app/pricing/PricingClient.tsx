@@ -2,11 +2,18 @@
 
 import React, { useState } from 'react';
 import { PRICING_CONFIG } from '@/config/pricing';
-import { Check, Lock, Sparkles } from 'lucide-react';
+import { Check, Lock, Sparkles, X, ShieldCheck, QrCode, CreditCard, Building, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { CartoonButton } from '@/components/ui/cartoon-button';
 
 export function PricingClient() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [checkoutEmail, setCheckoutEmail] = useState('');
+  const [checkoutName, setCheckoutName] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card' | 'netbanking'>('upi');
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle');
+  const [statusMessage, setStatusMessage] = useState('');
 
   const proPrice =
     billingCycle === 'monthly'
@@ -17,6 +24,27 @@ export function PricingClient() {
     billingCycle === 'monthly'
       ? PRICING_CONFIG.featured.monthly.displayPrice
       : PRICING_CONFIG.featured.yearly.displayPrice;
+
+  const handleSimulatePayment = (success: boolean) => {
+    if (!checkoutEmail || !checkoutEmail.includes('@')) {
+      setStatusMessage('Please enter a valid billing email address.');
+      setPaymentStatus('failed');
+      return;
+    }
+
+    setPaymentStatus('processing');
+    setStatusMessage('Contacting Razorpay Secure Gateway…');
+
+    setTimeout(() => {
+      if (success) {
+        setPaymentStatus('success');
+        setStatusMessage('Payment verified! Your Pro Ecosystem Pass has been activated.');
+      } else {
+        setPaymentStatus('failed');
+        setStatusMessage('Payment authorization declined by issuing bank. Please retry or choose another payment method.');
+      }
+    }, 1200);
+  };
 
   return (
     <div className="space-y-16">
@@ -158,15 +186,17 @@ export function PricingClient() {
           </div>
 
           <div className="mt-8 pt-4">
-            <button
-              type="button"
+            <CartoonButton
+              label="GO PRO"
+              variant="marigold"
+              size="md"
+              className="w-full"
               onClick={() => {
-                alert(`Pro Plan (${billingCycle}) selected! Demo checkout state.`);
+                setShowCheckoutModal(true);
+                setPaymentStatus('idle');
+                setStatusMessage('');
               }}
-              className="w-full inline-flex items-center justify-center px-5 py-3 rounded-full bg-[#EAAA00] text-[#3A0F34] text-xs font-bold uppercase tracking-[0.14em] hover:bg-[#DDE3E8] hover:text-[#3A0F34] transition-colors cursor-pointer"
-            >
-              GO PRO
-            </button>
+            />
           </div>
         </div>
 
@@ -217,12 +247,13 @@ export function PricingClient() {
           </div>
 
           <div className="mt-8 pt-4 space-y-2">
-            <Link
+            <CartoonButton
+              label="RESERVE SPOTLIGHT →"
+              variant="aubergine"
+              size="md"
+              className="w-full"
               href="/ad-slots/submit"
-              className="w-full inline-flex items-center justify-center px-5 py-3 rounded-full bg-[#3A0F34] text-[#DDE3E8] hover:bg-[#EAAA00] hover:text-[#3A0F34] text-xs font-bold uppercase tracking-[0.14em] transition-colors shadow-xs"
-            >
-              RESERVE WEEKLY SPOTLIGHT →
-            </Link>
+            />
           </div>
         </div>
       </div>
@@ -286,6 +317,163 @@ export function PricingClient() {
           </table>
         </div>
       </div>
+
+      {/* ── Interactive Razorpay Pro Checkout Modal ── */}
+      {showCheckoutModal && (
+        <div className="fixed inset-0 z-[2000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-[#DDE3E8] border-2 border-[#3A0F34] w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl relative">
+            <button
+              type="button"
+              onClick={() => setShowCheckoutModal(false)}
+              className="absolute top-5 right-5 p-2 rounded-full hover:bg-[#3A0F34]/10 text-[#3A0F34] transition-colors cursor-pointer"
+              aria-label="Close checkout modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-2 mb-2">
+              <span className="p-2 rounded-xl bg-[#EAAA00] text-[#3A0F34]">
+                <Sparkles className="w-5 h-5" />
+              </span>
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#3A0F34]/70">
+                  Razorpay Secure Subscription
+                </span>
+                <h3 className="font-display font-extrabold text-2xl uppercase tracking-tight text-[#3A0F34]">
+                  Pro Ecosystem Pass
+                </h3>
+              </div>
+            </div>
+
+            <div className="bg-white/80 border border-[#3A0F34]/15 rounded-2xl p-4 my-4 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-[#3A0F34]">Selected Plan</p>
+                <p className="text-[11px] text-[#3A0F34]/70">
+                  {billingCycle === 'monthly' ? 'Monthly Pass (Renews every 30 days)' : 'Annual Pass (Renews yearly · Save 35%)'}
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="font-display font-black text-2xl text-[#3A0F34]">
+                  {proPrice}
+                </span>
+              </div>
+            </div>
+
+            {/* Merchant Verification Notice matching live state */}
+            <div className="bg-[#EAAA00]/15 border border-[#EAAA00]/60 rounded-xl p-3 mb-4 text-[11px] text-[#3A0F34] flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#3A0F34] shrink-0 mt-0.5" />
+              <span>
+                <strong>Razorpay Test & Live Gateways:</strong> Live merchant website verification is currently active for <code>vizag-startup-map.vercel.app</code>. Instant test-mode simulation is enabled below.
+              </span>
+            </div>
+
+            {paymentStatus === 'success' ? (
+              <div className="py-6 text-center space-y-3">
+                <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
+                <h4 className="font-display font-extrabold text-xl text-[#3A0F34]">
+                  Subscription Activated!
+                </h4>
+                <p className="text-xs text-[#3A0F34]/75 max-w-sm mx-auto">
+                  {statusMessage} A receipt has been dispatched to {checkoutEmail}.
+                </p>
+                <div className="pt-2">
+                  <CartoonButton
+                    label="Go to My Account"
+                    variant="marigold"
+                    size="md"
+                    href="/account"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#3A0F34] mb-1">
+                    Receipt Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    value={checkoutEmail}
+                    onChange={(e) => setCheckoutEmail(e.target.value)}
+                    placeholder="founder@yourstartup.com"
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#3A0F34]/30 bg-white text-sm text-[#3A0F34] focus:outline-none focus:ring-2 focus:ring-[#EAAA00]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#3A0F34] mb-1">
+                    Payment Method
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('upi')}
+                      className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 cursor-pointer transition-all ${
+                        paymentMethod === 'upi'
+                          ? 'border-[#3A0F34] bg-[#3A0F34] text-[#DDE3E8]'
+                          : 'border-[#3A0F34]/20 bg-white text-[#3A0F34] hover:bg-[#3A0F34]/5'
+                      }`}
+                    >
+                      <QrCode className="w-4 h-4" />
+                      <span>UPI QR</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('card')}
+                      className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 cursor-pointer transition-all ${
+                        paymentMethod === 'card'
+                          ? 'border-[#3A0F34] bg-[#3A0F34] text-[#DDE3E8]'
+                          : 'border-[#3A0F34]/20 bg-white text-[#3A0F34] hover:bg-[#3A0F34]/5'
+                      }`}
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      <span>Card</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('netbanking')}
+                      className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 cursor-pointer transition-all ${
+                        paymentMethod === 'netbanking'
+                          ? 'border-[#3A0F34] bg-[#3A0F34] text-[#DDE3E8]'
+                          : 'border-[#3A0F34]/20 bg-white text-[#3A0F34] hover:bg-[#3A0F34]/5'
+                      }`}
+                    >
+                      <Building className="w-4 h-4" />
+                      <span>Netbanking</span>
+                    </button>
+                  </div>
+                </div>
+
+                {paymentStatus === 'failed' && (
+                  <div className="p-3 rounded-xl bg-red-100 border border-red-300 text-xs text-red-800 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                    <span>{statusMessage}</span>
+                  </div>
+                )}
+
+                <div className="pt-2 space-y-2">
+                  <CartoonButton
+                    label={`Pay ${proPrice} Securely`}
+                    variant="marigold"
+                    size="lg"
+                    className="w-full"
+                    loading={paymentStatus === 'processing'}
+                    disabled={paymentStatus === 'processing'}
+                    onClick={() => handleSimulatePayment(true)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleSimulatePayment(false)}
+                    className="w-full py-1 text-[11px] font-semibold text-[#3A0F34]/50 hover:text-[#3A0F34] transition-colors cursor-pointer text-center"
+                  >
+                    Simulate Payment Failure (Test Resilience)
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

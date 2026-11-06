@@ -6,8 +6,13 @@ import {
   NavigationControl,
   Popup,
   Marker,
+  setWorkerUrl,
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+
+if (typeof window !== 'undefined') {
+  setWorkerUrl('/maplibre-gl-worker.js');
+}
 import { Listing } from '@/types';
 import { MAP_CONFIG } from '@/config/map';
 import { MapLegend } from '@/components/ui/MapLegend';

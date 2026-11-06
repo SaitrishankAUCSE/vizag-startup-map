@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Logo } from '@/components/ui/Logo';
 import { Menu, Search, X } from 'lucide-react';
 import { COPY } from '@/content/copy';
+import { LiquidNavbar } from '@/components/ui/liquid-glass-navbar';
+import { CartoonButton } from '@/components/ui/cartoon-button';
 
 interface HeaderProps {
   onSearchClick?: () => void;
@@ -47,89 +49,26 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Right on Desktop: Tiny uppercase links, search icon, outlined button, login */}
       <nav className="hidden lg:flex items-center gap-6">
-        {onExploreClick ? (
-          <button
-            type="button"
-            onClick={onExploreClick}
-            className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity cursor-pointer font-bold tracking-[0.14em] text-[11px]"
-          >
-            MAP
-          </button>
-        ) : (
-          <Link
-            href="/"
-            className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity font-bold tracking-[0.14em] text-[11px]"
-          >
-            MAP
-          </Link>
-        )}
-
-        {onGridClick ? (
-          <button
-            type="button"
-            onClick={onGridClick}
-            className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity cursor-pointer font-bold tracking-[0.14em] text-[11px]"
-          >
-            GRID
-          </button>
-        ) : (
-          <Link
-            href="/grid"
-            className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity font-bold tracking-[0.14em] text-[11px]"
-          >
-            GRID
-          </Link>
-        )}
-
-        {onJobsClick ? (
-          <button
-            type="button"
-            onClick={onJobsClick}
-            className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity cursor-pointer font-bold tracking-[0.14em] text-[11px]"
-          >
-            JOBS
-          </button>
-        ) : (
-          <Link
-            href="/jobs"
-            className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity font-bold tracking-[0.14em] text-[11px]"
-          >
-            JOBS
-          </Link>
-        )}
-
-        <Link
-          href="/news"
-          className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity font-bold tracking-[0.14em] text-[11px]"
-        >
-          NEWS
-        </Link>
-
-        <Link
-          href="/pricing"
-          className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity font-bold tracking-[0.14em] text-[11px]"
-        >
-          PRICING
-        </Link>
+        <LiquidNavbar tone="silver" className="hidden lg:inline-flex" />
 
         {onSearchClick && (
           <button
             type="button"
             onClick={onSearchClick}
             aria-label="Search ecosystem"
-            className="p-1.5 rounded-full hover:bg-[#3A0F34]/[0.08] text-[#3A0F34] transition-colors cursor-pointer"
+            className="p-2 rounded-full hover:bg-[#3A0F34]/[0.08] text-[#3A0F34] transition-colors cursor-pointer"
           >
             <Search className="w-4 h-4" />
           </button>
         )}
 
-        {/* Small outlined button: ADD YOUR STARTUP */}
-        <Link
+        {/* Tactile 3D Action Button: ADD YOUR STARTUP */}
+        <CartoonButton
+          label={COPY.nav.addStartup}
+          variant="marigold"
+          size="sm"
           href="/submit"
-          className="px-4 py-1.5 rounded-full border-[1.5px] border-[#3A0F34] font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-[#3A0F34] hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors"
-        >
-          {COPY.nav.addStartup}
-        </Link>
+        />
 
         {/* Text link: LOGIN */}
         <Link

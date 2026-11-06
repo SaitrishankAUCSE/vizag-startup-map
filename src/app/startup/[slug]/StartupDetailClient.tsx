@@ -16,11 +16,16 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { Listing } from '@/types';
+import dynamic from 'next/dynamic';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Strips } from '@/components/ui/Strips';
-import { MiniMap } from '@/components/map/MiniMap';
 import { getOriginalLogoUrl } from '@/lib/logos';
+
+const MiniMap = dynamic(() => import('@/components/map/MiniMap').then((m) => m.MiniMap), {
+  ssr: false,
+  loading: () => <div className="h-64 w-full bg-[#3A0F34]/5 animate-pulse rounded-2xl border border-[#3A0F34]/10" />,
+});
 
 interface StartupDetailClientProps {
   listing: Listing;

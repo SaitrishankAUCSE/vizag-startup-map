@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Share2, Plus, Clock } from 'lucide-react';
+import { CartoonButton } from '@/components/ui/cartoon-button';
 import { Listing, Job, FilterState, PublicStats } from '@/types';
 import { FloatingTopBar } from '@/components/ui/FloatingTopBar';
 import { FilterPanel } from '@/components/ui/FilterPanel';
@@ -225,19 +226,15 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
 
       {/* ── Top-Right Dedicated Action: Submit Startup ── */}
       <div className="absolute top-4 right-4 z-[1100] flex items-center gap-2 pointer-events-auto">
-        <Link
+        <CartoonButton
+          label="Submit Startup"
           href="/submit"
-          className="group flex items-center gap-2 bg-[#3A0F34] hover:bg-[#EAAA00] text-[#DDE3E8] hover:text-[#3A0F34] pl-4 pr-4 py-2.5 rounded-2xl rounded-tr-xs rounded-bl-xs shadow-[0_6px_25px_rgba(58,15,52,0.25)] border border-[#EAAA00]/50 transition-all duration-300 hover:scale-[1.04] active:scale-95 text-xs font-display font-extrabold uppercase tracking-wider backdrop-blur-md cursor-pointer"
+          variant="aubergine"
+          size="sm"
+          icon={<Plus className="w-3.5 h-3.5 stroke-[2.5]" />}
+          iconPosition="left"
           aria-label="Submit your startup to Vizag Startup Map"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#EAAA00] opacity-75 group-hover:bg-[#3A0F34]"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#EAAA00] group-hover:bg-[#3A0F34]"></span>
-          </span>
-          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span className="hidden sm:inline">Submit Startup</span>
-          <span className="sm:hidden">Submit</span>
-        </Link>
+        />
       </div>
 
       {/* ── Non-intrusive empty filter toast ── */}

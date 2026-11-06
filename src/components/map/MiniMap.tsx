@@ -38,8 +38,11 @@ export function MiniMap({
     let mapInstance: unknown = null;
 
     // Dynamically load MapLibre on client only to avoid SSR worker memory overhead
-    import('maplibre-gl').then(({ Map: MapLibreMap, NavigationControl, Marker }) => {
+    import('maplibre-gl').then(({ Map: MapLibreMap, NavigationControl, Marker, setWorkerUrl }) => {
       if (!mapContainerRef.current) return;
+      if (typeof window !== 'undefined') {
+        setWorkerUrl('/maplibre-gl-worker.js');
+      }
 
       const map = new MapLibreMap({
         container: mapContainerRef.current,

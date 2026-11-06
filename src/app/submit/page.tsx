@@ -19,6 +19,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { LISTING_TYPES, AREAS, STAGES, SECTORS } from '@/config/constants';
+import { CartoonButton } from '@/components/ui/cartoon-button';
 
 // Approximate neighborhood center coordinates for Vizag
 const AREA_COORDINATES: Record<string, { lat: number; lng: number }> = {
@@ -515,16 +516,19 @@ export default function SubmitPage() {
                 </div>
               )}
 
-              <div className="pt-4">
-                <button
+              <div className="pt-4 flex flex-col items-center">
+                <CartoonButton
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 px-6 rounded-xl bg-zinc-900 hover:bg-black text-white font-bold text-sm transition-all shadow-sm cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  <span>{loading ? 'Submitting...' : 'Submit Startup to Directory (Free)'}</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-                <p className="text-[11px] text-center text-zinc-400 mt-2">
+                  loading={loading}
+                  label={loading ? 'Submitting...' : 'Submit Startup to Directory (Free)'}
+                  variant="marigold"
+                  size="lg"
+                  className="w-full"
+                  icon={<ChevronRight className="w-4 h-4" />}
+                  iconPosition="right"
+                />
+                <p className="text-[11px] text-center text-zinc-400 mt-3">
                   Submissions are reviewed and pinned to the live map within 24 hours.
                 </p>
               </div>
