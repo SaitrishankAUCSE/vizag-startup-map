@@ -51,13 +51,13 @@ export function AccountClient() {
           </div>
 
           <p className="text-xs text-[#DDE3E8]/80 leading-relaxed">
-            All features on Vizag Startup Map are completely unlocked: full CSV directory exports, instant job alerts, verified founder handles, and free 7-day spotlight boosts.
+            All features on Vizag Startup Map are completely unlocked: full CSV directory exports, instant job alerts, verified founder handles, and open community access for everyone.
           </p>
 
           <div className="pt-3 border-t border-[#DDE3E8]/15 flex items-center justify-between text-xs text-[#DDE3E8]/70">
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-[#EAAA00]" />
-              No credit card or recurring charges
+              No credit card, paywalls, or subscriptions
             </span>
             <span className="font-semibold text-[#EAAA00]">Active</span>
           </div>
@@ -66,16 +66,16 @@ export function AccountClient() {
         {/* Actions */}
         <div className="flex flex-wrap gap-3 pt-2">
           <Link
-            href="/boost"
+            href="/submit"
             className="px-5 py-2.5 rounded-full bg-[#EAAA00] text-[#3A0F34] font-display font-extrabold text-xs uppercase tracking-wider hover:bg-[#3A0F34] hover:text-[#EAAA00] transition-colors"
           >
-            Activate Free Spotlight
+            + Add Your Startup
           </Link>
           <Link
-            href="/submit"
+            href="/grid"
             className="px-5 py-2.5 rounded-full border border-[#3A0F34]/40 text-[#3A0F34] text-xs font-bold uppercase tracking-wider hover:bg-[#3A0F34]/10 transition-colors"
           >
-            List a Startup
+            Explore Directory Grid
           </Link>
         </div>
       </div>

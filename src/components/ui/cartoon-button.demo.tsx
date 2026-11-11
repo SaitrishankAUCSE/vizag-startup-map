@@ -12,7 +12,7 @@ export function CartoonButtonDemo() {
           Vizag Startup Map · Tactile Action Buttons
         </h3>
         <p className="text-xs text-[#3A0F34]/70 mt-1">
-          Used exclusively on primary conversion touchpoints (+ Submit, Boost, Apply, Go Pro).
+          Used exclusively on primary community touchpoints (+ Submit, Apply, View Map).
         </p>
       </div>
 
@@ -26,11 +26,11 @@ export function CartoonButtonDemo() {
         />
 
         <CartoonButton
-          label="Boost Listing"
+          label="Explore Jobs"
           variant="aubergine"
           size="md"
           icon={<Sparkles className="w-4 h-4 text-[#EAAA00]" />}
-          onClick={() => alert('Boost clicked')}
+          onClick={() => alert('Explore jobs clicked')}
         />
 
         <CartoonButton

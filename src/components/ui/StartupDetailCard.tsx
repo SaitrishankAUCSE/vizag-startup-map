@@ -216,7 +216,7 @@ export const StartupDetailCard: React.FC<StartupDetailCardProps> = ({ listing, j
 
                   {listing.is_boosted && (
                     <span className="bg-[#EAAA00] text-[#3A0F34] rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
-                      Boosted
+                      Featured
                     </span>
                   )}
 

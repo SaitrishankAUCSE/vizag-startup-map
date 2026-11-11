@@ -87,7 +87,7 @@ export default function ChangelogPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#3A0F34]/70">
             <nav className="flex flex-wrap items-center gap-4">
               <Link href="/" className="hover:text-[#3A0F34]">Home</Link>
-              <Link href="/boost" className="hover:text-[#3A0F34]">Boost</Link>
+              <Link href="/submit" className="hover:text-[#3A0F34]">Submit</Link>
               <Link href="/terms" className="hover:text-[#3A0F34]">Terms</Link>
               <Link href="/privacy" className="hover:text-[#3A0F34]">Privacy</Link>
             </nav>

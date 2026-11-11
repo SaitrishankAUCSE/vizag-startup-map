@@ -301,33 +301,10 @@ export async function dispatchMorningDigest(): Promise<{
     };
   }
 
-  // 4. Load all subscribers and filter by 3-Day Free Trial vs Pro status
+  // 4. Load all active community subscribers (100% Free & Open)
   const allSubscribers = await getActiveSubscribers();
-  const now = Date.now();
-  const trialDurationMs = FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000;
-
-  const eligibleRecipients: DigestSubscriber[] = [];
-  let skippedExpired = 0;
-
-  for (const sub of allSubscribers) {
-    if (sub.plan === 'pro') {
-      // Pro subscribers always receive morning updates throughout their active plan
-      eligibleRecipients.push(sub);
-      continue;
-    }
-
-    // Free subscriber trial check: 3 days from created_at
-    const createdAtMs = new Date(sub.created_at).getTime() || now;
-    const trialEndsMs = sub.trial_ends_at
-      ? new Date(sub.trial_ends_at).getTime()
-      : createdAtMs + trialDurationMs;
-
-    if (now <= trialEndsMs) {
-      eligibleRecipients.push(sub);
-    } else {
-      skippedExpired++;
-    }
-  }
+  const eligibleRecipients: DigestSubscriber[] = [...allSubscribers];
+  const skippedExpired = 0;
 
   if (eligibleRecipients.length === 0) {
     return {
@@ -464,19 +441,19 @@ export async function dispatchMorningDigest(): Promise<{
 
             <div class="pro-banner">
               <div style="font-size: 10px; font-weight: 800; color: #EAAA00; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 4px;">
-                ⭐ Pro Member Intelligence
+                ⭐ Free Community Platform
               </div>
               <p style="font-size: 12px; margin: 0 0 12px 0; color: #DDE3E8; line-height: 1.5;">
-                Pro members get continuous daily job updates throughout their subscription, direct verified Founder LinkedIn/WhatsApp dossier access, and full 1-click CSV ecosystem exports.
+                Vizag Startup Map is 100% free and open. All subscribers receive continuous daily updates, verified founder contacts, and open CSV ecosystem exports with zero fees.
               </p>
-              <a href="https://vizagstartupmap.com/pricing" style="background: #EAAA00; color: #3A0F34; text-decoration: none; font-size: 11px; font-weight: 800; padding: 8px 18px; border-radius: 9999px; display: inline-block;">
-                Get Pro Access (₹499/mo) →
+              <a href="https://vizagstartupmap.com" style="background: #EAAA00; color: #3A0F34; text-decoration: none; font-size: 11px; font-weight: 800; padding: 8px 18px; border-radius: 9999px; display: inline-block;">
+                Explore Interactive Map →
               </a>
             </div>
           </div>
           <div class="footer">
-            You are receiving this single morning digest because you subscribed on <a href="https://vizagstartupmap.com" style="color: #3A0F34; font-weight: 700;">Vizag Startup Map</a>.<br />
-            Free subscriber trial active for 3 days. Upgrade to Pro for uninterrupted daily updates.
+            You are receiving this morning digest because you subscribed on <a href="https://vizagstartupmap.com" style="color: #3A0F34; font-weight: 700;">Vizag Startup Map</a>.<br />
+            100% free public interest atlas for the Visakhapatnam tech corridor.
           </div>
         </div>
       </body>

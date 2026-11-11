@@ -30,11 +30,10 @@ export default async function DashboardPage() {
         </Link>
         <div className="flex items-center gap-3">
           <Link
-            href="/pricing"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-400 hover:bg-amber-300 text-gray-950 transition-all shadow-xs"
+            href="/submit"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#EAAA00] hover:bg-[#D49800] text-[#3A0F34] transition-all shadow-xs font-bold"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-900" />
-            <span>Featured Listing (₹999/mo)</span>
+            <span>+ Add Startup</span>
           </Link>
         </div>
       </header>

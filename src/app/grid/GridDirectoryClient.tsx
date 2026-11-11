@@ -347,7 +347,7 @@ export const GridDirectoryClient: React.FC<GridDirectoryClientProps> = ({
                         </h2>
                         {listing.is_featured && (
                           <span className="bg-[#EAAA00] text-[#3A0F34] text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                            <Sparkles className="w-2.5 h-2.5" /> Boosted
+                            <Sparkles className="w-2.5 h-2.5" /> Featured
                           </span>
                         )}
                       </div>

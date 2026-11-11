@@ -390,27 +390,6 @@ export function FounderDashboardClient({
               </p>
             </div>
           </div>
-
-          {/* Featured Listing Promotion Card */}
-          {!selectedListing?.is_featured && (
-            <div className="bg-gradient-to-r from-teal-900 to-[#0E4D64] rounded-2xl p-6 text-white flex flex-col md:flex-row items-center justify-between gap-4">
-              <div>
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded mb-2">
-                  <Sparkles className="w-3 h-3" /> Upgrade to Featured Listing
-                </span>
-                <h3 className="text-lg font-bold">Boost Visibility Across Vizag & Post 5 Jobs</h3>
-                <p className="text-xs text-teal-100/90 mt-1 max-w-xl">
-                  Get a highlighted golden ring on the map, top ranking in search results, up to 5 active engineering roles, and detailed analytics.
-                </p>
-              </div>
-              <Link
-                href="/pricing"
-                className="shrink-0 px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-gray-950 rounded-xl text-xs font-bold transition-all shadow-sm"
-              >
-                Upgrade to Featured (₹999/mo)
-              </Link>
-            </div>
-          )}
         </div>
       )}
 

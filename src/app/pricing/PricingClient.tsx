@@ -21,7 +21,6 @@ export function PricingClient() {
     { feature: 'Interactive Map & Corridor Geocoding', status: '100% Free' },
     { feature: 'Complete Startup & Ecosystem Directory', status: '100% Free' },
     { feature: 'Tech Job Board & Direct ATS Application Links', status: '100% Free' },
-    { feature: 'Free 7-Day Spotlight Boost with Radar Halo', status: '100% Free' },
     { feature: 'Full CSV & JSON Directory Export', status: '100% Free' },
     { feature: 'Neighborhood & Corridor Filtering (Rushikonda, AMTZ, etc.)', status: '100% Free' },
     { feature: 'Instant Email Alerts for New Tech Roles', status: '100% Free' },
@@ -79,10 +78,6 @@ export function PricingClient() {
               <li className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <span>Post open roles synced directly to official career pages</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span>Free 7-Day Spotlight Boosts with ambient radar halos</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />

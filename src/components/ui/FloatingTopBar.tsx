@@ -24,7 +24,7 @@ interface FloatingTopBarProps {
   onFilterChange: (updates: Partial<FilterState>) => void;
   onViewModeChange: (mode: 'map' | 'grid') => void;
   onFilterPanelOpen: () => void;
-  onBoostClick: () => void;
+  onBoostClick?: () => void;
   onSelectListing: (listing: Listing) => void;
   onOpenJobsPanel?: () => void;
 }
@@ -265,18 +265,6 @@ export const FloatingTopBar: React.FC<FloatingTopBarProps> = ({
             <LayoutGrid className="w-3.5 h-3.5" />
           </button>
         </div>
-
-        <div className="w-px h-5 bg-[#3A0F34]/15 shrink-0 hidden sm:block" />
-
-        {/* Boost button */}
-        <Link
-          href="/boost"
-          className="hidden sm:flex shrink-0 items-center gap-1.5 bg-[#EAAA00] text-[#3A0F34] rounded-xl rounded-tr-xs px-3 py-1.5 text-[11px] font-display font-extrabold uppercase tracking-[0.1em] hover:bg-[#3A0F34] hover:text-[#EAAA00] transition-all shadow-xs hover:scale-105 active:scale-95 cursor-pointer"
-          aria-label="Boost your startup listing"
-        >
-          <Zap className="w-3 h-3 fill-current" />
-          <span>Boost</span>
-        </Link>
       </div>
 
       {/* ── Hiring sub-pill ── */}

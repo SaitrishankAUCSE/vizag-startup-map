@@ -6,9 +6,9 @@ import { Strips } from '@/components/ui/Strips';
 import { AccountClient } from './AccountClient';
 
 export const metadata: Metadata = {
-  title: 'My Account & Subscriptions | Vizag Startup Map',
+  title: 'Community Profile & Settings | Vizag Startup Map',
   description:
-    'Manage your Vizag Startup Map account, subscription plan, billing details, and active directory listings.',
+    'Manage your Vizag Startup Map community profile, preferences, and saved startups.',
 };
 
 export const dynamic = 'force-static';
@@ -24,13 +24,13 @@ export default function AccountPage() {
         <div className="relative z-10 space-y-8">
           <div className="space-y-2">
             <div className="inline-block px-3 py-1 rounded-full border border-[#3A0F34]/25 bg-[#DDE3E8] text-[10px] font-bold uppercase tracking-[0.2em] text-[#3A0F34]">
-              ECOSYSTEM PASS
+              FREE COMMUNITY MEMBER
             </div>
             <h1 className="font-display font-extrabold text-3xl sm:text-4xl uppercase tracking-tight text-[#3A0F34]">
-              Account & Subscription
+              Community Profile & Access
             </h1>
             <p className="text-xs sm:text-sm text-[#3A0F34]/75 max-w-xl">
-              Manage your Pro Researcher pass, boosted company listings, and account preferences.
+              All features on Vizag Startup Map are completely unlocked and free for every founder, talent, and researcher.
             </p>
           </div>
 

@@ -12,7 +12,6 @@ import { FilterPanel } from '@/components/ui/FilterPanel';
 import { StartupDetailCard } from '@/components/ui/StartupDetailCard';
 import { BottomJobsPill, JobsPanel } from '@/components/ui/JobsPanel';
 import { FloatingCreatorCard } from '@/components/ui/FloatingCreatorCard';
-import { BoostModal } from '@/components/ui/BoostModal';
 import { ShareModal } from '@/components/ui/ShareModal';
 import { CommunitySurveyWidget } from '@/components/ui/CommunitySurveyWidget';
 import { NewsletterSubscribeCard } from '@/components/ui/NewsletterSubscribeCard';
@@ -97,7 +96,6 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
     searchParams.get('startup') || null
   );
   const [showJobsPanel, setShowJobsPanel] = useState(false);
-  const [showBoostModal, setShowBoostModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [coastalTourActive, setCoastalTourActive] = useState(false);
@@ -208,7 +206,6 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
         onFilterChange={handleFilterChange}
         onViewModeChange={handleViewModeChange}
         onFilterPanelOpen={() => setShowFilterPanel((v) => !v)}
-        onBoostClick={() => setShowBoostModal(true)}
         onSelectListing={handleSelectListing}
         onOpenJobsPanel={() => setShowJobsPanel(true)}
       />
@@ -373,11 +370,6 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
       {/* ── Jobs panel ── */}
       {showJobsPanel && (
         <JobsPanel jobs={initialJobs} onClose={() => setShowJobsPanel(false)} />
-      )}
-
-      {/* ── Boost modal ── */}
-      {showBoostModal && (
-        <BoostModal onClose={() => setShowBoostModal(false)} />
       )}
 
       {/* ── Multi-Platform Share Modal ── */}
