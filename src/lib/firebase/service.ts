@@ -24,6 +24,7 @@ import {
 import { getDistanceToVizagCoastlineKm } from '@/lib/utils/geo';
 import { notifySubscribersOfNewStartup } from '@/lib/email/resend';
 import { queueStartupForMorningDigest, queueJobForMorningDigest } from '@/lib/email/digest';
+import { fetchWorldTechNews } from '@/lib/news/techNews';
 
 // Re-export so callers can use admin Firestore directly when needed
 export { getAdminFirestore };
@@ -1442,5 +1443,5 @@ export async function getNewsItems(): Promise<NewsItem[]> {
       console.error('[firebase/service] getNewsItems error:', err);
     }
   }
-  return VERIFIED_FALLBACK_NEWS;
+  return fetchWorldTechNews();
 }

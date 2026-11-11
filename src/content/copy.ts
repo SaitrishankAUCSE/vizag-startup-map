@@ -93,8 +93,8 @@ export const COPY = {
       'Visakhapatnam is penning its next chapter. From the sea-breeze shores of Rushikonda IT SEZ to the research hubs of Andhra University, innovators are building generational companies right here by the bay.',
   },
   news: {
-    title: 'Vizag Tech Dispatches',
-    subtitle: 'Headlines, venture rounds, and ecosystem announcements.',
+    title: 'World Tech & Software News',
+    subtitle: 'Everyday hourly dispatches across software engineering, AI, IT, and technology.',
   },
   notFound: {
     headline: 'This spot is not on the map.',
