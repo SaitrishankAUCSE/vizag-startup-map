@@ -42,8 +42,8 @@ function getJobFreshnessBadge(job: Job): { label: string; isNew: boolean } {
 }
 
 export function JobsDirectoryClient({
-  initialJobs,
-  totalListingsCount,
+  initialJobs = [],
+  totalListingsCount = 0,
 }: JobsDirectoryClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedArea, setSelectedArea] = useState('all');
@@ -89,17 +89,18 @@ export function JobsDirectoryClient({
   };
 
   const departments = useMemo(() => {
-    return Array.from(new Set(initialJobs.map((j) => j.department).filter(Boolean))) as string[];
+    return Array.from(new Set((initialJobs || []).map((j) => j?.department).filter(Boolean))) as string[];
   }, [initialJobs]);
 
   const employmentTypes = useMemo(() => {
-    return Array.from(new Set(initialJobs.map((j) => j.employment_type).filter(Boolean))) as string[];
+    return Array.from(new Set((initialJobs || []).map((j) => j?.employment_type).filter(Boolean))) as string[];
   }, [initialJobs]);
 
   const sevenDaysAgo = useMemo(() => Date.now() - 7 * 86400000, []);
 
   const filteredJobs = useMemo(() => {
-    return initialJobs.filter((job) => {
+    return (initialJobs || []).filter((job) => {
+      if (!job) return false;
       if (selectedArea !== 'all' && job.company_area !== selectedArea) {
         return false;
       }
@@ -110,12 +111,12 @@ export function JobsDirectoryClient({
         return false;
       }
       if (newLast7DaysOnly) {
-        const postedTime = new Date(job.posted_at || job.first_seen_at || job.created_at).getTime();
+        const postedTime = new Date(job.posted_at || job.first_seen_at || job.created_at || 0).getTime();
         if (postedTime < sevenDaysAgo) return false;
       }
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchTitle = job.title.toLowerCase().includes(q);
+        const matchTitle = (job.title || '').toLowerCase().includes(q);
         const matchCompany = (job.company_name || '').toLowerCase().includes(q);
         const matchLocation = (job.location_text || job.location || '').toLowerCase().includes(q);
         const matchDept = (job.department || '').toLowerCase().includes(q);
@@ -129,7 +130,7 @@ export function JobsDirectoryClient({
     return new Set(filteredJobs.map((j) => j.company_name || j.listing_id)).size;
   }, [filteredJobs]);
 
-  if (initialJobs.length === 0) {
+  if (!initialJobs || initialJobs.length === 0) {
     return (
       <div className="bg-white/80 backdrop-blur-xl border border-[#3A0F34]/15 rounded-3xl p-10 md:p-14 text-center max-w-xl mx-auto space-y-4 shadow-sm">
         <div className="w-16 h-16 rounded-2xl bg-[#3A0F34] text-[#EAAA00] flex items-center justify-center mx-auto mb-2 shadow-md">
@@ -273,13 +274,13 @@ export function JobsDirectoryClient({
             <strong className="text-[#3A0F34] font-extrabold text-sm">{activeFilteredCompanies}</strong> {activeFilteredCompanies === 1 ? 'company' : 'companies'}
           </span>
         </div>
-        <Link
-          href="/pricing"
+        <a
+          href="#job-alerts"
           className="text-[#3A0F34] hover:text-[#EAAA00] font-bold uppercase tracking-[0.14em] flex items-center gap-1.5 transition-colors"
         >
           <Sparkles className="w-3.5 h-3.5 text-[#EAAA00]" />
-          <span>Get Instant Alerts</span>
-        </Link>
+          <span>Get Free Job Alerts</span>
+        </a>
       </div>
 
       {/* ── Job Cards List ── */}
@@ -415,7 +416,7 @@ export function JobsDirectoryClient({
       )}
 
       {/* ── Vizag Tech Job Alerts Subscription Box ── */}
-      <div className="bg-[#3A0F34] text-[#DDE3E8] rounded-3xl p-6 sm:p-8 shadow-xl border border-[#EAAA00]/30 relative overflow-hidden mt-10">
+      <div id="job-alerts" className="bg-[#3A0F34] text-[#DDE3E8] rounded-3xl p-6 sm:p-8 shadow-xl border border-[#EAAA00]/30 relative overflow-hidden mt-10 scroll-mt-24">
         <div className="max-w-xl space-y-3 relative z-10">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[#EAAA00]">
             <Sparkles className="w-4 h-4" /> Vizag Tech Job Alerts

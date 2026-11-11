@@ -55,7 +55,7 @@ export default function TermsPage() {
           <section className="space-y-3 text-xs sm:text-sm text-gray-700 leading-relaxed">
             <h2 className="text-base font-bold text-gray-950">2. Description of Service</h2>
             <p>
-              Vizag Startup Map provides a free-to-use discovery platform and interactive map highlighting startups, venture funds, incubators, universities, and coworking hubs operating across Visakhapatnam and greater Andhra Pradesh. Premium features, including dataset CSV exports, custom watchlists, and Featured Listings, are offered under paid subscription plans.
+              Vizag Startup Map provides a free-to-use discovery platform and interactive map highlighting startups, venture funds, incubators, universities, and coworking hubs operating across Visakhapatnam and greater Andhra Pradesh. All features, including dataset CSV exports, job applications, and spotlight promotions, are provided completely free of charge.
             </p>
           </section>
 
@@ -67,9 +67,9 @@ export default function TermsPage() {
           </section>
 
           <section className="space-y-3 text-xs sm:text-sm text-gray-700 leading-relaxed">
-            <h2 className="text-base font-bold text-gray-950">4. Paid Subscriptions and Billing</h2>
+            <h2 className="text-base font-bold text-gray-950">4. Community Free Access Policy</h2>
             <p>
-              Subscribers to &quot;Pro&quot; or &quot;Featured Listing&quot; plans are billed recurringly in Indian Rupees (INR) via Razorpay Subscriptions. Subscriptions automatically renew at the close of each billing interval (monthly or yearly) unless canceled prior to the renewal date via the Account dashboard.
+              Vizag Startup Map operates strictly as a free community initiative. No subscription fees, recurring billing, or transaction fees are charged.
             </p>
           </section>
 

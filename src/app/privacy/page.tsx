@@ -53,7 +53,7 @@ export default function PrivacyPage() {
             <ul className="list-disc list-inside space-y-1.5 ml-2 text-xs sm:text-sm text-gray-600">
               <li><strong>Public directory data:</strong> Organization name, website, LinkedIn, logo, office address, geographical coordinates, sector, team size, and open job roles.</li>
               <li><strong>Private verification data:</strong> Founder contact email, work email domain, and verification proof URLs. These are stored securely and never published publicly.</li>
-              <li><strong>Account and payment data:</strong> Email address for login authentication and Razorpay subscription IDs. We do not store credit card or bank credentials on our servers.</li>
+              <li><strong>Account data:</strong> Email address for login authentication and preferences. We do not collect or store any payment cards, bank details, or financial credentials.</li>
             </ul>
           </section>
 
@@ -65,7 +65,6 @@ export default function PrivacyPage() {
             <ul className="list-disc list-inside space-y-1.5 ml-2 text-xs sm:text-sm text-gray-600">
               <li>Maintain and display the interactive Visakhapatnam startup ecosystem map and directory.</li>
               <li>Authenticate founder ownership and job posting permissions.</li>
-              <li>Process recurring subscription payments via Razorpay.</li>
               <li>Send requested email alerts regarding new ecosystem additions or job roles.</li>
               <li>Provide aggregate analytics (profile views and website clicks) to verified founders.</li>
             </ul>
@@ -85,7 +84,6 @@ export default function PrivacyPage() {
             </p>
             <ul className="list-disc list-inside space-y-1.5 ml-2 text-xs sm:text-sm text-gray-600">
               <li><strong>Firebase (Google Cloud):</strong> Encrypted NoSQL Firestore database and Firebase Authentication infrastructure.</li>
-              <li><strong>Razorpay:</strong> PCI-DSS Level 1 certified payment gateway handling INR recurring subscriptions.</li>
               <li><strong>Vercel:</strong> Secure global application hosting.</li>
             </ul>
           </section>

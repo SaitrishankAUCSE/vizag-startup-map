@@ -24,7 +24,7 @@ export const COPY = {
     grid: 'GRID',
     jobs: 'JOBS',
     news: 'NEWS',
-    pricing: 'PRICING',
+    about: 'ABOUT',
     addStartup: 'ADD YOUR STARTUP',
     login: 'LOGIN',
   },
@@ -106,7 +106,6 @@ export const COPY = {
     attribution: 'Map data © OpenStreetMap contributors',
     links: [
       { label: 'About', href: '/about' },
-      { label: 'Pricing', href: '/pricing' },
       { label: 'Submit', href: '/submit' },
       { label: 'Jobs', href: '/jobs' },
       { label: 'News', href: '/news' },

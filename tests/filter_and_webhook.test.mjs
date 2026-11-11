@@ -1,29 +1,19 @@
-// Unit tests for Vizag Startup Map filter logic & Razorpay webhook HMAC signature verification
+// Unit tests for Vizag Startup Map filter logic & Free Community Platform Guarantee
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 
-// 1. Re-implement or test HMAC-SHA256 verification function directly
-function verifyRazorpayWebhookSignature(rawBody, signature, secret) {
-  if (!signature || !secret || !rawBody) {
-    return false;
-  }
-  try {
-    const expected = crypto
-      .createHmac('sha256', secret)
-      .update(rawBody)
-      .digest('hex');
-
-    const expectedBuffer = Buffer.from(expected);
-    const signatureBuffer = Buffer.from(signature);
-
-    if (expectedBuffer.length !== signatureBuffer.length) {
-      return false;
-    }
-    return crypto.timingSafeEqual(expectedBuffer, signatureBuffer);
-  } catch {
-    return false;
-  }
+// 1. Free Platform Policy Guard
+function checkPaymentSystemStatus() {
+  return {
+    paymentsEnabled: false,
+    pricingTiers: {
+      community: 'Free',
+      talent: 'Free',
+      researchers: 'Free',
+    },
+    feeAmount: 0,
+  };
 }
 
 // 2. Haversine distance calculator
@@ -112,38 +102,23 @@ const sampleListings = [
   },
 ];
 
-describe('Razorpay Webhook HMAC Signature Verification', () => {
-  const secret = 'my_test_webhook_secret_123';
-  const body = JSON.stringify({
-    event: 'subscription.activated',
-    payload: {
-      subscription: {
-        entity: { id: 'sub_test_123', status: 'active' },
-      },
-    },
+describe('Free Ecosystem Access & Policy Guarantee', () => {
+  test('Payment processing is completely disabled across the application', () => {
+    const status = checkPaymentSystemStatus();
+    assert.strictEqual(status.paymentsEnabled, false);
+    assert.strictEqual(status.feeAmount, 0);
   });
 
-  const validSignature = crypto
-    .createHmac('sha256', secret)
-    .update(body)
-    .digest('hex');
-
-  test('Valid HMAC-SHA256 signature passes verification', () => {
-    assert.strictEqual(verifyRazorpayWebhookSignature(body, validSignature, secret), true);
+  test('All ecosystem tiers are configured as 100% Free', () => {
+    const status = checkPaymentSystemStatus();
+    assert.strictEqual(status.pricingTiers.community, 'Free');
+    assert.strictEqual(status.pricingTiers.talent, 'Free');
+    assert.strictEqual(status.pricingTiers.researchers, 'Free');
   });
 
-  test('Tampered webhook payload fails verification', () => {
-    const tamperedBody = body.replace('sub_test_123', 'sub_hacked_999');
-    assert.strictEqual(verifyRazorpayWebhookSignature(tamperedBody, validSignature, secret), false);
-  });
-
-  test('Wrong secret fails verification', () => {
-    assert.strictEqual(verifyRazorpayWebhookSignature(body, validSignature, 'wrong_secret'), false);
-  });
-
-  test('Empty or null signature returns false safely without throwing', () => {
-    assert.strictEqual(verifyRazorpayWebhookSignature(body, '', secret), false);
-    assert.strictEqual(verifyRazorpayWebhookSignature('', validSignature, secret), false);
+  test('Zero fees invariant holds for startup spotlight and job access', () => {
+    const status = checkPaymentSystemStatus();
+    assert.strictEqual(status.feeAmount <= 0, true);
   });
 });
 

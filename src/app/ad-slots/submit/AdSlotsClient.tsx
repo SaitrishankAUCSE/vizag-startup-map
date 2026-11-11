@@ -91,7 +91,7 @@ export function AdSlotsClient() {
 
   const selectedCycle = cycles.find((c) => c.id === selectedCycleId) || cycles[0];
 
-  const price = selectedTier === 'beacon' ? 5000 : 2500;
+  const price = 0;
   const tierTitle = selectedTier === 'beacon' ? 'FLASH SPOTLIGHT (#1 SPOT)' : 'STANDARD SLOT';
 
   const handleDomainChange = (val: string) => {
@@ -204,13 +204,13 @@ export function AdSlotsClient() {
                 <span className="font-mono text-zinc-900 truncate max-w-[200px]">{formData.domain}</span>
               </div>
               <div className="pt-2 border-t border-zinc-100 flex justify-between items-center font-extrabold text-sm text-zinc-900">
-                <span>Total Amount:</span>
-                <span>₹{price.toLocaleString('en-IN')}</span>
+                <span>Placement Fee:</span>
+                <span className="text-emerald-700">100% Free (Community Showcase)</span>
               </div>
             </div>
 
             <p className="text-[11px] text-zinc-500 max-w-md mx-auto">
-              A confirmation invoice and live telemetry link have been dispatched to <strong>{formData.email}</strong>.
+              A confirmation and live placement details have been dispatched to <strong>{formData.email}</strong>.
             </p>
 
             <div className="pt-4 flex justify-center gap-3">
@@ -248,8 +248,8 @@ export function AdSlotsClient() {
                   <Zap className="w-3.5 h-3.5 fill-current" />
                   <span>FLASH SPOTLIGHT (#1 SPOT)</span>
                 </div>
-                <div className="text-2xl font-extrabold text-zinc-900 mt-0.5">₹5,000</div>
-                <div className="text-xs text-zinc-400">/ 7 days</div>
+                <div className="text-2xl font-extrabold text-zinc-900 mt-0.5">Free</div>
+                <div className="text-xs text-emerald-600 font-semibold">Community Curation</div>
                 {selectedTier === 'beacon' && (
                   <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-zinc-900" />
                 )}
@@ -265,8 +265,8 @@ export function AdSlotsClient() {
                 <div className="text-[11px] font-extrabold tracking-wider text-zinc-700 uppercase">
                   STANDARD SLOT
                 </div>
-                <div className="text-2xl font-extrabold text-zinc-900 mt-0.5">₹2,500</div>
-                <div className="text-xs text-zinc-400">/ 7 days</div>
+                <div className="text-2xl font-extrabold text-zinc-900 mt-0.5">Free</div>
+                <div className="text-xs text-zinc-400">Weekly Rotation</div>
                 {selectedTier === 'harbor' && (
                   <div className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-zinc-900" />
                 )}
@@ -430,11 +430,11 @@ export function AdSlotsClient() {
                       disabled={submitting}
                       className="w-full py-3.5 px-6 rounded-xl bg-zinc-900 hover:bg-black text-white font-bold text-sm transition-all shadow-sm cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                      <span>Reserve Slot · ₹{price.toLocaleString('en-IN')}</span>
+                      <span>Reserve Free Community Slot</span>
                       <ChevronRight className="w-4 h-4" />
                     </button>
                     <p className="text-[11px] text-center text-zinc-400 mt-2">
-                      Placement runs for 7 days during {selectedCycle.label} · Mon 00:00 — Mon 00:00
+                      Placement runs for 7 days during {selectedCycle.label} · Mon 00:00 — Mon 00:00 · 100% Free
                     </p>
                   </div>
                 </div>

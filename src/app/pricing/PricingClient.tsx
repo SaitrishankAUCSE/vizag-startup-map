@@ -1,479 +1,262 @@
 'use client';
 
-import React, { useState } from 'react';
-import { PRICING_CONFIG } from '@/config/pricing';
-import { Check, Lock, Sparkles, X, ShieldCheck, QrCode, CreditCard, Building, CheckCircle2, AlertCircle } from 'lucide-react';
+import React from 'react';
+import {
+  Check,
+  Sparkles,
+  MapPin,
+  Briefcase,
+  Compass,
+  ArrowRight,
+  ShieldCheck,
+  Download,
+  Bell,
+  HeartHandshake,
+} from 'lucide-react';
 import Link from 'next/link';
 import { CartoonButton } from '@/components/ui/cartoon-button';
 
 export function PricingClient() {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [checkoutEmail, setCheckoutEmail] = useState('');
-  const [checkoutName, setCheckoutName] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card' | 'netbanking'>('upi');
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle');
-  const [statusMessage, setStatusMessage] = useState('');
-
-  const proPrice =
-    billingCycle === 'monthly'
-      ? PRICING_CONFIG.pro.monthly.displayPrice
-      : PRICING_CONFIG.pro.yearly.displayPrice;
-
-  const featuredPrice =
-    billingCycle === 'monthly'
-      ? PRICING_CONFIG.featured.monthly.displayPrice
-      : PRICING_CONFIG.featured.yearly.displayPrice;
-
-  const handleSimulatePayment = (success: boolean) => {
-    if (!checkoutEmail || !checkoutEmail.includes('@')) {
-      setStatusMessage('Please enter a valid billing email address.');
-      setPaymentStatus('failed');
-      return;
-    }
-
-    setPaymentStatus('processing');
-    setStatusMessage('Contacting Razorpay Secure Gateway…');
-
-    setTimeout(() => {
-      if (success) {
-        setPaymentStatus('success');
-        setStatusMessage('Payment verified! Your Pro Ecosystem Pass has been activated.');
-      } else {
-        setPaymentStatus('failed');
-        setStatusMessage('Payment authorization declined by issuing bank. Please retry or choose another payment method.');
-      }
-    }, 1200);
-  };
+  const comparisonRows = [
+    { feature: 'Interactive Map & Corridor Geocoding', status: '100% Free' },
+    { feature: 'Complete Startup & Ecosystem Directory', status: '100% Free' },
+    { feature: 'Tech Job Board & Direct ATS Application Links', status: '100% Free' },
+    { feature: 'Free 7-Day Spotlight Boost with Radar Halo', status: '100% Free' },
+    { feature: 'Full CSV & JSON Directory Export', status: '100% Free' },
+    { feature: 'Neighborhood & Corridor Filtering (Rushikonda, AMTZ, etc.)', status: '100% Free' },
+    { feature: 'Instant Email Alerts for New Tech Roles', status: '100% Free' },
+    { feature: 'Verified Founder Profiles & Official Sources', status: '100% Free' },
+    { feature: 'Community Showcase Billboard Slots', status: '100% Free' },
+  ];
 
   return (
     <div className="space-y-16">
-      {/* Monthly / Yearly Toggle */}
-      <div className="flex items-center justify-center">
-        <div className="inline-flex items-center p-1 rounded-full border border-[#3A0F34] bg-[#DDE3E8]">
-          <button
-            type="button"
-            onClick={() => setBillingCycle('monthly')}
-            className={`px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-[0.14em] transition-all cursor-pointer ${
-              billingCycle === 'monthly'
-                ? 'bg-[#3A0F34] text-[#DDE3E8]'
-                : 'text-[#3A0F34] hover:opacity-75'
-            }`}
-          >
-            Monthly
-          </button>
-          <button
-            type="button"
-            onClick={() => setBillingCycle('yearly')}
-            className={`px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-[0.14em] transition-all flex items-center gap-1.5 cursor-pointer ${
-              billingCycle === 'yearly'
-                ? 'bg-[#3A0F34] text-[#DDE3E8]'
-                : 'text-[#3A0F34] hover:opacity-75'
-            }`}
-          >
-            <span>Yearly</span>
-            <span className="text-[9px] font-bold bg-[#EAAA00] text-[#3A0F34] px-1.5 py-0.5 rounded-full">
-              Save ~35%
-            </span>
-          </button>
+      {/* ── Community Banner ── */}
+      <div className="bg-[#3A0F34] text-[#DDE3E8] rounded-3xl p-6 sm:p-8 shadow-xl border border-[#EAAA00]/30 text-center max-w-3xl mx-auto space-y-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#EAAA00] text-[10px] font-extrabold uppercase tracking-widest">
+          <HeartHandshake className="w-3.5 h-3.5" />
+          <span>Community Pledge</span>
         </div>
+        <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-white">
+          No Paywalls. No Subscriptions. No Fees.
+        </h2>
+        <p className="text-xs sm:text-sm text-[#DDE3E8]/80 leading-relaxed max-w-xl mx-auto">
+          Vizag Startup Map was conceived to accelerate Visakhapatnam’s technology ecosystem. Every startup founder, job seeker, and researcher has complete, unrestricted access to the entire platform.
+        </p>
       </div>
 
-      {/* 3 Tall Columns like vertical strips */}
+      {/* ── 3 Free Persona Columns ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
-        {/* 1. Free Community Plan */}
-        <div className="bg-[#DDE3E8] border border-[#3A0F34]/25 p-8 rounded-2xl flex flex-col justify-between shadow-sm relative">
+        {/* 1. Founders & Startups */}
+        <div className="bg-[#DDE3E8] border border-[#3A0F34]/25 p-7 rounded-3xl flex flex-col justify-between shadow-sm relative group hover:border-[#3A0F34] transition-colors">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#3A0F34]/70">
-              COMMUNITY
-            </span>
-            <h3 className="font-display font-bold text-2xl uppercase tracking-tight text-[#3A0F34] mt-1">
-              Free Access
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#3A0F34]/70">
+                FOR FOUNDERS
+              </span>
+              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                Free Forever
+              </span>
+            </div>
+
+            <h3 className="font-display font-extrabold text-2xl uppercase tracking-tight text-[#3A0F34]">
+              Startups & Labs
             </h3>
             <p className="text-xs text-[#3A0F34]/75 mt-2 min-h-[36px]">
-              Complete access to browse, search, and navigate the Visakhapatnam startup atlas.
+              Put your company on the living map and connect with talent and visiting delegates.
             </p>
 
             <div className="mt-6 mb-6">
               <span className="font-display font-extrabold text-4xl text-[#3A0F34]">₹0</span>
-              <span className="text-xs text-[#3A0F34]/60 ml-1">/ forever</span>
+              <span className="text-xs text-[#3A0F34]/60 ml-1">/ no fees ever</span>
             </div>
 
-            <ul className="space-y-3 pt-6 border-t border-[#3A0F34]/15 text-xs text-[#3A0F34]">
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#3A0F34] shrink-0" />
-                <span>Browse full interactive map & pins</span>
+            <ul className="space-y-3 text-xs text-[#3A0F34]/85 border-t border-[#3A0F34]/15 pt-5">
+              <li className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>Permanent map pin & dedicated startup profile page</span>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#3A0F34] shrink-0" />
-                <span>Filter by area, sector, stage, and hiring</span>
+              <li className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>Post open roles synced directly to official career pages</span>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#3A0F34] shrink-0" />
-                <span>View startup details, website & contacts</span>
+              <li className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>Free 7-Day Spotlight Boosts with ambient radar halos</span>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#3A0F34] shrink-0" />
-                <span>Submit free community listing</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="mt-8 pt-4">
-            <Link
-              href="/"
-              className="w-full inline-flex items-center justify-center px-5 py-3 rounded-full border-[1.5px] border-[#3A0F34] text-xs font-semibold uppercase tracking-[0.14em] text-[#3A0F34] hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors"
-            >
-              START WITH FREE
-            </Link>
-          </div>
-        </div>
-
-        {/* 2. Pro Plan (Aubergine Column with Silver Text & Marigold Button) */}
-        <div className="bg-[#3A0F34] text-[#DDE3E8] border border-[#3A0F34] p-8 rounded-2xl flex flex-col justify-between shadow-xl relative transform md:-translate-y-2">
-          {/* Top Marigold Tag */}
-          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#EAAA00] text-[#3A0F34] text-[9.5px] font-bold uppercase tracking-[0.18em] shadow-md flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-[#3A0F34]" />
-            <span>MOST POPULAR</span>
-          </div>
-
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#EAAA00]">
-              RESEARCHERS & TALENT
-            </span>
-            <h3 className="font-display font-bold text-2xl uppercase tracking-tight text-[#DDE3E8] mt-1">
-              Pro Member
-            </h3>
-            <p className="text-xs text-[#DDE3E8]/80 mt-2 min-h-[36px]">
-              Ecosystem intelligence, CSV downloads, saved lists, and instant job alerts.
-            </p>
-
-            <div className="mt-6 mb-6">
-              <span className="font-display font-extrabold text-4xl text-[#EAAA00]">
-                {proPrice}
-              </span>
-              <span className="text-xs text-[#DDE3E8]/70 ml-1">
-                /{billingCycle === 'monthly' ? 'month' : 'year'}
-              </span>
-            </div>
-
-            <ul className="space-y-3 pt-6 border-t border-[#DDE3E8]/20 text-xs text-[#DDE3E8]">
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#EAAA00] shrink-0" />
-                <span>1-Click CSV & JSON directory export</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#EAAA00] shrink-0" />
-                <span>Direct founder & leadership LinkedIn handles</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#EAAA00] shrink-0" />
-                <span>Instant job alerts when tracked startups hire</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#EAAA00] shrink-0" />
-                <span>Save favorites, private notes & custom lists</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#EAAA00] shrink-0" />
-                <span>Advanced filters: founding year, team size, funding</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#EAAA00] shrink-0" />
-                <span>Monthly Vizag Ecosystem Intelligence Report</span>
+              <li className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>Verified community badge and founder dossier</span>
               </li>
             </ul>
           </div>
 
           <div className="mt-8 pt-4">
             <CartoonButton
-              label="GO PRO"
+              label="LIST YOUR STARTUP (FREE)"
               variant="marigold"
               size="md"
               className="w-full"
-              onClick={() => {
-                setShowCheckoutModal(true);
-                setPaymentStatus('idle');
-                setStatusMessage('');
-              }}
+              href="/submit"
             />
           </div>
         </div>
 
-        {/* 3. Featured Listing Plan */}
-        <div className="bg-[#DDE3E8] border border-[#3A0F34]/25 p-8 rounded-2xl flex flex-col justify-between shadow-sm relative">
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#3A0F34]/70">
-              FOUNDERS & VENTURES
-            </span>
-            <h3 className="font-display font-bold text-2xl uppercase tracking-tight text-[#3A0F34] mt-1">
-              Featured Listing
-            </h3>
-            <p className="text-xs text-[#3A0F34]/75 mt-2 min-h-[36px]">
-              Top-tier visibility on the map, featured badges, and talent recruitment tools.
-            </p>
+        {/* 2. Engineers & Talent */}
+        <div className="bg-[#3A0F34] text-[#DDE3E8] p-7 rounded-3xl flex flex-col justify-between shadow-xl relative border-2 border-[#EAAA00]">
+          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#EAAA00] text-[#3A0F34] text-[10px] font-extrabold uppercase tracking-[0.16em] px-3.5 py-1 rounded-full shadow-sm">
+            Talent & Careers
+          </div>
 
-            <div className="mt-6 mb-6">
-              <span className="font-display font-extrabold text-4xl text-[#3A0F34]">
-                {featuredPrice}
+          <div>
+            <div className="flex items-center justify-between mb-2 mt-1">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#EAAA00]">
+                FOR JOB SEEKERS
               </span>
-              <span className="text-xs text-[#3A0F34]/60 ml-1">
-                /{billingCycle === 'monthly' ? 'month' : 'year'}
+              <span className="bg-[#EAAA00] text-[#3A0F34] text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                100% Free
               </span>
             </div>
 
-            <ul className="space-y-3 pt-6 border-t border-[#3A0F34]/15 text-xs text-[#3A0F34]">
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#3A0F34] shrink-0" />
-                <span>Highlighted pin with double ring on map</span>
+            <h3 className="font-display font-extrabold text-2xl uppercase tracking-tight text-[#DDE3E8]">
+              Engineers & Talent
+            </h3>
+            <p className="text-xs text-[#DDE3E8]/75 mt-2 min-h-[36px]">
+              Discover active tech opportunities in Rushikonda, MVP Colony, and Siripuram.
+            </p>
+
+            <div className="mt-6 mb-6">
+              <span className="font-display font-extrabold text-4xl text-[#EAAA00]">₹0</span>
+              <span className="text-xs text-[#DDE3E8]/60 ml-1">/ no fees ever</span>
+            </div>
+
+            <ul className="space-y-3 text-xs text-[#DDE3E8]/85 border-t border-white/10 pt-5">
+              <li className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-[#EAAA00] shrink-0 mt-0.5" />
+                <span>Direct application links to verified official careers boards</span>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#3A0F34] shrink-0" />
-                <span>Top placement in search and directory lists</span>
+              <li className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-[#EAAA00] shrink-0 mt-0.5" />
+                <span>Instant email alerts when new engineering roles are posted</span>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#3A0F34] shrink-0" />
-                <span>Post up to 5 active open job listings</span>
+              <li className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-[#EAAA00] shrink-0 mt-0.5" />
+                <span>Filter by department, experience, and neighborhood corridor</span>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#3A0F34] shrink-0" />
-                <span>Extended profile & photo showcase</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-[#3A0F34] shrink-0" />
-                <span>Monthly viewer traffic analytics</span>
+              <li className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-[#EAAA00] shrink-0 mt-0.5" />
+                <span>Direct contact handles for technical recruiters & founders</span>
               </li>
             </ul>
           </div>
 
-          <div className="mt-8 pt-4 space-y-2">
+          <div className="mt-8 pt-4">
             <CartoonButton
-              label="RESERVE SPOTLIGHT →"
+              label="BROWSE OPEN ROLES"
+              variant="marigold"
+              size="md"
+              className="w-full"
+              href="/jobs"
+            />
+          </div>
+        </div>
+
+        {/* 3. Researchers & Investors */}
+        <div className="bg-[#DDE3E8] border border-[#3A0F34]/25 p-7 rounded-3xl flex flex-col justify-between shadow-sm relative group hover:border-[#3A0F34] transition-colors">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#3A0F34]/70">
+                FOR RESEARCHERS
+              </span>
+              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                Free Forever
+              </span>
+            </div>
+
+            <h3 className="font-display font-extrabold text-2xl uppercase tracking-tight text-[#3A0F34]">
+              Delegates & VCs
+            </h3>
+            <p className="text-xs text-[#3A0F34]/75 mt-2 min-h-[36px]">
+              Explore sector intelligence, geographic clusters, and innovation corridors.
+            </p>
+
+            <div className="mt-6 mb-6">
+              <span className="font-display font-extrabold text-4xl text-[#3A0F34]">₹0</span>
+              <span className="text-xs text-[#3A0F34]/60 ml-1">/ no fees ever</span>
+            </div>
+
+            <ul className="space-y-3 text-xs text-[#3A0F34]/85 border-t border-[#3A0F34]/15 pt-5">
+              <li className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>Complete directory export in CSV and JSON formats</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>Live spatial analytics, landlocked coordinates & coastal tour</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>Deeptech, Biotech (AMTZ), and Maritime sector breakdowns</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>Historical timeline & verified secondary sources</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="mt-8 pt-4">
+            <CartoonButton
+              label="EXPLORE LIVE MAP →"
               variant="aubergine"
               size="md"
               className="w-full"
-              href="/ad-slots/submit"
+              href="/"
             />
           </div>
         </div>
       </div>
 
-      {/* Comparison Table Below */}
-      <div className="pt-12 border-t border-[#3A0F34]/15">
-        <h4 className="font-display font-bold text-2xl uppercase tracking-tight text-[#3A0F34] mb-6 text-center">
-          Feature Comparison
-        </h4>
+      {/* ── All Features Comparison Table ── */}
+      <div className="bg-[#DDE3E8] border border-[#3A0F34]/20 rounded-3xl p-6 sm:p-10 shadow-sm max-w-4xl mx-auto space-y-6">
+        <div className="text-center space-y-1">
+          <span className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#3A0F34]/60">
+            TRANSPARENT ECOSYSTEM DIRECTORY
+          </span>
+          <h3 className="font-display font-extrabold text-2xl text-[#3A0F34]">
+            Feature Availability Matrix
+          </h3>
+          <p className="text-xs text-[#3A0F34]/70">
+            Every capability on this platform is completely unlocked for everyone.
+          </p>
+        </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-[#3A0F34]/20 text-[#3A0F34]/60 uppercase tracking-[0.14em]">
-                <th className="py-3 px-4 font-semibold">Capability</th>
-                <th className="py-3 px-4 font-semibold text-center">Free</th>
-                <th className="py-3 px-4 font-semibold text-center text-[#3A0F34] bg-[#3A0F34]/10 rounded-t-lg">
-                  Pro
-                </th>
-                <th className="py-3 px-4 font-semibold text-center">Featured</th>
+              <tr className="border-b border-[#3A0F34]/20 text-[#3A0F34]/70 font-display font-bold uppercase tracking-wider text-[11px]">
+                <th className="py-3 px-4">Feature / Tool</th>
+                <th className="py-3 px-4 text-right">Access Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#3A0F34]/10 text-[#3A0F34]">
-              <tr>
-                <td className="py-3 px-4 font-medium">Interactive Map & Clusters</td>
-                <td className="py-3 px-4 text-center">✓</td>
-                <td className="py-3 px-4 text-center bg-[#3A0F34]/10 font-bold">✓</td>
-                <td className="py-3 px-4 text-center">✓</td>
-              </tr>
-              <tr>
-                <td className="py-3 px-4 font-medium">Area & Sector Filters</td>
-                <td className="py-3 px-4 text-center">✓</td>
-                <td className="py-3 px-4 text-center bg-[#3A0F34]/10 font-bold">✓</td>
-                <td className="py-3 px-4 text-center">✓</td>
-              </tr>
-              <tr>
-                <td className="py-3 px-4 font-medium">CSV Data Export</td>
-                <td className="py-3 px-4 text-center text-[#3A0F34]/30">—</td>
-                <td className="py-3 px-4 text-center bg-[#3A0F34]/10 font-bold text-[#EAAA00]">✓</td>
-                <td className="py-3 px-4 text-center">✓</td>
-              </tr>
-              <tr>
-                <td className="py-3 px-4 font-medium">Instant Email Job Alerts</td>
-                <td className="py-3 px-4 text-center text-[#3A0F34]/30">—</td>
-                <td className="py-3 px-4 text-center bg-[#3A0F34]/10 font-bold text-[#EAAA00]">✓</td>
-                <td className="py-3 px-4 text-center">✓</td>
-              </tr>
-              <tr>
-                <td className="py-3 px-4 font-medium">Top Placement & Highlighted Pin</td>
-                <td className="py-3 px-4 text-center text-[#3A0F34]/30">—</td>
-                <td className="py-3 px-4 text-center bg-[#3A0F34]/10 font-bold text-[#3A0F34]/30">—</td>
-                <td className="py-3 px-4 text-center font-bold text-[#EAAA00]">✓</td>
-              </tr>
-              <tr>
-                <td className="py-3 px-4 font-medium">Job Postings Included</td>
-                <td className="py-3 px-4 text-center">1</td>
-                <td className="py-3 px-4 text-center bg-[#3A0F34]/10 font-bold">1</td>
-                <td className="py-3 px-4 text-center font-bold">5</td>
-              </tr>
+            <tbody className="divide-y divide-[#3A0F34]/10">
+              {comparisonRows.map((row, idx) => (
+                <tr key={idx} className="hover:bg-white/40 transition-colors">
+                  <td className="py-3.5 px-4 font-semibold text-[#3A0F34] flex items-center gap-2">
+                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{row.feature}</span>
+                  </td>
+                  <td className="py-3.5 px-4 text-right">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
+                      {row.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
-
-      {/* ── Interactive Razorpay Pro Checkout Modal ── */}
-      {showCheckoutModal && (
-        <div className="fixed inset-0 z-[2000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-[#DDE3E8] border-2 border-[#3A0F34] w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl relative">
-            <button
-              type="button"
-              onClick={() => setShowCheckoutModal(false)}
-              className="absolute top-5 right-5 p-2 rounded-full hover:bg-[#3A0F34]/10 text-[#3A0F34] transition-colors cursor-pointer"
-              aria-label="Close checkout modal"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-2 mb-2">
-              <span className="p-2 rounded-xl bg-[#EAAA00] text-[#3A0F34]">
-                <Sparkles className="w-5 h-5" />
-              </span>
-              <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#3A0F34]/70">
-                  Razorpay Secure Subscription
-                </span>
-                <h3 className="font-display font-extrabold text-2xl uppercase tracking-tight text-[#3A0F34]">
-                  Pro Ecosystem Pass
-                </h3>
-              </div>
-            </div>
-
-            <div className="bg-white/80 border border-[#3A0F34]/15 rounded-2xl p-4 my-4 flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-[#3A0F34]">Selected Plan</p>
-                <p className="text-[11px] text-[#3A0F34]/70">
-                  {billingCycle === 'monthly' ? 'Monthly Pass (Renews every 30 days)' : 'Annual Pass (Renews yearly · Save 35%)'}
-                </p>
-              </div>
-              <div className="text-right">
-                <span className="font-display font-black text-2xl text-[#3A0F34]">
-                  {proPrice}
-                </span>
-              </div>
-            </div>
-
-            {/* Merchant Verification Notice matching live state */}
-            <div className="bg-[#EAAA00]/15 border border-[#EAAA00]/60 rounded-xl p-3 mb-4 text-[11px] text-[#3A0F34] flex items-start gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#3A0F34] shrink-0 mt-0.5" />
-              <span>
-                <strong>Razorpay Test & Live Gateways:</strong> Live merchant website verification is currently active for <code>vizag-startup-map.vercel.app</code>. Instant test-mode simulation is enabled below.
-              </span>
-            </div>
-
-            {paymentStatus === 'success' ? (
-              <div className="py-6 text-center space-y-3">
-                <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
-                <h4 className="font-display font-extrabold text-xl text-[#3A0F34]">
-                  Subscription Activated!
-                </h4>
-                <p className="text-xs text-[#3A0F34]/75 max-w-sm mx-auto">
-                  {statusMessage} A receipt has been dispatched to {checkoutEmail}.
-                </p>
-                <div className="pt-2">
-                  <CartoonButton
-                    label="Go to My Account"
-                    variant="marigold"
-                    size="md"
-                    href="/account"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#3A0F34] mb-1">
-                    Receipt Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    value={checkoutEmail}
-                    onChange={(e) => setCheckoutEmail(e.target.value)}
-                    placeholder="founder@yourstartup.com"
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#3A0F34]/30 bg-white text-sm text-[#3A0F34] focus:outline-none focus:ring-2 focus:ring-[#EAAA00]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-[0.14em] text-[#3A0F34] mb-1">
-                    Payment Method
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('upi')}
-                      className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 cursor-pointer transition-all ${
-                        paymentMethod === 'upi'
-                          ? 'border-[#3A0F34] bg-[#3A0F34] text-[#DDE3E8]'
-                          : 'border-[#3A0F34]/20 bg-white text-[#3A0F34] hover:bg-[#3A0F34]/5'
-                      }`}
-                    >
-                      <QrCode className="w-4 h-4" />
-                      <span>UPI QR</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('card')}
-                      className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 cursor-pointer transition-all ${
-                        paymentMethod === 'card'
-                          ? 'border-[#3A0F34] bg-[#3A0F34] text-[#DDE3E8]'
-                          : 'border-[#3A0F34]/20 bg-white text-[#3A0F34] hover:bg-[#3A0F34]/5'
-                      }`}
-                    >
-                      <CreditCard className="w-4 h-4" />
-                      <span>Card</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('netbanking')}
-                      className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 cursor-pointer transition-all ${
-                        paymentMethod === 'netbanking'
-                          ? 'border-[#3A0F34] bg-[#3A0F34] text-[#DDE3E8]'
-                          : 'border-[#3A0F34]/20 bg-white text-[#3A0F34] hover:bg-[#3A0F34]/5'
-                      }`}
-                    >
-                      <Building className="w-4 h-4" />
-                      <span>Netbanking</span>
-                    </button>
-                  </div>
-                </div>
-
-                {paymentStatus === 'failed' && (
-                  <div className="p-3 rounded-xl bg-red-100 border border-red-300 text-xs text-red-800 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
-                    <span>{statusMessage}</span>
-                  </div>
-                )}
-
-                <div className="pt-2 space-y-2">
-                  <CartoonButton
-                    label={`Pay ${proPrice} Securely`}
-                    variant="marigold"
-                    size="lg"
-                    className="w-full"
-                    loading={paymentStatus === 'processing'}
-                    disabled={paymentStatus === 'processing'}
-                    onClick={() => handleSimulatePayment(true)}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleSimulatePayment(false)}
-                    className="w-full py-1 text-[11px] font-semibold text-[#3A0F34]/50 hover:text-[#3A0F34] transition-colors cursor-pointer text-center"
-                  >
-                    Simulate Payment Failure (Test Resilience)
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

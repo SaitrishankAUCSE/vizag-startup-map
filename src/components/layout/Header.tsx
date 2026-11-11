@@ -132,11 +132,11 @@ export const Header: React.FC<HeaderProps> = ({
             NEWS
           </Link>
           <Link
-            href="/pricing"
+            href="/about"
             onClick={() => setMobileMenuOpen(false)}
             className="font-display font-bold text-sm tracking-wider text-[#3A0F34]"
           >
-            PRICING
+            ABOUT
           </Link>
           <Link
             href="/about"

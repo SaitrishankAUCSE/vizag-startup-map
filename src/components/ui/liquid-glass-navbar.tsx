@@ -44,7 +44,7 @@ export const VizagNavIcons = {
   grid: SvgIcon(<><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></>),
   jobs: SvgIcon(<><rect width="20" height="14" x="2" y="7" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></>),
   news: SvgIcon(<><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" /><path d="M18 14h-8" /><path d="M15 18h-5" /><path d="M10 6h8v4h-8V6Z" /></>),
-  pricing: SvgIcon(<><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z" /></>),
+  about: SvgIcon(<><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></>),
 }
 
 export const DEFAULT_VIZAG_ITEMS: LiquidNavItem[] = [
@@ -52,7 +52,7 @@ export const DEFAULT_VIZAG_ITEMS: LiquidNavItem[] = [
   { label: "Grid", href: "/grid", icon: VizagNavIcons.grid, fx: "pop" },
   { label: "Jobs", href: "/jobs", icon: VizagNavIcons.jobs, fx: "drop" },
   { label: "News", href: "/news", icon: VizagNavIcons.news, fx: "wave" },
-  { label: "Pricing", href: "/pricing", icon: VizagNavIcons.pricing, fx: "glow" },
+  { label: "About", href: "/about", icon: VizagNavIcons.about, fx: "glow" },
 ]
 
 const PAD = 14
@@ -560,3 +560,4 @@ export function LiquidNavbar({
 }
 
 export default LiquidNavbar
+

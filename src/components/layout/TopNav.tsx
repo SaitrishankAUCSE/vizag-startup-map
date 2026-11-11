@@ -88,13 +88,13 @@ export function TopNav({
           )}
         </Link>
 
-        {/* Pricing Link */}
+        {/* About Link */}
         <Link
-          href="/pricing"
+          href="/about"
           className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-teal-100 hover:text-white hover:bg-white/10 transition-colors"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-          <span>Pricing</span>
+          <span>About</span>
         </Link>
 
         {/* Add your startup Button */}

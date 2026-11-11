@@ -5,12 +5,11 @@ import { Footer } from '@/components/layout/Footer';
 import { Strips } from '@/components/ui/Strips';
 import { Flower } from '@/components/ui/Flower';
 import { PricingClient } from './PricingClient';
-import { COPY } from '@/content/copy';
 
 export const metadata: Metadata = {
-  title: 'Pricing & Passes | Vizag Startup Map',
+  title: 'Free Community Access | Vizag Startup Map',
   description:
-    'Free Community Access, Pro for Researchers & Talent (₹199/mo), and Featured Listing for Startups in Visakhapatnam.',
+    'Vizag Startup Map is completely free and open for founders, talent, and investors in Visakhapatnam. Zero paywalls, zero subscription fees.',
 };
 
 export default function PricingPage() {
@@ -28,13 +27,13 @@ export default function PricingPage() {
 
         <div className="relative z-10 text-center max-w-2xl mx-auto mb-12">
           <div className="inline-block px-3 py-1 rounded-full border border-[#3A0F34]/25 bg-[#DDE3E8]/90 text-[10px] font-bold uppercase tracking-[0.2em] text-[#3A0F34] mb-4">
-            ECOSYSTEM ACCESS & PLANS
+            100% FREE COMMUNITY PLATFORM
           </div>
           <h1 className="font-display font-extrabold uppercase text-4xl sm:text-5xl lg:text-6xl tracking-[-0.03em] leading-none text-[#3A0F34]">
-            {COPY.pricing.headline}
+            Every Feature. Zero Fees. Built For Vizag.
           </h1>
           <p className="mt-4 text-sm sm:text-base text-[#3A0F34]/80 leading-relaxed">
-            {COPY.pricing.subheadline} The interactive directory and map will always remain 100% free for everyone.
+            The interactive directory, tech job board, and spatial map are 100% free and open for everyone. No credit card or subscription required.
           </p>
         </div>
 

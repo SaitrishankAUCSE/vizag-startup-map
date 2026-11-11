@@ -12,11 +12,7 @@ import {
   Search,
   ArrowRight,
   CheckCircle2,
-  Check,
   ShieldCheck,
-  Eye,
-  Radio,
-  ExternalLink,
   Layers,
   Flame,
   Globe,
@@ -24,12 +20,6 @@ import {
   Tag,
   PlusCircle,
   X,
-  CreditCard,
-  QrCode,
-  Smartphone,
-  Lock,
-  Receipt,
-  Download,
 } from 'lucide-react';
 import { Listing } from '@/types';
 import { AREAS, SECTORS } from '@/config/constants';
@@ -53,16 +43,12 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
   const [customArea, setCustomArea] = useState('Rushikonda');
   const [customSector, setCustomSector] = useState('Deeptech');
 
-  // Billing Contact
+  // Contact info
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
 
-  // Checkout Modal State
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card' | 'netbanking'>('upi');
-  const [upiId, setUpiId] = useState('');
-  const [paymentProcessing, setPaymentProcessing] = useState(false);
-  const [processingStep, setProcessingStep] = useState('');
+  // Activation & Success State
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [transactionRef, setTransactionRef] = useState('');
 
@@ -102,30 +88,19 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
     setSearchQuery('');
   };
 
-  // Open the real Checkout / Payment Gateway Modal
-  const handleProceedToPayment = (e: React.FormEvent) => {
+  // Direct Free Spotlight Activation (zero payment)
+  const handleActivateSpotlight = (e: React.FormEvent) => {
     e.preventDefault();
     if ((!selectedStartup && !customStartupName.trim()) || !email) return;
-    setShowCheckoutModal(true);
-  };
 
-  // Handle actual payment execution inside the gateway modal
-  const handleExecutePayment = () => {
-    setPaymentProcessing(true);
-    setProcessingStep('Connecting to Razorpay Secure Gateway…');
-
+    setIsSubmitting(true);
     setTimeout(() => {
-      setProcessingStep('Authorizing payment with bank / UPI network…');
-    }, 800);
-
-    setTimeout(() => {
-      const txn = `RZP_VSM_${Date.now().toString(36).toUpperCase()}`;
-      setTransactionRef(txn);
-      setPaymentProcessing(false);
-      setShowCheckoutModal(false);
+      const ref = `VSM_SPOT_${Date.now().toString(36).toUpperCase()}`;
+      setTransactionRef(ref);
+      setIsSubmitting(false);
       setIsSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 2000);
+    }, 700);
   };
 
   // Derive display values
@@ -151,7 +126,7 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
       </div>
 
       {isSuccess ? (
-        /* Confirmed Activation Screen */
+        /* Confirmed Free Activation Screen */
         <div className="max-w-2xl mx-auto bg-white border border-[#3A0F34]/15 rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-xl animate-in fade-in zoom-in-95">
           <div className="w-16 h-16 rounded-2xl bg-[#EAAA00] text-[#3A0F34] flex items-center justify-center mx-auto shadow-md">
             <CheckCircle2 className="w-9 h-9 stroke-[2.5]" />
@@ -159,7 +134,7 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
 
           <div className="space-y-2">
             <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase tracking-widest">
-              Payment Confirmed · ID {transactionRef}
+              Spotlight Confirmed · ID {transactionRef}
             </span>
             <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-[#3A0F34]">
               {activeStartupName} is Now Boosted!
@@ -185,11 +160,11 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
               <strong className="text-zinc-900">7 Full Days</strong>
             </div>
             <div className="flex justify-between text-zinc-600">
-              <span>Amount Paid</span>
-              <strong className="text-emerald-700 font-extrabold">₹499.00 (Paid via Razorpay)</strong>
+              <span>Platform Cost</span>
+              <strong className="text-emerald-700 font-extrabold">100% Free (Community Spotlight)</strong>
             </div>
             <div className="flex justify-between text-zinc-600 border-t border-zinc-200 pt-2">
-              <span>Tax Invoice</span>
+              <span>Confirmation Email</span>
               <strong className="text-zinc-900 truncate max-w-[180px]">{email}</strong>
             </div>
           </div>
@@ -258,7 +233,7 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
                     }`}
                   >
                     <Zap className="w-3 h-3 fill-current" />
-                    <span>Boosted (₹499)</span>
+                    <span>Boosted (Free)</span>
                   </button>
                 </div>
               </div>
@@ -332,7 +307,7 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
 
               <p className="text-xs text-[#3A0F34]/70 leading-relaxed italic">
                 {simulationMode === 'boosted'
-                  ? '⚡ Boosted: 54px golden illuminated frame, radar pulse halo, and unclustered pin presence across all city map zoom levels.'
+                  ? '⚡ Boosted: 54px golden illuminated frame, radar pulse halo, and unclustered pin presence across all city map zoom levels. 100% Free for Visakhapatnam startups.'
                   : '⚪ Standard: 44px grey marker, collapses into coordinate clusters when users zoom out.'}
               </p>
             </div>
@@ -383,7 +358,7 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
                   Live in &lt; 5 Minutes
                 </h4>
                 <p className="text-xs text-[#3A0F34]/75 leading-relaxed font-medium">
-                  Programmatic edge propagation activates your priority marker instantly across desktop and mobile devices upon checkout.
+                  Programmatic edge propagation activates your priority marker instantly across desktop and mobile devices.
                 </p>
               </div>
             </div>
@@ -393,10 +368,10 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-[#EAAA00]">
                   <Flame className="w-3.5 h-3.5" />
-                  <span>Looking For Even Greater Scale?</span>
+                  <span>Looking For Even Greater Prominence?</span>
                 </div>
                 <h4 className="font-display font-bold text-base text-white">
-                  Reserve a 7-Day Directory Billboard Slot
+                  Apply for a Free Community Billboard Slot
                 </h4>
                 <p className="text-xs text-[#DDE3E8]/80 leading-relaxed max-w-lg">
                   Place your banner directly on top of the directory grid with verified clicks and live target URL routing.
@@ -411,31 +386,31 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
             </div>
           </div>
 
-          {/* ── RIGHT COLUMN (5 COLS): Pre-Checkout Setup Form ── */}
+          {/* ── RIGHT COLUMN (5 COLS): Free Spotlight Setup Form ── */}
           <div className="lg:col-span-5 sticky top-20">
             <div className="bg-white border border-[#3A0F34]/15 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
-              {/* Card Header & Price */}
+              {/* Card Header */}
               <div className="space-y-1 pb-4 border-b border-zinc-100">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#3A0F34]/60">
-                    Priority Package
+                    Community Priority Spotlight
                   </span>
-                  <span className="bg-amber-100 text-amber-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
-                    7 Days Guaranteed
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">
+                    100% Free · 7 Days
                   </span>
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl sm:text-4xl font-display font-extrabold text-[#3A0F34]">
-                    ₹499
+                    Free Spotlight
                   </span>
                   <span className="text-xs text-zinc-500 font-semibold">
-                    all-inclusive (₹71 / day)
+                    zero fees, community sponsored
                   </span>
                 </div>
               </div>
 
-              {/* Checkout Form */}
-              <form onSubmit={handleProceedToPayment} className="space-y-5">
+              {/* Activation Form */}
+              <form onSubmit={handleActivateSpotlight} className="space-y-5">
                 {/* ── STEP 1: STARTUP TO PROMOTE ── */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[#3A0F34] flex items-center justify-between">
@@ -596,14 +571,14 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
                   )}
                 </div>
 
-                {/* ── STEP 2: BILLING CONTACT ── */}
+                {/* ── STEP 2: CONTACT INFORMATION ── */}
                 <div className="space-y-3 pt-2 border-t border-zinc-100">
                   <label className="text-xs font-bold text-[#3A0F34] block">
-                    2. Receipt & Contact Information
+                    2. Founder / Lead Contact Information
                   </label>
 
                   <div className="space-y-1">
-                    <label className="text-[11px] text-zinc-600 font-medium">Work / Receipt Email *</label>
+                    <label className="text-[11px] text-zinc-600 font-medium">Work / Contact Email *</label>
                     <input
                       type="email"
                       required
@@ -626,35 +601,36 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
                   </div>
                 </div>
 
-                {/* Order Summary */}
+                {/* Spotlight Summary */}
                 <div className="bg-zinc-50 border border-zinc-200/80 rounded-2xl p-4 space-y-2 text-xs">
                   <div className="flex justify-between text-zinc-600">
                     <span>Priority Duration</span>
                     <strong className="text-zinc-900">7 Full Days</strong>
                   </div>
                   <div className="flex justify-between text-zinc-600">
-                    <span>Applicable Taxes & GST</span>
-                    <span className="text-emerald-700 font-bold">Included</span>
+                    <span>Illumination & Halos</span>
+                    <span className="text-emerald-700 font-bold">Active</span>
                   </div>
                   <div className="flex justify-between text-zinc-600">
-                    <span>Auto-Debit / Recurring</span>
-                    <span className="text-zinc-900 font-bold">None (One-time)</span>
+                    <span>Platform Cost</span>
+                    <span className="text-emerald-700 font-bold">100% Free Forever</span>
                   </div>
                   <div className="pt-2 border-t border-zinc-200 flex justify-between text-sm font-extrabold text-[#3A0F34]">
-                    <span>Total Payable</span>
-                    <span>₹499.00</span>
+                    <span>Total Cost</span>
+                    <span className="text-emerald-700">₹0 (Free)</span>
                   </div>
                 </div>
 
-                {/* Submit Action: Opens Gateway Modal */}
+                {/* Submit Action */}
                 <CartoonButton
                   type="submit"
-                  disabled={(!selectedStartup && !customStartupName.trim()) || !email}
-                  label="Continue to Secure Payment (₹499) →"
+                  disabled={(!selectedStartup && !customStartupName.trim()) || !email || isSubmitting}
+                  loading={isSubmitting}
+                  label={isSubmitting ? "Activating Spotlight..." : "Activate Free 7-Day Spotlight →"}
                   variant="marigold"
                   size="lg"
                   className="w-full"
-                  icon={<Lock className="w-3.5 h-3.5" />}
+                  icon={<Zap className="w-3.5 h-3.5 fill-current" />}
                   iconPosition="left"
                 />
               </form>
@@ -663,250 +639,12 @@ export const BoostClient: React.FC<BoostClientProps> = ({ listings }) => {
               <div className="pt-2 border-t border-zinc-100 grid grid-cols-2 gap-2 text-[10.5px] text-zinc-500 font-medium">
                 <div className="flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Razorpay 256-Bit SSL</span>
+                  <span>Zero Payment Required</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                   <span>Instant Activation</span>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── REAL INTERACTIVE PAYMENT GATEWAY CHECKOUT MODAL ── */}
-      {showCheckoutModal && (
-        <div className="fixed inset-0 z-[1500] flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-[#3A0F34]/40 backdrop-blur-sm cursor-pointer"
-            onClick={() => !paymentProcessing && setShowCheckoutModal(false)}
-          />
-
-          {/* Modal Container */}
-          <div className="relative w-full max-w-lg bg-white border border-[#3A0F34]/20 rounded-3xl shadow-[0_24px_70px_rgba(58,15,52,0.35)] overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
-            {/* Header: Payment Gateway Identity */}
-            <div className="bg-[#3A0F34] text-white px-6 py-5 flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-[#EAAA00]" />
-                  <span className="font-display font-extrabold text-base text-white">
-                    Razorpay Secure Checkout
-                  </span>
-                </div>
-                <p className="text-xs text-[#DDE3E8]/70 mt-0.5">
-                  Vizag Startup Map · Priority Placement (7 Days)
-                </p>
-              </div>
-
-              <div className="text-right">
-                <div className="text-xl font-display font-extrabold text-[#EAAA00]">
-                  ₹499.00
-                </div>
-                <span className="text-[10px] text-[#DDE3E8]/60">One-time payment</span>
-              </div>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 space-y-5">
-              {/* Target Venture Summary Banner */}
-              <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-between text-xs">
-                <div>
-                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
-                    Venture Being Boosted
-                  </span>
-                  <strong className="text-zinc-900 text-sm font-extrabold">
-                    {activeStartupName}
-                  </strong>
-                  <span className="text-zinc-500 ml-1">({activeStartupArea})</span>
-                </div>
-                <div className="text-right text-[11px] text-zinc-500">
-                  <span>Billing to:</span>
-                  <strong className="block text-zinc-800 truncate max-w-[140px]">{email}</strong>
-                </div>
-              </div>
-
-              {/* Payment Method Selector Tabs */}
-              <div className="space-y-3">
-                <label className="text-xs font-bold text-zinc-800 block">
-                  Select Payment Option:
-                </label>
-
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('upi')}
-                    className={`p-3 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center gap-1.5 ${
-                      paymentMethod === 'upi'
-                        ? 'bg-[#3A0F34] text-white border-[#3A0F34] shadow-xs'
-                        : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200'
-                    }`}
-                  >
-                    <Smartphone className="w-4 h-4" />
-                    <span className="text-xs font-bold">UPI / QR</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('card')}
-                    className={`p-3 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center gap-1.5 ${
-                      paymentMethod === 'card'
-                        ? 'bg-[#3A0F34] text-white border-[#3A0F34] shadow-xs'
-                        : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200'
-                    }`}
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    <span className="text-xs font-bold">Cards</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('netbanking')}
-                    className={`p-3 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center gap-1.5 ${
-                      paymentMethod === 'netbanking'
-                        ? 'bg-[#3A0F34] text-white border-[#3A0F34] shadow-xs'
-                        : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200'
-                    }`}
-                  >
-                    <Building2 className="w-4 h-4" />
-                    <span className="text-xs font-bold">Netbanking</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Dynamic Payment Method Panels */}
-              {paymentMethod === 'upi' && (
-                <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-4">
-                  {/* Scan QR Code */}
-                  <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-                    <div className="w-28 h-28 rounded-xl bg-white p-2 border border-zinc-200 flex items-center justify-center shrink-0 shadow-xs">
-                      {/* Stylized QR SVG */}
-                      <svg viewBox="0 0 100 100" className="w-full h-full text-zinc-900 fill-current">
-                        <path d="M0,0 h30 v30 h-30 z M5,5 v20 h20 v-20 z M10,10 h10 v10 h-10 z" />
-                        <path d="M70,0 h30 v30 h-30 z M75,5 v20 h20 v-20 z M80,10 h10 v10 h-10 z" />
-                        <path d="M0,70 h30 v30 h-30 z M5,75 v20 h20 v-20 z M10,80 h10 v10 h-10 z" />
-                        <rect x="40" y="10" width="8" height="8" />
-                        <rect x="52" y="10" width="8" height="8" />
-                        <rect x="40" y="24" width="8" height="8" />
-                        <rect x="40" y="40" width="20" height="20" />
-                        <rect x="70" y="40" width="8" height="8" />
-                        <rect x="85" y="40" width="8" height="8" />
-                        <rect x="70" y="55" width="8" height="8" />
-                        <rect x="85" y="55" width="8" height="8" />
-                        <rect x="40" y="70" width="8" height="8" />
-                        <rect x="55" y="70" width="8" height="8" />
-                        <rect x="70" y="70" width="20" height="20" />
-                        <rect x="40" y="85" width="8" height="8" />
-                        <rect x="55" y="85" width="8" height="8" />
-                      </svg>
-                    </div>
-
-                    <div className="space-y-1 text-xs">
-                      <strong className="text-zinc-900 block font-bold">
-                        Scan to Pay with Any UPI App
-                      </strong>
-                      <p className="text-zinc-500 text-[11px] leading-relaxed">
-                        Open Google Pay, PhonePe, Paytm, or CRED to scan and authorize ₹499.00 instantly.
-                      </p>
-                      <div className="flex items-center gap-2 pt-1 text-[10.5px] font-bold text-zinc-600">
-                        <span className="px-2 py-0.5 rounded bg-white border border-zinc-200">GPay</span>
-                        <span className="px-2 py-0.5 rounded bg-white border border-zinc-200">PhonePe</span>
-                        <span className="px-2 py-0.5 rounded bg-white border border-zinc-200">Paytm</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Or Enter UPI VPA */}
-                  <div className="pt-3 border-t border-zinc-200 space-y-1.5">
-                    <label className="text-[11px] font-bold text-zinc-700 block">
-                      Or Enter Your UPI ID / VPA:
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="yourname@oksbi"
-                        value={upiId}
-                        onChange={(e) => setUpiId(e.target.value)}
-                        className="flex-1 bg-white border border-zinc-300 rounded-xl px-3 py-2 text-xs text-zinc-900 outline-none focus:border-[#3A0F34]"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {paymentMethod === 'card' && (
-                <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3 text-xs">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-zinc-700">Card Number</label>
-                    <input
-                      type="text"
-                      placeholder="4532 •••• •••• 8921"
-                      className="w-full bg-white border border-zinc-300 rounded-xl px-3 py-2 text-xs text-zinc-900 outline-none"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-zinc-700">Expiry (MM/YY)</label>
-                      <input
-                        type="text"
-                        placeholder="08/28"
-                        className="w-full bg-white border border-zinc-300 rounded-xl px-3 py-2 text-xs text-zinc-900 outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-zinc-700">CVV</label>
-                      <input
-                        type="password"
-                        maxLength={4}
-                        placeholder="•••"
-                        className="w-full bg-white border border-zinc-300 rounded-xl px-3 py-2 text-xs text-zinc-900 outline-none"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {paymentMethod === 'netbanking' && (
-                <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2 text-xs">
-                  <label className="text-[11px] font-bold text-zinc-700 block">Popular Banks:</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {['HDFC Bank', 'State Bank of India', 'ICICI Bank', 'Axis Bank'].map((b) => (
-                      <button
-                        key={b}
-                        type="button"
-                        className="p-2.5 rounded-xl border border-zinc-200 bg-white text-left font-bold text-xs text-zinc-800 hover:border-[#3A0F34]"
-                      >
-                        {b}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="space-y-2 pt-2 flex flex-col items-center">
-                <CartoonButton
-                  onClick={handleExecutePayment}
-                  disabled={paymentProcessing}
-                  loading={paymentProcessing}
-                  label={paymentProcessing ? processingStep : "Authorize & Pay ₹499.00"}
-                  variant="marigold"
-                  size="lg"
-                  className="w-full"
-                  icon={<Lock className="w-3.5 h-3.5" />}
-                  iconPosition="left"
-                />
-
-                {!paymentProcessing && (
-                  <button
-                    type="button"
-                    onClick={() => setShowCheckoutModal(false)}
-                    className="w-full py-2 text-center text-xs font-bold text-zinc-500 hover:text-zinc-800 cursor-pointer"
-                  >
-                    Cancel & Return
-                  </button>
-                )}
               </div>
             </div>
           </div>

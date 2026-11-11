@@ -1,4 +1,4 @@
-// Pricing Plans for Vizag Startup Map (INR, Razorpay Subscriptions)
+// Free Community Access Configuration for Vizag Startup Map (100% Free, No Payments)
 
 export interface PricingPlan {
   id: string;
@@ -17,20 +17,20 @@ export const PRICING_CONFIG = {
   currency: 'INR',
   currencySymbol: '₹',
 
-  // Pro Plan (For individuals: job seekers, researchers, tech talent, founders)
+  // Free Ecosystem Access (For individuals: job seekers, researchers, tech talent, founders)
   pro: {
     monthly: {
-      amount: 99,
-      displayPrice: '₹99',
-      period: 'month',
-      planId: process.env.RAZORPAY_PLAN_PRO_MONTHLY || 'plan_pro_monthly',
+      amount: 0,
+      displayPrice: 'Free',
+      period: 'forever',
+      planId: 'free_community',
     },
     yearly: {
-      amount: 799,
-      displayPrice: '₹799',
-      period: 'year',
-      savings: 'Save ~33%',
-      planId: process.env.RAZORPAY_PLAN_PRO_YEARLY || 'plan_pro_yearly',
+      amount: 0,
+      displayPrice: 'Free',
+      period: 'forever',
+      savings: '100% Free',
+      planId: 'free_community',
     },
     features: [
       'Export full filtered directory to CSV & JSON',
@@ -45,10 +45,10 @@ export const PRICING_CONFIG = {
     ],
   },
 
-  // 7-Day Spotlight Boost (For startups launching or actively hiring)
+  // 7-Day Spotlight Boost (For startups launching or actively hiring - 100% Free)
   boost: {
-    amount: 499,
-    displayPrice: '₹499',
+    amount: 0,
+    displayPrice: 'Free',
     period: '7 days',
     features: [
       '2x marker dimensions across all city map zoom levels',
@@ -59,27 +59,27 @@ export const PRICING_CONFIG = {
     ],
   },
 
-  // Featured Listing Plan (For startups wanting continuous top placement)
+  // Community Showcase (For startups wanting continuous top placement - 100% Free)
   featured: {
     monthly: {
-      amount: 499,
-      displayPrice: '₹499',
-      period: 'month',
-      planId: process.env.RAZORPAY_PLAN_FEATURED_MONTHLY || 'plan_featured_monthly',
+      amount: 0,
+      displayPrice: 'Free',
+      period: 'forever',
+      planId: 'free_showcase',
     },
     yearly: {
-      amount: 3999,
-      displayPrice: '₹3,999',
-      period: 'year',
-      savings: 'Save ~33%',
-      planId: process.env.RAZORPAY_PLAN_FEATURED_YEARLY || 'plan_featured_yearly',
+      amount: 0,
+      displayPrice: 'Free',
+      period: 'forever',
+      savings: '100% Free',
+      planId: 'free_showcase',
     },
     features: [
       'Larger highlighted 54px pin with pulsing Marigold gold accent ring',
       'Top-of-list placement in all area, sector, and search queries',
       'Distinguished "Featured" badge across map, grid, and detail views',
       'Extended company description and direct pitch deck / demo link',
-      'Post up to 5 active job openings with direct applicant routing',
+      'Post active job openings with direct applicant routing',
       'Founder analytics dashboard (profile views & career click metrics)',
       'Direct social & recruiter contact buttons',
     ],
