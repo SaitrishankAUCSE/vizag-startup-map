@@ -286,25 +286,34 @@ export const FloatingTopBar: React.FC<FloatingTopBarProps> = ({
         <span className="h-3 w-px bg-[#3A0F34]/20" />
 
         {/* Hiring-only switch */}
-        <button
-          type="button"
-          role="switch"
-          aria-checked={hiringOnly}
-          onClick={handleHiringToggle}
-          className={`relative w-9 h-5 rounded-full transition-colors cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-[#EAAA00] ${
-            hiringOnly ? 'bg-[#3A0F34]' : 'bg-[#3A0F34]/20'
-          }`}
-          aria-label="Toggle hiring-only view"
-        >
-          <span
-            className={`absolute top-0.5 w-4 h-4 rounded-full bg-[#DDE3E8] shadow transition-transform ${
-              hiringOnly ? 'translate-x-4' : 'translate-x-0.5'
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={hiringOnly}
+            onClick={handleHiringToggle}
+            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full p-0.5 transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3A0F34] focus-visible:ring-offset-1 ${
+              hiringOnly ? 'bg-[#3A0F34]' : 'bg-[#3A0F34]/20 hover:bg-[#3A0F34]/30'
             }`}
-          />
-        </button>
-        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#3A0F34]/60">
-          Hiring only
-        </span>
+            aria-label="Toggle hiring-only view"
+          >
+            <span
+              aria-hidden="true"
+              className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-md transform transition-transform duration-200 ease-in-out ${
+                hiringOnly ? 'translate-x-4' : 'translate-x-0'
+              }`}
+            />
+          </button>
+          <button
+            type="button"
+            onClick={handleHiringToggle}
+            className={`text-[10px] font-bold uppercase tracking-[0.1em] transition-colors cursor-pointer select-none whitespace-nowrap ${
+              hiringOnly ? 'text-[#3A0F34]' : 'text-[#3A0F34]/60 hover:text-[#3A0F34]'
+            }`}
+          >
+            Hiring only
+          </button>
+        </div>
       </div>
     </div>
   );
