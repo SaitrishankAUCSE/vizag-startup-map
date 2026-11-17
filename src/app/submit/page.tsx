@@ -71,6 +71,7 @@ export default function SubmitPage() {
   const [approvedSlug, setApprovedSlug] = useState('');
   const [approvedGovId, setApprovedGovId] = useState('');
   const [approvedGovType, setApprovedGovType] = useState('');
+  const [approvedGovLegalName, setApprovedGovLegalName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const handleAreaChange = (area: string) => {
@@ -146,6 +147,7 @@ export default function SubmitPage() {
       setApprovedSlug(data.slug || '');
       setApprovedGovId(data.gov_id_number || formData.verification_proof_value.trim());
       setApprovedGovType(data.gov_id_type || formData.verification_proof_type);
+      setApprovedGovLegalName(data.gov_legal_name || '');
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {

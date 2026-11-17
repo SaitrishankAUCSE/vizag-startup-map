@@ -4,6 +4,7 @@ import { createSubmission, getListings, approveSubmission } from '@/lib/firebase
 import { detectAtsFromUrl } from '@/lib/ats/detect';
 import { isDisposableEmail, isVerificationTokenValid } from '@/lib/verification/otp';
 import { validateGovernmentRegistration, GovIdType } from '@/lib/verification/govId';
+import { lookupGSTINFromRegistry, isStartupNameMatchingGovRecord } from '@/lib/verification/govRegistry';
 
 // In-memory rate limiting map: ip -> timestamps
 const rateLimitMap = new Map<string, number[]>();
@@ -117,6 +118,7 @@ export async function POST(req: NextRequest) {
     // If a government ID is provided: validate authenticity. If real -> auto-approve; if fake/invalid -> reject!
     let isGovIdAutoApproved = false;
     let govIdValidationResult: ReturnType<typeof validateGovernmentRegistration> | null = null;
+    let govIdVerifiedLegalName: string | null = null;
 
     if (
       validated.verification_proof_type &&
@@ -141,12 +143,79 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Valid government registration verified!
-      isGovIdAutoApproved = true;
+      // Anti-Theft Guard 1: Prevent duplicate reuse of an already-charted company's Government ID
+      const duplicateGovId = existingListings.find(
+        (l) => l.verification_proof_value && l.verification_proof_value.toUpperCase() === govIdValidationResult?.normalized
+      );
+      if (duplicateGovId) {
+        return NextResponse.json(
+          {
+            error: `This ${validated.verification_proof_type.toUpperCase()} (${govIdValidationResult.normalized}) is already registered to "${duplicateGovId.name}" on the Vizag Startup Map. A Government ID cannot be reused across different organizations.`,
+          },
+          { status: 409 }
+        );
+      }
+
+      // Anti-Theft Guard 2: Domain-Bound Ownership Check
+      // If someone enters a fake startup name but pastes a legitimate company's GSTIN/CIN:
+      // Real founders use their company email (e.g. founder@fluentgrid.com for fluentgrid.com).
+      // An impostor will use @gmail.com or an unrelated website domain.
+      // Auto-approval is granted ONLY if the email domain matches the official corporate website.
+      // Otherwise, the submission is routed to Admin Review Queue with an identity flag.
+      if (domainMatched) {
+        isGovIdAutoApproved = true;
+      }
+
+      // 7b. Live Government Registry Name-Matching (GSTIN only, when API key is configured)
+      // This checks the actual registered legal/trade name against the submitted company name.
+      // If the name does NOT match the government record → reject immediately (name theft prevention).
+      // If the GSTIN is not found (quota exceeded / API down) → graceful degradation, proceed.
+      if (isGovIdAutoApproved && validated.verification_proof_type === 'gstin' && process.env.GSTIN_API_KEY) {
+        const registryResult = await lookupGSTINFromRegistry(govIdValidationResult.normalized);
+
+        if (registryResult) {
+          // Check if the GSTIN is Active in government records
+          const statusLower = registryResult.status?.toLowerCase() ?? '';
+          if (statusLower !== 'active' && statusLower !== 'act') {
+            return NextResponse.json(
+              {
+                error: `This GSTIN has status "${registryResult.status}" in government records. Only active GST registrations are eligible for instant approval. Please use an active GSTIN or select "None" for manual review.`,
+                rejected: true,
+                gov_registry_status: registryResult.status,
+              },
+              { status: 400 }
+            );
+          }
+
+          // Compare submitted company name against government-registered names
+          const nameMatch = isStartupNameMatchingGovRecord(
+            validated.name,
+            registryResult.legal_name,
+            registryResult.trade_name
+          );
+
+          if (!nameMatch.matched) {
+            return NextResponse.json(
+              {
+                error: `Company name mismatch: "${validated.name}" does not match the government-registered name "${registryResult.legal_name}"${registryResult.trade_name ? ` (trade name: "${registryResult.trade_name}")` : ''} for this GSTIN. Please submit with the exact registered company name, or select "None" to submit for manual review.`,
+                rejected: true,
+                gov_legal_name: registryResult.legal_name,
+                gov_trade_name: registryResult.trade_name,
+              },
+              { status: 400 }
+            );
+          }
+
+          // Store verified legal name for the response
+          govIdVerifiedLegalName = registryResult.legal_name;
+        }
+        // If registryResult is null (API unavailable / quota exhausted), proceed with
+        // algorithmic-only approval (graceful degradation — better than blocking real founders)
+      }
     }
 
     // Calculate Trust & Verification Score (0 to 100) for Admin insight
-    let verificationScore = isGovIdAutoApproved ? 100 : 20; // Maximum 100 for verified government registered entities
+    let verificationScore = isGovIdAutoApproved ? 100 : (govIdValidationResult?.valid ? 75 : 20);
     if (!isGovIdAutoApproved) {
       if (validated.email_verification_token) {
         verificationScore += 30;
@@ -203,34 +272,42 @@ export async function POST(req: NextRequest) {
           pincode: validated.pincode,
           domain_matched: domainMatched,
           is_gov_id_verified: isGovIdAutoApproved,
+          is_gov_id_format_valid: !!govIdValidationResult?.valid,
           gov_id_details: govIdValidationResult?.details || null,
+          domain_mismatch_flag: !!(govIdValidationResult?.valid && !domainMatched),
         },
       }
     );
 
-    // Auto-approve if government registration is verified!
+    // Auto-approve if government registration is verified AND submitter owns the corporate domain!
     if (isGovIdAutoApproved) {
       await approveSubmission(result.id);
       return NextResponse.json({
         success: true,
         auto_approved: true,
-        message: `Government Registration (${(validated.verification_proof_type || '').toUpperCase()}) verified! Your startup has been auto-approved and published to the live map.`,
+        message: `Government Registration (${(validated.verification_proof_type || '').toUpperCase()}) & Corporate Domain verified! Your startup has been auto-approved and published to the live map.`,
         id: result.id,
         slug: listingData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
         verification_score: 100,
         domain_matched: domainMatched,
         gov_id_type: validated.verification_proof_type,
         gov_id_number: govIdValidationResult?.normalized,
+        gov_legal_name: govIdVerifiedLegalName || null,
       });
     }
+
+    const isGovIdFlaggedForReview = !!(govIdValidationResult?.valid && !domainMatched);
 
     return NextResponse.json({
       success: true,
       auto_approved: false,
-      message: `Verified submission received! Verification Trust Score: ${verificationScore}/100. Pending review in Admin queue.`,
+      message: isGovIdFlaggedForReview
+        ? `Government ID format verified. Because your contact email does not match the company's official domain, your submission is routed to the Admin Review Queue to prevent unauthorized ID usage.`
+        : `Verified submission received! Verification Trust Score: ${verificationScore}/100. Pending review in Admin queue.`,
       id: result.id,
       verification_score: verificationScore,
       domain_matched: domainMatched,
+      gov_id_flagged_for_review: isGovIdFlaggedForReview,
     });
   } catch (err: unknown) {
     console.error('[submit error]:', err);

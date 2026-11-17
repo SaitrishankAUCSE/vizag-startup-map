@@ -8,6 +8,10 @@ import {
   validateUDYAM,
   validateGovernmentRegistration,
 } from '../src/lib/verification/govId.ts';
+import {
+  normalizeCompanyName,
+  isStartupNameMatchingGovRecord,
+} from '../src/lib/verification/govRegistry.ts';
 
 // Disposable email domains to block
 const DISPOSABLE_EMAIL_DOMAINS = new Set([
@@ -202,5 +206,120 @@ describe('Government Registration & Entity Validation Engine', () => {
     assert.equal(validateGovernmentRegistration('cin', 'U72200AP2021PTC118543').valid, true);
     assert.equal(validateGovernmentRegistration('dpiit', 'DIPP124982').valid, true);
     assert.equal(validateGovernmentRegistration('udyam', 'UDYAM-AP-01-0012345').valid, true);
+  });
+
+  test('Anti-Impostor Guard: Submitting another company GSTIN with personal/unmatched email blocks auto-approval', () => {
+    // Valid GSTIN format
+    const govResult = validateGovernmentRegistration('gstin', '37AACCF4148Q1Z4');
+    assert.equal(govResult.valid, true);
+
+    // Impostor check: submitter email does not match company domain
+    const website = 'https://fluentgrid.com';
+    const impostorEmail = 'scammer@gmail.com';
+    const siteHost = new URL(website).hostname.replace(/^www\./i, '');
+    const emailDomain = impostorEmail.split('@')[1];
+    const domainMatched = emailDomain === siteHost;
+
+    // Must evaluate to FALSE -> Impostor is blocked from instant live approval!
+    assert.equal(domainMatched, false);
+    const isAutoApproved = govResult.valid && domainMatched;
+    assert.equal(isAutoApproved, false);
+
+    // Legitimate founder check: submitter email matches company domain
+    const founderEmail = 'founder@fluentgrid.com';
+    const founderEmailDomain = founderEmail.split('@')[1];
+    const founderDomainMatched = founderEmailDomain === siteHost;
+    assert.equal(founderDomainMatched, true);
+    const isFounderAutoApproved = govResult.valid && founderDomainMatched;
+    assert.equal(isFounderAutoApproved, true);
+  });
+});
+
+describe('Live Government Registry Name-Matching Engine', () => {
+  test('normalizeCompanyName strips legal suffixes correctly', () => {
+    assert.equal(normalizeCompanyName('SPOTMIES INNOVATIONS PRIVATE LIMITED'), 'spotmies');
+    assert.equal(normalizeCompanyName('FLUENTGRID LIMITED'), 'fluentgrid');
+    assert.equal(normalizeCompanyName('BAYAI ROBOTICS PVT LTD'), 'bayai robotics');
+    assert.equal(normalizeCompanyName('AQUAEXCHANGE TECHNOLOGIES LLP'), 'aquaexchange');
+    assert.equal(normalizeCompanyName('INDUSUNI VENTURES INDIA'), 'indusuni');
+    // Already clean names should normalize to themselves
+    assert.equal(normalizeCompanyName('Spotmies'), 'spotmies');
+    assert.equal(normalizeCompanyName('BayAI Robotics'), 'bayai robotics');
+  });
+
+  test('Exact trade name match (highest confidence)', () => {
+    const result = isStartupNameMatchingGovRecord(
+      'Spotmies',
+      'SPOTMIES INNOVATIONS PRIVATE LIMITED',
+      'SPOTMIES'
+    );
+    assert.equal(result.matched, true);
+    assert.equal(result.matchedOn, 'trade_name');
+    assert.ok(result.confidence >= 0.9);
+  });
+
+  test('Fuzzy legal name match — submitted short name against full legal name', () => {
+    // User enters "Spotmies", gov record is "SPOTMIES INNOVATIONS PRIVATE LIMITED"
+    const result = isStartupNameMatchingGovRecord(
+      'Spotmies',
+      'SPOTMIES INNOVATIONS PRIVATE LIMITED',
+      null
+    );
+    assert.equal(result.matched, true);
+    assert.equal(result.matchedOn, 'legal_name');
+  });
+
+  test('Multi-word startup name fuzzy-matches govt record', () => {
+    // "BayAI Robotics" should match "BAYAI ROBOTICS PVT LTD"
+    const result = isStartupNameMatchingGovRecord(
+      'BayAI Robotics',
+      'BAYAI ROBOTICS PVT LTD',
+      null
+    );
+    assert.equal(result.matched, true);
+    assert.equal(result.matchedOn, 'legal_name');
+    assert.ok(result.confidence >= 0.65);
+  });
+
+  test('Fluentgrid matches FLUENTGRID LIMITED', () => {
+    const result = isStartupNameMatchingGovRecord('Fluentgrid', 'FLUENTGRID LIMITED', 'FLUENTGRID');
+    assert.equal(result.matched, true);
+  });
+
+  test('Completely different startup name does NOT match', () => {
+    // Fake startup "Random Fake Corp" should NOT match "SPOTMIES INNOVATIONS PRIVATE LIMITED"
+    const result = isStartupNameMatchingGovRecord(
+      'Random Fake Corp',
+      'SPOTMIES INNOVATIONS PRIVATE LIMITED',
+      'SPOTMIES'
+    );
+    assert.equal(result.matched, false);
+    assert.equal(result.matchedOn, 'none');
+  });
+
+  test('Name impostor: submitting real company name with different GSTIN is blocked by name mismatch', () => {
+    // Impostor submits "Fluentgrid" but provides a GSTIN belonging to "SPOTMIES INNOVATIONS PVT LTD"
+    const result = isStartupNameMatchingGovRecord(
+      'Fluentgrid',
+      'SPOTMIES INNOVATIONS PRIVATE LIMITED',
+      'SPOTMIES'
+    );
+    assert.equal(result.matched, false);
+    assert.equal(result.matchedOn, 'none');
+  });
+
+  test('Partial brand name matches company when it is a substring', () => {
+    // "AquaExchange" should match "AQUAEXCHANGE TECHNOLOGIES LLP"
+    const result = isStartupNameMatchingGovRecord(
+      'AquaExchange',
+      'AQUAEXCHANGE TECHNOLOGIES LLP',
+      null
+    );
+    assert.equal(result.matched, true);
+  });
+
+  test('Empty strings do not match', () => {
+    const result = isStartupNameMatchingGovRecord('', 'SPOTMIES INNOVATIONS PRIVATE LIMITED', null);
+    assert.equal(result.matched, false);
   });
 });

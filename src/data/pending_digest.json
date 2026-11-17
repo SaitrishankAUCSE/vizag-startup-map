@@ -1,1 +1,35 @@
-[]
+[
+  {
+    "id": "queue_1794932273384_adjz",
+    "name": "BayAI Robotics 994",
+    "slug": "bayai-robotics-994",
+    "sector": "SaaS",
+    "area": "Rushikonda",
+    "one_liner": "Autonomous marine drone robotics and coastal water quality inspection.",
+    "description": "Autonomous marine drone robotics and coastal water quality inspection.",
+    "website": "https://bayairobotics.io",
+    "queued_at": "2026-11-17T16:17:53.384Z"
+  },
+  {
+    "id": "queue_1794932340922_anez",
+    "name": "BayAI Robotics 678",
+    "slug": "bayai-robotics-678",
+    "sector": "SaaS",
+    "area": "Rushikonda",
+    "one_liner": "Autonomous marine drone robotics and coastal water quality inspection.",
+    "description": "Autonomous marine drone robotics and coastal water quality inspection.",
+    "website": "https://bayairobotics.io",
+    "queued_at": "2026-11-17T16:19:00.922Z"
+  },
+  {
+    "id": "queue_1794933266203_mrrz",
+    "name": "Duplicate Claim Corp",
+    "slug": "duplicate-claim-corp",
+    "sector": "SaaS",
+    "area": "Rushikonda",
+    "one_liner": "Trying to claim an existing company GSTIN.",
+    "description": "Trying to claim an existing company GSTIN.",
+    "website": "https://duplicateclaim.io",
+    "queued_at": "2026-11-17T16:34:26.203Z"
+  }
+]

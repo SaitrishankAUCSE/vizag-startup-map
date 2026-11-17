@@ -120,6 +120,8 @@ export interface Listing {
   boosted_until?: string | null;
   featured_until?: string | null; // legacy alias
   owner_id?: string | null;
+  verification_proof_type?: string | null;
+  verification_proof_value?: string | null;
   created_at: string;
   updated_at: string;
 
