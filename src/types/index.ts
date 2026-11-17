@@ -255,7 +255,7 @@ export interface Submission {
   domain_matched?: boolean;
   website_verified?: boolean;
   verification_score?: number;
-  verification_proof_type?: 'dpiit' | 'cin' | 'gstin' | 'incubator' | 'media' | null;
+  verification_proof_type?: 'dpiit' | 'cin' | 'gstin' | 'udyam' | 'incubator' | 'media' | null;
   verification_proof_value?: string | null;
   verification_details?: Record<string, any>;
   status: 'pending' | 'approved' | 'rejected';

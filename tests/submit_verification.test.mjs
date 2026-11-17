@@ -1,6 +1,13 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
+import {
+  validateGSTIN,
+  validateCIN,
+  validateDPIIT,
+  validateUDYAM,
+  validateGovernmentRegistration,
+} from '../src/lib/verification/govId.ts';
 
 // Disposable email domains to block
 const DISPOSABLE_EMAIL_DOMAINS = new Set([
@@ -111,5 +118,89 @@ describe('Submitter Verification & Anti-Fake Guard', () => {
     });
     assert.equal(personalEmailScore, 75);
     assert.ok(personalEmailScore >= 60);
+  });
+});
+
+describe('Government Registration & Entity Validation Engine', () => {
+  test('Valid Andhra Pradesh GSTIN passes with Modulo 36 checksum verification', () => {
+    // Valid statutory GSTIN for AP (State 37, Entity C, Checksum 4)
+    const validGstin = '37AACCF4148Q1Z4';
+    const result = validateGSTIN(validGstin);
+    assert.equal(result.valid, true);
+    assert.equal(result.details?.stateCode, '37');
+    assert.equal(result.details?.isAndhraPradesh, true);
+    assert.equal(result.details?.pan, 'AACCF4148Q');
+  });
+
+  test('Invalid GSTIN checksum is rejected mathematically', () => {
+    // Check digit altered from 4 to 9 -> Must fail Modulo 36 checksum
+    const fakeGstin = '37AACCF4148Q1Z9';
+    const result = validateGSTIN(fakeGstin);
+    assert.equal(result.valid, false);
+    assert.ok(result.reason?.includes('checksum verification failed'));
+  });
+
+  test('Malformed GSTIN syntax is rejected', () => {
+    assert.equal(validateGSTIN('INVALID123').valid, false);
+    assert.equal(validateGSTIN('37AACCF4148').valid, false);
+    assert.equal(validateGSTIN('').valid, false);
+  });
+
+  test('Valid MCA Corporate Identification Number (CIN) passes', () => {
+    const validCin = 'U72200AP2021PTC118543';
+    const result = validateCIN(validCin);
+    assert.equal(result.valid, true);
+    assert.equal(result.details?.stateCode, 'AP');
+    assert.equal(result.details?.isAndhraPradesh, true);
+    assert.equal(result.details?.incorporationYear, 2021);
+    assert.equal(result.details?.entityType, 'Private Limited Company');
+  });
+
+  test('Invalid CIN incorporation year is rejected', () => {
+    // Year 1850 is before 1900
+    const archaicCin = 'U72200AP1850PTC118543';
+    const result = validateCIN(archaicCin);
+    assert.equal(result.valid, false);
+    assert.ok(result.reason?.includes('incorporation year'));
+
+    // Year in distant future
+    const futureCin = 'U72200AP2099PTC118543';
+    assert.equal(validateCIN(futureCin).valid, false);
+  });
+
+  test('Valid DPIIT Startup India Recognition Number passes', () => {
+    const res1 = validateDPIIT('DIPP124982');
+    assert.equal(res1.valid, true);
+    assert.equal(res1.details?.entityType, 'DPIIT Recognized Startup');
+
+    const res2 = validateDPIIT('DPIIT87261');
+    assert.equal(res2.valid, true);
+  });
+
+  test('Malformed DPIIT is rejected', () => {
+    assert.equal(validateDPIIT('RANDOM123').valid, false);
+    assert.equal(validateDPIIT('DIPP').valid, false);
+  });
+
+  test('Valid UDYAM MSME registration number passes', () => {
+    const validUdyam = 'UDYAM-AP-01-0012345';
+    const result = validateUDYAM(validUdyam);
+    assert.equal(result.valid, true);
+    assert.equal(result.details?.stateCode, 'AP');
+    assert.equal(result.details?.isAndhraPradesh, true);
+  });
+
+  test('Malformed UDYAM number is rejected', () => {
+    assert.equal(validateUDYAM('UDYAM-12345').valid, false);
+    assert.equal(validateUDYAM('UDYAM-AP-0001').valid, false);
+  });
+
+  test('validateGovernmentRegistration master dispatcher behaves correctly', () => {
+    assert.equal(validateGovernmentRegistration('none', '').valid, false);
+    assert.equal(validateGovernmentRegistration('gstin', '37AACCF4148Q1Z4').valid, true);
+    assert.equal(validateGovernmentRegistration('gstin', '37AACCF4148Q1Z9').valid, false);
+    assert.equal(validateGovernmentRegistration('cin', 'U72200AP2021PTC118543').valid, true);
+    assert.equal(validateGovernmentRegistration('dpiit', 'DIPP124982').valid, true);
+    assert.equal(validateGovernmentRegistration('udyam', 'UDYAM-AP-01-0012345').valid, true);
   });
 });

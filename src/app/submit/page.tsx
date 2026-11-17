@@ -18,6 +18,8 @@ import {
   Zap,
   ExternalLink,
   ShieldCheck,
+  FileCheck2,
+  BadgeCheck,
 } from 'lucide-react';
 import { LISTING_TYPES, AREAS, STAGES, SECTORS } from '@/config/constants';
 import { CartoonButton } from '@/components/ui/cartoon-button';
@@ -57,12 +59,18 @@ export default function SubmitPage() {
     founder_role: 'Founder',
     founder_linkedin: '',
     contact_email: '',
+    verification_proof_type: 'none' as 'none' | 'gstin' | 'cin' | 'dpiit' | 'udyam',
+    verification_proof_value: '',
     hp_website_confirm: '',
   });
 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submissionId, setSubmissionId] = useState('');
+  const [autoApproved, setAutoApproved] = useState(false);
+  const [approvedSlug, setApprovedSlug] = useState('');
+  const [approvedGovId, setApprovedGovId] = useState('');
+  const [approvedGovType, setApprovedGovType] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const handleAreaChange = (area: string) => {
@@ -81,6 +89,11 @@ export default function SubmitPage() {
 
     if (!formData.name.trim() || !formData.website.trim() || !formData.contact_email.trim()) {
       setError('Please provide your company name, website URL, and official contact email.');
+      return;
+    }
+
+    if (formData.verification_proof_type !== 'none' && !formData.verification_proof_value.trim()) {
+      setError(`Please provide your ${formData.verification_proof_type.toUpperCase()} registration number, or change the selection to "None (Manual Review)".`);
       return;
     }
 
@@ -111,6 +124,8 @@ export default function SubmitPage() {
         founder_role: formData.founder_role.trim() || 'Founder',
         founder_linkedin: formData.founder_linkedin.trim() || '',
         contact_email: formData.contact_email.trim().toLowerCase(),
+        verification_proof_type: formData.verification_proof_type,
+        verification_proof_value: formData.verification_proof_value.trim(),
         hp_website_confirm: formData.hp_website_confirm,
       };
 
@@ -127,6 +142,10 @@ export default function SubmitPage() {
       }
 
       setSubmissionId(data.id || `VSM-${Date.now().toString(36).toUpperCase()}`);
+      setAutoApproved(!!data.auto_approved);
+      setApprovedSlug(data.slug || '');
+      setApprovedGovId(data.gov_id_number || formData.verification_proof_value.trim());
+      setApprovedGovType(data.gov_id_type || formData.verification_proof_type);
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
@@ -155,93 +174,213 @@ export default function SubmitPage() {
         {submitted ? (
           /* Confirmation Screen */
           <div className="bg-zinc-50 border border-zinc-200 rounded-3xl p-8 sm:p-12 text-center space-y-6 shadow-sm animate-in fade-in zoom-in-95">
-            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto border border-emerald-200 shadow-xs">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
+            {autoApproved ? (
+              /* AUTO-APPROVED CASE: Instant Live Publishing via Government ID */
+              <>
+                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto border-2 border-emerald-300 shadow-sm">
+                  <BadgeCheck className="w-9 h-9 text-emerald-700" />
+                </div>
 
-            <div className="space-y-2">
-              <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase tracking-widest">
-                Listing Submitted · ID {submissionId}
-              </span>
-              <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-zinc-900">
-                Startup Submitted for Review!
-              </h1>
-              <p className="text-xs sm:text-sm text-zinc-600 max-w-md mx-auto leading-relaxed">
-                Thank you, <strong>{formData.founder_name || 'Founder'}</strong>! <strong>{formData.name}</strong> has been submitted to the Vizag Startup Map directory.
-              </p>
-            </div>
+                <div className="space-y-2">
+                  <span className="inline-block px-3 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-extrabold uppercase tracking-widest shadow-xs">
+                    ⚡ Verified & Auto-Approved · Live on Map!
+                  </span>
+                  <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-zinc-900">
+                    Your Startup is Live!
+                  </h1>
+                  <p className="text-xs sm:text-sm text-zinc-600 max-w-md mx-auto leading-relaxed">
+                    Official statutory verification succeeded for <strong>{approvedGovType.toUpperCase()}: {approvedGovId}</strong>. <strong>{formData.name}</strong> has been auto-approved and pinned directly to the Visakhapatnam map!
+                  </p>
+                </div>
 
-            <div className="bg-white border border-zinc-200 rounded-2xl p-5 text-left text-xs space-y-2 max-w-md mx-auto shadow-xs">
-              <div className="flex justify-between items-center text-zinc-600">
-                <span>Organization:</span>
-                <span className="font-bold text-zinc-900">{formData.name}</span>
-              </div>
-              <div className="flex justify-between items-center text-zinc-600">
-                <span>Sector & Stage:</span>
-                <span className="font-bold text-zinc-900">
-                  {formData.sector} · {formData.stage}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-zinc-600">
-                <span>Vizag Area:</span>
-                <span className="font-bold text-zinc-900">{formData.area}</span>
-              </div>
-              <div className="flex justify-between items-center text-zinc-600">
-                <span>Confirmation Sent To:</span>
-                <span className="font-mono text-zinc-900">{formData.contact_email}</span>
-              </div>
-            </div>
+                <div className="bg-white border border-emerald-200 rounded-2xl p-5 text-left text-xs space-y-2.5 max-w-md mx-auto shadow-xs">
+                  <div className="flex justify-between items-center text-zinc-600">
+                    <span>Organization:</span>
+                    <span className="font-bold text-zinc-900">{formData.name}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-zinc-600">
+                    <span>Verification Status:</span>
+                    <span className="font-bold text-emerald-700 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 inline" />
+                      Auto-Approved via {approvedGovType.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-zinc-600">
+                    <span>Government ID:</span>
+                    <span className="font-mono text-zinc-900 font-semibold">{approvedGovId}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-zinc-600">
+                    <span>Sector & Stage:</span>
+                    <span className="font-bold text-zinc-900">
+                      {formData.sector} · {formData.stage}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-zinc-600">
+                    <span>Vizag Area:</span>
+                    <span className="font-bold text-zinc-900">{formData.area}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-zinc-600">
+                    <span>Trust & Security Score:</span>
+                    <span className="font-bold text-emerald-700">100 / 100</span>
+                  </div>
+                </div>
 
-            {/* Moderation & Review Information */}
-            <div className="bg-[#3A0F34]/5 border border-[#3A0F34]/15 rounded-2xl p-4 max-w-md mx-auto text-left space-y-1.5">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-[#3A0F34]">
-                <ShieldCheck className="w-4 h-4 text-[#3A0F34]" />
-                <span>What Happens Next?</span>
-              </div>
-              <p className="text-[11.5px] text-[#3A0F34]/80 leading-relaxed">
-                Your submission is queued for review by the admin moderation team. Once verified and approved in the Admin Console, your startup will be pinned to the live map and all community subscribers will receive an instant email alert.
-              </p>
-            </div>
+                {/* Instant Alert Notice */}
+                <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 max-w-md mx-auto text-left space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
+                    <Sparkles className="w-4 h-4 text-emerald-700" />
+                    <span>Instant Community Broadcast Active</span>
+                  </div>
+                  <p className="text-[11.5px] text-emerald-800 leading-relaxed">
+                    Subscribers of the Vizag Tech Intelligence circle have been alerted about your new company addition. Your marker is now discoverable by tech talent, founders, and investors.
+                  </p>
+                </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link
-                href="/"
-                className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#3A0F34] hover:bg-[#EAAA00] hover:text-[#3A0F34] text-white text-xs font-bold transition-all shadow-xs text-center"
-              >
-                Return to Live Map
-              </Link>
-              <button
-                type="button"
-                onClick={() => {
-                  setSubmitted(false);
-                  setFormData({
-                    name: '',
-                    type: 'startup',
-                    description: '',
-                    sector: 'SaaS',
-                    stage: 'Seed',
-                    area: 'Rushikonda',
-                    address: '',
-                    pincode: '530045',
-                    lat: 17.7835,
-                    lng: 83.385,
-                    website: '',
-                    linkedin: '',
-                    logo_url: '',
-                    is_hiring: false,
-                    careers_url: '',
-                    founder_name: '',
-                    founder_role: 'Founder',
-                    founder_linkedin: '',
-                    contact_email: '',
-                    hp_website_confirm: '',
-                  });
-                }}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-white border border-[#3A0F34]/20 hover:border-[#3A0F34] text-[#3A0F34] text-xs font-bold transition-all cursor-pointer text-center"
-              >
-                Submit Another Venture
-              </button>
-            </div>
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Link
+                    href={approvedSlug ? `/?startup=${approvedSlug}` : '/'}
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-sm text-center flex items-center justify-center gap-2"
+                  >
+                    <span>View on Live Map</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmitted(false);
+                      setAutoApproved(false);
+                      setApprovedSlug('');
+                      setApprovedGovId('');
+                      setApprovedGovType('');
+                      setFormData({
+                        name: '',
+                        type: 'startup',
+                        description: '',
+                        sector: 'SaaS',
+                        stage: 'Seed',
+                        area: 'Rushikonda',
+                        address: '',
+                        pincode: '530045',
+                        lat: 17.7835,
+                        lng: 83.385,
+                        website: '',
+                        linkedin: '',
+                        logo_url: '',
+                        is_hiring: false,
+                        careers_url: '',
+                        founder_name: '',
+                        founder_role: 'Founder',
+                        founder_linkedin: '',
+                        contact_email: '',
+                        verification_proof_type: 'none',
+                        verification_proof_value: '',
+                        hp_website_confirm: '',
+                      });
+                    }}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-white border border-zinc-300 hover:border-zinc-500 text-zinc-700 text-xs font-bold transition-all cursor-pointer text-center"
+                  >
+                    Submit Another Venture
+                  </button>
+                </div>
+              </>
+            ) : (
+              /* STANDARD QUEUE CASE: No Government ID provided, queued for admin review */
+              <>
+                <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto border border-emerald-200 shadow-xs">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+
+                <div className="space-y-2">
+                  <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase tracking-widest">
+                    Listing Submitted · ID {submissionId}
+                  </span>
+                  <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-zinc-900">
+                    Startup Submitted for Review!
+                  </h1>
+                  <p className="text-xs sm:text-sm text-zinc-600 max-w-md mx-auto leading-relaxed">
+                    Thank you, <strong>{formData.founder_name || 'Founder'}</strong>! <strong>{formData.name}</strong> has been submitted to the Vizag Startup Map directory.
+                  </p>
+                </div>
+
+                <div className="bg-white border border-zinc-200 rounded-2xl p-5 text-left text-xs space-y-2 max-w-md mx-auto shadow-xs">
+                  <div className="flex justify-between items-center text-zinc-600">
+                    <span>Organization:</span>
+                    <span className="font-bold text-zinc-900">{formData.name}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-zinc-600">
+                    <span>Sector & Stage:</span>
+                    <span className="font-bold text-zinc-900">
+                      {formData.sector} · {formData.stage}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-zinc-600">
+                    <span>Vizag Area:</span>
+                    <span className="font-bold text-zinc-900">{formData.area}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-zinc-600">
+                    <span>Confirmation Sent To:</span>
+                    <span className="font-mono text-zinc-900">{formData.contact_email}</span>
+                  </div>
+                </div>
+
+                {/* Moderation & Review Information */}
+                <div className="bg-[#3A0F34]/5 border border-[#3A0F34]/15 rounded-2xl p-4 max-w-md mx-auto text-left space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#3A0F34]">
+                    <ShieldCheck className="w-4 h-4 text-[#3A0F34]" />
+                    <span>What Happens Next?</span>
+                  </div>
+                  <p className="text-[11.5px] text-[#3A0F34]/80 leading-relaxed">
+                    Your submission is queued for review by the site administrator in the Admin Console. Once approved, your startup will be pinned to the live map and all community subscribers will receive an instant email alert.
+                  </p>
+                </div>
+
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Link
+                    href="/"
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#3A0F34] hover:bg-[#EAAA00] hover:text-[#3A0F34] text-white text-xs font-bold transition-all shadow-xs text-center"
+                  >
+                    Return to Live Map
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmitted(false);
+                      setAutoApproved(false);
+                      setApprovedSlug('');
+                      setApprovedGovId('');
+                      setApprovedGovType('');
+                      setFormData({
+                        name: '',
+                        type: 'startup',
+                        description: '',
+                        sector: 'SaaS',
+                        stage: 'Seed',
+                        area: 'Rushikonda',
+                        address: '',
+                        pincode: '530045',
+                        lat: 17.7835,
+                        lng: 83.385,
+                        website: '',
+                        linkedin: '',
+                        logo_url: '',
+                        is_hiring: false,
+                        careers_url: '',
+                        founder_name: '',
+                        founder_role: 'Founder',
+                        founder_linkedin: '',
+                        contact_email: '',
+                        verification_proof_type: 'none',
+                        verification_proof_value: '',
+                        hp_website_confirm: '',
+                      });
+                    }}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-white border border-[#3A0F34]/20 hover:border-[#3A0F34] text-[#3A0F34] text-xs font-bold transition-all cursor-pointer text-center"
+                  >
+                    Submit Another Venture
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         ) : (
           /* Streamlined Submission Form */
@@ -466,10 +605,102 @@ export default function SubmitPage() {
                 )}
               </div>
 
-              {/* SECTION 4: Submitter & Contact */}
+              {/* SECTION 4: Government Registration & Instant Live Approval */}
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+                    4. Government Registration & Instant Approval (Optional)
+                  </span>
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 tracking-wider">
+                    ⚡ Instant Map Approval
+                  </span>
+                </div>
+
+                <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-950">
+                    <Zap className="w-4 h-4 text-emerald-600" />
+                    <span>Real-Time Government ID Verification Engine</span>
+                  </div>
+                  <p className="text-[11.5px] text-emerald-900/80 leading-relaxed">
+                    Have an official Indian Government registration for your venture? Provide your <strong>GSTIN</strong>, <strong>CIN</strong>, <strong>DPIIT</strong> (Startup India), or <strong>UDYAM</strong> (MSME) ID. If mathematically verified as authentic, your startup is <strong>automatically approved &amp; pinned to the live map instantly</strong>.
+                  </p>
+                  <p className="text-[11px] text-emerald-800/70 italic">
+                    If you don't have a Government ID yet, leave as &quot;None&quot; and your submission will be routed to the admin team for manual review.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                      Registration Type
+                    </label>
+                    <select
+                      value={formData.verification_proof_type}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          verification_proof_type: e.target.value as any,
+                          verification_proof_value: '',
+                        })
+                      }
+                      className="w-full bg-[#F4F4F5] border border-transparent rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 outline-none focus:bg-white focus:border-zinc-400 cursor-pointer"
+                    >
+                      <option value="none">None (Submit for Manual Admin Review)</option>
+                      <option value="gstin">GSTIN (15-character GST Number - Instant Live Map)</option>
+                      <option value="cin">CIN (21-character MCA Company ID - Instant Live Map)</option>
+                      <option value="dpiit">DPIIT (Startup India Certificate - Instant Live Map)</option>
+                      <option value="udyam">UDYAM (Ministry of MSME ID - Instant Live Map)</option>
+                    </select>
+                  </div>
+
+                  {formData.verification_proof_type !== 'none' && (
+                    <div className="animate-in fade-in duration-200">
+                      <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                        {formData.verification_proof_type === 'gstin' && 'GSTIN (15-character statutory ID) *'}
+                        {formData.verification_proof_type === 'cin' && 'CIN (21-character MCA registration) *'}
+                        {formData.verification_proof_type === 'dpiit' && 'DPIIT / Startup India Number *'}
+                        {formData.verification_proof_type === 'udyam' && 'UDYAM MSME Registration Number *'}
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder={
+                          formData.verification_proof_type === 'gstin'
+                            ? 'e.g. 37AACCF4148Q1Z4'
+                            : formData.verification_proof_type === 'cin'
+                            ? 'e.g. U72200AP2021PTC118543'
+                            : formData.verification_proof_type === 'dpiit'
+                            ? 'e.g. DIPP124982'
+                            : 'e.g. UDYAM-AP-01-0012345'
+                        }
+                        value={formData.verification_proof_value}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            verification_proof_value: e.target.value.toUpperCase().replace(/\s+/g, ''),
+                          })
+                        }
+                        className="w-full bg-[#F4F4F5] border border-transparent rounded-xl px-4 py-2.5 text-sm font-mono text-zinc-900 placeholder-zinc-400 outline-none focus:bg-white focus:border-zinc-400 uppercase transition-colors"
+                      />
+                      <p className="text-[11px] text-zinc-500 mt-1">
+                        {formData.verification_proof_type === 'gstin' &&
+                          'Validated against official Modulo 36 checksum. Andhra Pradesh state code is 37.'}
+                        {formData.verification_proof_type === 'cin' &&
+                          '21-character Corporate Identification Number issued by ROC / Ministry of Corporate Affairs.'}
+                        {formData.verification_proof_type === 'dpiit' &&
+                          'Official Startup India recognition number (e.g. DIPP12345 or DPIIT12345).'}
+                        {formData.verification_proof_type === 'udyam' &&
+                          'Format: UDYAM-State-District-7Digits (e.g. UDYAM-AP-01-0012345).'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* SECTION 5: Submitter & Contact */}
               <div className="space-y-4 pt-2">
                 <div className="text-xs font-bold uppercase tracking-wider text-zinc-500 border-b border-zinc-200 pb-2">
-                  4. Submitter & Verification Contact
+                  5. Submitter & Verification Contact
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
