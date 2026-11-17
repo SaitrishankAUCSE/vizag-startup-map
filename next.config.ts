@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   // Hide Next.js development indicator badge
   devIndicators: false,
 
+  serverExternalPackages: ['firebase-admin'],
+
   turbopack: {
     root: __dirname,
     rules: {

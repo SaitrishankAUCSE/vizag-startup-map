@@ -10,29 +10,40 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const listing = await getListingBySlug(slug);
+  try {
+    const { slug } = await params;
+    const listing = await getListingBySlug(slug);
 
-  if (!listing) {
+    if (!listing) {
+      return {
+        title: 'Listing Not Found | Vizag Startup Map',
+      };
+    }
+
     return {
-      title: 'Listing Not Found | Vizag Startup Map',
+      title: `${listing.name} - ${listing.sector} in ${listing.area} | Vizag Startup Map`,
+      description: listing.description || listing.one_liner || undefined,
+      openGraph: {
+        title: `${listing.name} | Vizag Startup Map`,
+        description: listing.description || listing.one_liner || undefined,
+        type: 'article',
+      },
+    };
+  } catch {
+    return {
+      title: 'Startup Profile | Vizag Startup Map',
     };
   }
-
-  return {
-    title: `${listing.name} - ${listing.sector} in ${listing.area} | Vizag Startup Map`,
-    description: listing.description || listing.one_liner || undefined,
-    openGraph: {
-      title: `${listing.name} | Vizag Startup Map`,
-      description: listing.description || listing.one_liner || undefined,
-      type: 'article',
-    },
-  };
 }
 
 export default async function StartupDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const listing = await getListingBySlug(slug);
+  let listing = null;
+  try {
+    listing = await getListingBySlug(slug);
+  } catch (err) {
+    console.error('[StartupDetailPage] getListingBySlug failed:', err);
+  }
 
   if (!listing) {
     notFound();
