@@ -4,7 +4,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Share2, Plus, Clock } from 'lucide-react';
+import { Share2, Plus, Clock, MessageSquare } from 'lucide-react';
 import { CartoonButton } from '@/components/ui/cartoon-button';
 import { Listing, Job, FilterState, PublicStats } from '@/types';
 import { FloatingTopBar } from '@/components/ui/FloatingTopBar';
@@ -97,6 +97,7 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
   );
   const [showJobsPanel, setShowJobsPanel] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showSurveyModal, setShowSurveyModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [coastalTourActive, setCoastalTourActive] = useState(false);
   const [coastalStopIndex, setCoastalStopIndex] = useState(0);
@@ -365,6 +366,15 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
           <Share2 className="w-3.5 h-3.5" />
           <span>Share</span>
         </button>
+        <button
+          type="button"
+          onClick={() => setShowSurveyModal(true)}
+          className="flex items-center gap-1.5 bg-white/75 hover:bg-[#3A0F34] border border-[#3A0F34]/20 hover:border-[#3A0F34] backdrop-blur-md text-[#3A0F34] hover:text-[#EAAA00] rounded-xl rounded-tr-xs rounded-bl-xs px-3.5 py-1.5 text-xs font-display font-extrabold uppercase tracking-wider transition-all duration-200 shadow-xs hover:scale-105 active:scale-95 cursor-pointer"
+          aria-label="Give feedback on the map"
+        >
+          <MessageSquare className="w-3.5 h-3.5 text-[#EAAA00]" />
+          <span>Feedback</span>
+        </button>
       </div>
 
       {/* ── Jobs panel ── */}
@@ -385,8 +395,11 @@ export const LandingMapView: React.FC<LandingMapViewProps> = ({
       {/* ── 30-Second Timed Newsletter Subscribe Prompt ── */}
       <NewsletterSubscribeCard />
 
-      {/* ── Community Pulse Survey Widget ── */}
-      <CommunitySurveyWidget />
+      {/* ── Community Pulse Survey Dialog (Triggered cleanly from bottom-right Feedback action) ── */}
+      <CommunitySurveyWidget
+        isOpen={showSurveyModal}
+        onClose={() => setShowSurveyModal(false)}
+      />
     </div>
   );
 };

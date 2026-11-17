@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   X,
   ExternalLink,
@@ -11,9 +11,6 @@ import {
   GraduationCap,
   Compass,
   Phone,
-  MessageCircle,
-  Briefcase,
-  Layers,
   Sparkles,
 } from 'lucide-react';
 import { CREATOR_CONFIG } from '@/config/creator';
@@ -53,71 +50,8 @@ function WhatsAppIcon({ className = 'w-4 h-4' }: { className?: string }) {
 }
 
 export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
-  // Lifecycle states: 'hidden' -> 'entering' -> 'active' -> 'closing' -> 'closed'
-  const [welcomeStage, setWelcomeStage] = useState<'hidden' | 'entering' | 'active' | 'closing' | 'closed'>('hidden');
-  const [progressWidth, setProgressWidth] = useState(100);
-
-  // Full Info & Contact Dossier Modal
   const [showFullDossier, setShowFullDossier] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
-  const [copiedPhone, setCopiedPhone] = useState(false);
-
-  const autoDismissTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Trigger unique closing sequence (smooth evaporate & glide-up dissolve)
-  const triggerUniqueClose = () => {
-    if (welcomeStage === 'closed' || welcomeStage === 'closing') return;
-    setWelcomeStage('closing');
-    setTimeout(() => {
-      setWelcomeStage('closed');
-    }, 750);
-  };
-
-  useEffect(() => {
-    try {
-      // Check if user has already seen the welcome card during this session
-      const alreadySeen = sessionStorage.getItem('vsm_creator_card_viewed');
-      if (alreadySeen === 'true') {
-        setWelcomeStage('closed');
-        return;
-      }
-
-      // 1. Show card 1.2s after opening website
-      const showTimer = setTimeout(() => {
-        setWelcomeStage('entering');
-        sessionStorage.setItem('vsm_creator_card_viewed', 'true');
-
-        // Smooth transition to active & start countdown bar
-        setTimeout(() => {
-          setWelcomeStage('active');
-          setProgressWidth(0);
-        }, 50);
-
-        // 2. Automatically stay for 15 seconds, then perform unique closing animation
-        autoDismissTimerRef.current = setTimeout(() => {
-          triggerUniqueClose();
-        }, 15000);
-      }, 1200);
-
-      return () => {
-        clearTimeout(showTimer);
-        if (autoDismissTimerRef.current) clearTimeout(autoDismissTimerRef.current);
-      };
-    } catch {
-      // Storage fallback
-    }
-  }, []);
-
-  const handleManualDismiss = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (autoDismissTimerRef.current) clearTimeout(autoDismissTimerRef.current);
-    triggerUniqueClose();
-  };
-
-  const handleCardClick = () => {
-    triggerUniqueClose();
-    setShowFullDossier(true);
-  };
 
   const handleCopyEmail = async () => {
     try {
@@ -127,108 +61,27 @@ export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
     } catch {}
   };
 
-  const handleCopyPhone = async () => {
-    try {
-      await navigator.clipboard.writeText(CREATOR_CONFIG.phone);
-      setCopiedPhone(true);
-      setTimeout(() => setCopiedPhone(false), 2200);
-    } catch {}
-  };
-
   return (
     <>
-      {/* ── 1. Temporary Welcome Card: Translucent Glassmorphism with Unique Morph Closing ── */}
-      {welcomeStage !== 'closed' && (
-        <div
-          className={`transition-all duration-750 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
-            welcomeStage === 'active'
-              ? 'opacity-100 translate-y-0 scale-100 rotate-0 blur-0 pointer-events-auto'
-              : welcomeStage === 'closing'
-              ? 'opacity-0 -translate-y-6 scale-[0.88] rotate-[2.5deg] blur-md pointer-events-none'
-              : 'opacity-0 translate-y-6 scale-[0.92] rotate-[-2deg] blur-xs pointer-events-none'
-          }`}
-        >
-          <div
-            onClick={handleCardClick}
-            className="relative bg-white/65 backdrop-blur-2xl border border-white/80 ring-1 ring-[#3A0F34]/15 rounded-tl-[32px] rounded-br-[32px] rounded-tr-[10px] rounded-bl-[14px] p-4 sm:p-4.5 shadow-[0_20px_50px_rgba(58,15,52,0.16),0_2px_12px_rgba(234,170,0,0.12)] text-[#3A0F34] cursor-pointer hover:bg-white/80 hover:border-[#3A0F34]/30 hover:shadow-[0_24px_60px_rgba(58,15,52,0.22)] transition-all max-w-[325px] select-none group overflow-hidden"
-            title="Click to view Developer Information & Contact Channels"
-          >
-            {/* Top-Right Architectural Chamfer Accent */}
-            <div className="absolute top-0 right-0 w-12 h-12 overflow-hidden pointer-events-none">
-              <div className="w-16 h-2 bg-gradient-to-r from-[#EAAA00] to-[#EAAA00]/40 transform rotate-45 translate-x-4 -translate-y-1 shadow-xs" />
-            </div>
-
-            <div className="flex items-start gap-3.5 relative z-10">
-              {/* Bespoke Geometric Monogram Seal */}
-              <div className="w-11 h-11 rounded-tl-2xl rounded-br-2xl rounded-tr-xs rounded-bl-xs bg-[#3A0F34] text-[#EAAA00] flex items-center justify-center font-display font-extrabold text-sm shrink-0 shadow-md border border-[#EAAA00]/40 group-hover:scale-105 transition-transform duration-300">
-                {CREATOR_CONFIG.initials}
-              </div>
-
-              <div className="flex-1 min-w-0 pr-4">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[9.5px] font-extrabold uppercase tracking-[0.18em] text-[#3A0F34]/60">
-                    Platform Architect
-                  </span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-                </div>
-
-                {/* Bold Executive Professional Typography */}
-                <div className="font-display font-extrabold text-base text-[#3A0F34] leading-tight tracking-tight mt-0.5 group-hover:text-[#2A0826] transition-colors">
-                  {CREATOR_CONFIG.fullName}
-                </div>
-
-                <div className="text-[10.5px] text-[#3A0F34]/75 font-semibold mt-0.5 truncate flex items-center gap-1">
-                  <GraduationCap className="w-3.5 h-3.5 text-[#EAAA00] shrink-0" />
-                  <span>AU College of Engineering · Vizag</span>
-                </div>
-              </div>
-
-              {/* Bespoke Close Button with 90° Spin on Hover */}
-              <button
-                type="button"
-                onClick={handleManualDismiss}
-                className="w-6 h-6 rounded-tl-lg rounded-br-lg rounded-tr-xs rounded-bl-xs bg-[#3A0F34]/8 hover:bg-[#3A0F34] text-[#3A0F34] hover:text-[#EAAA00] flex items-center justify-center transition-all duration-300 hover:rotate-90 active:scale-90 cursor-pointer shrink-0"
-                aria-label="Dismiss welcome card"
-              >
-                <X className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-            </div>
-
-            {/* Bottom Callout Row */}
-            <div className="mt-3 pt-2.5 border-t border-[#3A0F34]/10 flex items-center justify-between text-[10px] text-[#3A0F34]/70 font-semibold relative z-10">
-              <span>Conceived & Developed this Map</span>
-              <span className="text-[#3A0F34] group-hover:text-[#EAAA00] font-bold inline-flex items-center gap-0.5 transition-colors">
-                Connect →
-              </span>
-            </div>
-
-            {/* 15-Second Dissolving Timeline Micro-Progress Bar */}
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#3A0F34]/10 overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-[#EAAA00] via-[#3A0F34] to-[#EAAA00] transition-all ease-linear"
-                style={{
-                  width: `${progressWidth}%`,
-                  transitionDuration: welcomeStage === 'active' ? '15000ms' : '0ms',
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── 2. Permanent Architectural Button ("✦ Developer") ── */}
+      {/* ── Permanent Prestigious Creator Badge (No abrupt popup) ── */}
       <button
         type="button"
         onClick={() => setShowFullDossier(true)}
-        className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#3A0F34] hover:bg-[#EAAA00] text-[#DDE3E8] hover:text-[#3A0F34] rounded-xl rounded-tr-xs rounded-bl-xs text-[10.5px] font-display font-extrabold uppercase tracking-wider transition-all duration-300 shadow-md hover:shadow-[0_4px_16px_rgba(234,170,0,0.35)] cursor-pointer select-none border border-[#EAAA00]/40 hover:scale-[1.04] active:scale-95 group"
+        className="group flex items-center gap-2 bg-[#3A0F34] hover:bg-[#250a22] text-[#DDE3E8] border border-[#EAAA00]/40 rounded-xl rounded-tr-xs rounded-bl-xs px-3.5 py-1.5 text-[10.5px] font-display font-extrabold uppercase tracking-wider transition-all duration-200 shadow-md hover:scale-105 active:scale-95 cursor-pointer select-none"
         title="View Platform Architect Dossier & Direct Contact Channels"
-        aria-label="Developer Information & Contact Channels"
+        aria-label="Developer Information: Venkata Sai Trishank Kamma"
       >
-        <span className="w-2 h-2 rounded-full bg-[#EAAA00] group-hover:bg-[#3A0F34] shadow-[0_0_8px_rgba(234,170,0,0.8)] animate-pulse" />
-        <span>Developer</span>
+        <span className="w-2 h-2 rounded-full bg-[#EAAA00] shadow-[0_0_8px_rgba(234,170,0,0.8)] animate-pulse shrink-0" />
+        <span className="truncate">
+          Developed by{' '}
+          <strong className="text-[#EAAA00] font-black group-hover:underline">
+            Venkata Sai Trishank Kamma
+          </strong>
+        </span>
+        <ExternalLink className="w-3 h-3 text-[#EAAA00]/80 group-hover:text-[#EAAA00] shrink-0" />
       </button>
 
-      {/* ── 3. Comprehensive Developer & Multi-Channel Contact Dossier Modal ── */}
+      {/* ── Comprehensive Developer & Multi-Channel Contact Dossier Modal ── */}
       {showFullDossier && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
           {/* Backdrop with frosted blur */}
@@ -238,7 +91,7 @@ export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
             aria-hidden="true"
           />
 
-          {/* Modal Container: Sculpted Architectural Silhouette */}
+          {/* Modal Container */}
           <div className="relative w-full max-w-xl bg-[#FAF9F6] border border-[#3A0F34]/20 rounded-tl-[36px] rounded-br-[36px] rounded-tr-[14px] rounded-bl-[18px] shadow-[0_24px_70px_rgba(58,15,52,0.35)] overflow-hidden z-10 my-auto text-[#3A0F34] animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
             {/* Header Banner */}
             <div className="bg-[#3A0F34] text-[#DDE3E8] p-6 sm:p-7 relative overflow-hidden shrink-0">
@@ -253,14 +106,14 @@ export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
 
                   <div>
                     <div className="inline-flex items-center gap-1.5 bg-[#EAAA00]/20 border border-[#EAAA00]/40 text-[#EAAA00] px-2.5 py-0.5 rounded-lg rounded-tr-xs text-[9.5px] font-extrabold uppercase tracking-widest mb-1">
-                      Platform Creator & Lead Engineer
+                      Platform Creator &amp; Lead Engineer
                     </div>
                     <h2 className="font-display font-extrabold text-xl sm:text-2xl text-white tracking-tight">
                       {CREATOR_CONFIG.fullName}
                     </h2>
                     <div className="flex items-center gap-1.5 text-xs text-[#DDE3E8]/85 font-medium mt-0.5">
                       <GraduationCap className="w-3.5 h-3.5 text-[#EAAA00] shrink-0" />
-                      <span>Andhra University College of Engineering (B.Tech CSE · 8.12 CGPA)</span>
+                      <span>Andhra University College of Engineering (AU CSE)</span>
                     </div>
                   </div>
                 </div>
@@ -278,7 +131,7 @@ export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
 
             {/* Modal Body: Smooth Scrollable */}
             <div className="p-6 sm:p-7 space-y-5 flex-1 overflow-y-auto">
-              {/* Developer Vision & Architecture Note */}
+              {/* Developer Vision & Story */}
               <div className="bg-[#3A0F34]/5 border border-[#3A0F34]/10 rounded-2xl rounded-tr-sm p-4 sm:p-5 space-y-1.5">
                 <div className="flex items-center gap-1.5 text-[9.5px] font-extrabold uppercase tracking-[0.16em] text-[#3A0F34]/70">
                   <Compass className="w-3.5 h-3.5 text-[#EAAA00]" />
@@ -293,7 +146,7 @@ export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
               <div className="space-y-2">
                 <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#3A0F34]/60 flex items-center gap-1.5">
                   <Code2 className="w-3.5 h-3.5 text-[#3A0F34]" />
-                  <span>Architecture & Technical Highlights</span>
+                  <span>Architecture &amp; Technical Highlights</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   {CREATOR_CONFIG.architectureHighlights.map((item, i) => (
@@ -311,18 +164,18 @@ export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
                 </div>
               </div>
 
-              {/* 5 DIRECT REACH CHANNELS */}
+              {/* Direct Reach Channels */}
               <div className="space-y-3 pt-2 border-t border-[#3A0F34]/10">
                 <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#3A0F34]/70">
-                  <span>Direct Reach & Connect Channels</span>
+                  <span>Direct Connect Channels</span>
                   <span className="text-emerald-700 font-bold flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Available for Opportunities
+                    Open to Collaborations
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {/* 1. Direct WhatsApp */}
+                  {/* WhatsApp */}
                   <a
                     href={CREATOR_CONFIG.whatsappUrl}
                     target="_blank"
@@ -341,7 +194,7 @@ export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
                     <ExternalLink className="w-3.5 h-3.5 text-emerald-600 group-hover:translate-x-0.5 transition-transform" />
                   </a>
 
-                  {/* 2. LinkedIn */}
+                  {/* LinkedIn */}
                   <a
                     href={CREATOR_CONFIG.linkedinUrl}
                     target="_blank"
@@ -360,7 +213,7 @@ export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
                     <ExternalLink className="w-3.5 h-3.5 text-[#0077B5]/60 group-hover:translate-x-0.5 transition-transform" />
                   </a>
 
-                  {/* 3. GitHub */}
+                  {/* GitHub */}
                   <a
                     href={CREATOR_CONFIG.githubUrl}
                     target="_blank"
@@ -379,7 +232,7 @@ export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
                     <ExternalLink className="w-3.5 h-3.5 text-zinc-400 group-hover:translate-x-0.5 transition-transform" />
                   </a>
 
-                  {/* 4. Direct Call */}
+                  {/* Phone Call */}
                   <a
                     href={`tel:${CREATOR_CONFIG.phone}`}
                     className="flex items-center justify-between p-3 rounded-2xl rounded-tr-xs bg-white hover:bg-white/90 border border-[#3A0F34]/15 text-[#3A0F34] hover:border-[#3A0F34] transition-all group shadow-2xs hover:scale-[1.02]"
@@ -389,7 +242,7 @@ export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
                         <Phone className="w-4 h-4" />
                       </div>
                       <div className="text-left">
-                        <div className="text-xs font-bold text-[#3A0F34]">Phone Call</div>
+                        <div className="text-xs font-bold text-[#3A0F34]">Direct Call</div>
                         <div className="text-[10px] text-[#3A0F34]/60 font-mono">{CREATOR_CONFIG.phoneFormatted}</div>
                       </div>
                     </div>
@@ -397,7 +250,7 @@ export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
                   </a>
                 </div>
 
-                {/* 5. Direct Email with 1-Click Copy */}
+                {/* Email Copy */}
                 <div className="p-3.5 rounded-2xl rounded-tr-xs bg-[#3A0F34]/5 border border-[#3A0F34]/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-8 h-8 rounded-lg rounded-tr-xs bg-[#3A0F34] text-[#EAAA00] flex items-center justify-center shrink-0 shadow-xs">
@@ -405,7 +258,7 @@ export const FloatingCreatorCard: React.FC<FloatingCreatorCardProps> = () => {
                     </div>
                     <div className="min-w-0">
                       <div className="text-[9.5px] uppercase font-bold tracking-wider text-[#3A0F34]/60">
-                        Official Email
+                        Official Developer Email
                       </div>
                       <a
                         href={`mailto:${CREATOR_CONFIG.email}?subject=Regarding%20Vizag%20Startup%20Map`}
