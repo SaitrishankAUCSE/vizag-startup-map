@@ -73,7 +73,11 @@ export function LeadQueueTab() {
   const loadLeads = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/leads');
+      const token = typeof window !== 'undefined' ? sessionStorage.getItem('vsm_admin_token') : null;
+      const headers: Record<string, string> = {};
+      if (token) headers['x-admin-token'] = token;
+
+      const res = await fetch('/api/admin/leads', { headers });
       if (res.ok) {
         const data = await res.json();
         const items = data.leads || [];

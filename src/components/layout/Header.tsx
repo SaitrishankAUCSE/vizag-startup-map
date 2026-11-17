@@ -151,13 +151,6 @@ export const Header: React.FC<HeaderProps> = ({
             >
               ADD YOUR STARTUP
             </Link>
-            <Link
-              href="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center py-2 rounded-full border border-[#3A0F34]/30 text-[#3A0F34] font-bold text-xs uppercase tracking-wider hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors"
-            >
-              ADMIN CONSOLE
-            </Link>
 
             {/* Developer Attribution Card */}
             <div className="mt-2 p-3.5 rounded-2xl bg-[#3A0F34]/6 border border-[#3A0F34]/15 space-y-1 text-center">

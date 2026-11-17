@@ -21,12 +21,26 @@ import {
   Copy,
   Layers,
   Filter,
+  Lock,
+  KeyRound,
+  Eye,
+  EyeOff,
+  Loader2,
 } from 'lucide-react';
 import { Listing, Submission, Claim } from '@/types';
 import { ImportReport } from '@/app/api/admin/import/route';
 import { LeadQueueTab } from '@/components/admin/LeadQueueTab';
 
 export default function AdminPage() {
+  // Authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [adminToken, setAdminToken] = useState<string | null>(null);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+
   const [activeTab, setActiveTab] = useState<'queue' | 'leads' | 'quality' | 'claims' | 'all'>('queue');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [pendingListings, setPendingListings] = useState<Listing[]>([]);
@@ -44,14 +58,20 @@ export default function AdminPage() {
   const [newLat, setNewLat] = useState<string>('');
   const [newLng, setNewLng] = useState<string>('');
 
-  // Fetch all admin data
-  const loadData = async () => {
+  // Fetch all admin data with auth token
+  const loadData = async (tokenOverride?: string) => {
     try {
       setLoading(true);
+      const token = tokenOverride || adminToken || (typeof window !== 'undefined' ? sessionStorage.getItem('vsm_admin_token') : null);
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['x-admin-token'] = token;
+      }
+
       const [subsRes, listingsRes, claimsRes] = await Promise.all([
-        fetch('/api/admin/submissions').catch(() => null),
-        fetch('/api/listings?status=all').catch(() => null),
-        fetch('/api/claim').catch(() => null),
+        fetch('/api/admin/submissions', { headers }).catch(() => null),
+        fetch('/api/listings?status=all', { headers }).catch(() => null),
+        fetch('/api/claim', { headers }).catch(() => null),
       ]);
 
       if (subsRes && subsRes.ok) {
@@ -79,9 +99,80 @@ export default function AdminPage() {
     }
   };
 
+  // Check existing session on load
   useEffect(() => {
-    loadData();
+    const checkSession = async () => {
+      try {
+        const savedToken = typeof window !== 'undefined' ? sessionStorage.getItem('vsm_admin_token') : null;
+        const res = await fetch('/api/admin/auth', {
+          headers: savedToken ? { 'x-admin-token': savedToken } : {},
+        });
+        const data = await res.json();
+        if (data.authenticated) {
+          setIsAuthenticated(true);
+          if (savedToken) setAdminToken(savedToken);
+          await loadData(savedToken || undefined);
+        }
+      } catch {
+        // Not authenticated
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+    checkSession();
   }, []);
+
+  // Unlock Admin Portal with Password
+  const handleUnlock = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError(null);
+
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: passwordInput.trim() }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAuthError(data.error || 'Incorrect Admin Passkey. Access Denied.');
+        return;
+      }
+
+      setIsAuthenticated(true);
+      setAdminToken(data.token);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('vsm_admin_token', data.token);
+      }
+      setPasswordInput('');
+      await loadData(data.token);
+    } catch (err: unknown) {
+      setAuthError((err as Error).message || 'Authentication error.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // Lock Admin Portal
+  const handleLock = async () => {
+    try {
+      await fetch('/api/admin/auth', { method: 'DELETE' });
+    } catch {}
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('vsm_admin_token');
+    }
+    setIsAuthenticated(false);
+    setAdminToken(null);
+  };
+
+  const getAuthHeaders = (extra: Record<string, string> = {}) => {
+    const token = adminToken || (typeof window !== 'undefined' ? sessionStorage.getItem('vsm_admin_token') : null);
+    const headers: Record<string, string> = { ...extra };
+    if (token) headers['x-admin-token'] = token;
+    return headers;
+  };
 
   // Bulk approve pending listings that passed checks
   const handleBulkApprove = async () => {
@@ -97,7 +188,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/moderate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           action: 'bulk_approve',
           listingIds: validPendingIds,
@@ -121,7 +212,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/moderate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ action, listingId }),
       });
       const data = await res.json();
@@ -140,7 +231,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/approve', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ submissionId, action: 'approve' }),
       });
       const data = await res.json();
@@ -160,7 +251,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/approve', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ submissionId, action: 'reject' }),
       });
       const data = await res.json();
@@ -188,7 +279,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/moderate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           action: 'update_pin',
           listingId: editingPinListing.id,
@@ -219,6 +310,7 @@ export default function AdminPage() {
 
       const res = await fetch('/api/admin/import', {
         method: 'POST',
+        headers: getAuthHeaders(),
         body: formData,
       });
 
@@ -249,6 +341,104 @@ export default function AdminPage() {
     return hasMissingLogo || hasMissingPin || hasDeadWebsite || hasNoSources;
   });
 
+  // 1. Initial Auth Check Loading State
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-[#FBF9F5] flex flex-col items-center justify-center p-4 font-sans">
+        <div className="flex flex-col items-center gap-3 text-gray-500">
+          <Loader2 className="w-8 h-8 animate-spin text-[#0E4D64]" />
+          <p className="text-xs font-semibold tracking-wide uppercase text-gray-600">
+            Verifying Admin Session...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Passkey Gate Screen (Protected)
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#FBF9F5] flex flex-col items-center justify-center p-4 sm:p-6 font-sans">
+        <div className="w-full max-w-md bg-white rounded-3xl border border-gray-200 shadow-xl p-8 space-y-6">
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#3A0F34] text-[#EAAA00] shadow-md">
+              <Lock className="w-7 h-7" />
+            </div>
+            <h1 className="text-2xl font-black text-gray-900 tracking-tight">Admin Console</h1>
+            <p className="text-xs text-gray-500 max-w-xs mx-auto">
+              This portal is restricted to ecosystem administrators. Enter your master passkey to unlock.
+            </p>
+          </div>
+
+          <form onSubmit={handleUnlock} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Master Passkey
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                  <KeyRound className="w-4 h-4" />
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="Enter admin password..."
+                  required
+                  autoFocus
+                  className="w-full pl-10 pr-11 py-3 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#3A0F34] focus:border-transparent transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {authError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-red-600" />
+                <span>{authError}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={authLoading || !passwordInput.trim()}
+              className="w-full py-3 px-4 rounded-xl text-sm font-bold bg-[#3A0F34] text-white hover:bg-[#2A0B26] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer"
+            >
+              {authLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Unlocking...</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="w-4 h-4 text-[#EAAA00]" />
+                  <span>Unlock Admin Portal</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="pt-2 text-center border-t border-gray-100">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-800 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Return to Public Directory</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#FBF9F5] py-8 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -276,7 +466,7 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Quick Actions: Import / Export */}
+          {/* Quick Actions: Import / Export / Lock */}
           <div className="flex items-center gap-2">
             <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-gray-200 hover:border-gray-300 text-gray-700 cursor-pointer shadow-2xs transition-colors">
               <Upload className="w-3.5 h-3.5 text-teal-700" />
@@ -298,6 +488,15 @@ export default function AdminPage() {
               <Download className="w-3.5 h-3.5 text-teal-300" />
               <span>Export CSV</span>
             </a>
+
+            <button
+              onClick={handleLock}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 shadow-2xs transition-colors cursor-pointer"
+              title="Lock and sign out of admin session"
+            >
+              <Lock className="w-3.5 h-3.5 text-red-600" />
+              <span>Lock Console</span>
+            </button>
           </div>
         </div>
 

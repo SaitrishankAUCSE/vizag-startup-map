@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { approveSubmission, rejectSubmission } from '@/lib/firebase/service';
+import { verifyAdminRequest } from '@/lib/verification/adminAuth';
 
 export async function POST(req: NextRequest) {
+  if (!verifyAdminRequest(req)) {
+    return NextResponse.json({ error: 'Unauthorized: Admin passkey required' }, { status: 401 });
+  }
+
   try {
     const { submissionId, action } = await req.json();
 

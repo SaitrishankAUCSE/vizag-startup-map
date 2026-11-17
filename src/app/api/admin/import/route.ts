@@ -11,6 +11,7 @@ import {
   createListingWithSource,
 } from '@/lib/firebase/service';
 import { ListingType } from '@/types';
+import { verifyAdminRequest } from '@/lib/verification/adminAuth';
 
 export interface ImportItemReport {
   name: string;
@@ -27,6 +28,10 @@ export interface ImportReport {
 }
 
 export async function POST(req: NextRequest) {
+  if (!verifyAdminRequest(req)) {
+    return NextResponse.json({ error: 'Unauthorized: Admin passkey required' }, { status: 401 });
+  }
+
   try {
     let csvText = '';
     const contentType = req.headers.get('content-type') || '';

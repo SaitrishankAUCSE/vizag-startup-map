@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLeads, createListingWithSource } from '@/lib/firebase/service';
 import { Listing } from '@/types';
+import { verifyAdminRequest } from '@/lib/verification/adminAuth';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  if (!verifyAdminRequest(req)) {
+    return NextResponse.json({ error: 'Unauthorized: Admin passkey required' }, { status: 401 });
+  }
+
   try {
     const leads = await getLeads();
     return NextResponse.json({ leads });
@@ -14,6 +19,10 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!verifyAdminRequest(req)) {
+    return NextResponse.json({ error: 'Unauthorized: Admin passkey required' }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const leadData: Partial<Listing> = {

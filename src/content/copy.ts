@@ -108,7 +108,6 @@ export const COPY = {
       { label: 'Submit', href: '/submit' },
       { label: 'Jobs', href: '/jobs' },
       { label: 'News', href: '/news' },
-      { label: 'Admin', href: '/admin' },
     ],
   },
 };
