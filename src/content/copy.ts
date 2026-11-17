@@ -26,7 +26,6 @@ export const COPY = {
     news: 'NEWS',
     about: 'ABOUT',
     addStartup: 'ADD YOUR STARTUP',
-    login: 'LOGIN',
   },
   explore: {
     title: 'Vizag Startup Map',

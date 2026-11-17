@@ -82,14 +82,6 @@ export const Header: React.FC<HeaderProps> = ({
           size="sm"
           href="/submit"
         />
-
-        {/* Text link: LOGIN */}
-        <Link
-          href="/login"
-          className="micro-label text-[#3A0F34] hover:opacity-70 transition-opacity ml-1 font-bold tracking-[0.14em] text-[11px]"
-        >
-          {COPY.nav.login}
-        </Link>
       </nav>
 
       {/* Mobile Actions Right */}
@@ -160,11 +152,11 @@ export const Header: React.FC<HeaderProps> = ({
               ADD YOUR STARTUP
             </Link>
             <Link
-              href="/login"
+              href="/admin"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center py-2 rounded-full border border-[#3A0F34] text-[#3A0F34] font-bold text-xs uppercase tracking-wider"
+              className="w-full text-center py-2 rounded-full border border-[#3A0F34]/30 text-[#3A0F34] font-bold text-xs uppercase tracking-wider hover:bg-[#3A0F34] hover:text-[#DDE3E8] transition-colors"
             >
-              LOGIN
+              ADMIN CONSOLE
             </Link>
 
             {/* Developer Attribution Card */}
