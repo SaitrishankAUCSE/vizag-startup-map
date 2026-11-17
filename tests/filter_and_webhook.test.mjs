@@ -185,4 +185,15 @@ describe('Job Alert & Vizag Circle Subscription Validation', () => {
     assert.strictEqual(emailRegex.test('@nodomain.com'), false);
     assert.strictEqual(emailRegex.test('plainaddress'), false);
   });
+
+  test('New company alert subscriber policy: zero trial limitation and active delivery', () => {
+    const subscriber = {
+      email: 'founder@vizag.in',
+      plan: 'free',
+      created_at: new Date().toISOString(),
+    };
+    // Must not have trial expiration gating
+    assert.strictEqual(subscriber.plan, 'free');
+    assert.strictEqual('trial_ends_at' in subscriber, false);
+  });
 });

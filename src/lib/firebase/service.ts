@@ -550,6 +550,17 @@ export async function approveSubmission(submissionId: string): Promise<boolean> 
         website: sub.listing_data.website,
       }).catch((e) => console.warn('[approveSubmission] queueStartupForMorningDigest error:', e));
 
+      // Instant notification to subscribers when a new company is added
+      notifySubscribersOfNewStartup({
+        name: sub.listing_data.name || 'New Startup',
+        slug,
+        sector: sub.listing_data.sector,
+        area: sub.listing_data.area,
+        one_liner: sub.listing_data.one_liner,
+        description: sub.listing_data.description,
+        website: sub.listing_data.website,
+      }).catch((e) => console.warn('[approveSubmission] notifySubscribersOfNewStartup error:', e));
+
       return true;
     } catch (err) {
       console.error('[firebase/service] approveSubmission error:', err);
@@ -613,6 +624,15 @@ export async function approveSubmission(submissionId: string): Promise<boolean> 
       slug: newListing.slug,
       sector: newListing.sector,
       area: newListing.area,
+      description: newListing.description,
+      website: newListing.website,
+    }).catch(() => {});
+    notifySubscribersOfNewStartup({
+      name: newListing.name,
+      slug: newListing.slug,
+      sector: newListing.sector,
+      area: newListing.area,
+      one_liner: newListing.one_liner,
       description: newListing.description,
       website: newListing.website,
     }).catch(() => {});
@@ -784,6 +804,20 @@ export async function updateListingStatus(listingId: string, status: ListingStat
       if (status === 'approved') {
         updates.is_verified = true;
         updates.verified_at = now;
+        db.collection('listings').doc(listingId).get().then((snap) => {
+          if (snap.exists) {
+            const data = snap.data() as any;
+            notifySubscribersOfNewStartup({
+              name: data.name || 'New Startup',
+              slug: data.slug || listingId,
+              sector: data.sector,
+              area: data.area,
+              one_liner: data.one_liner,
+              description: data.description,
+              website: data.website,
+            }).catch(() => {});
+          }
+        }).catch(() => {});
       }
       await db.collection('listings').doc(listingId).update(updates);
       return true;
@@ -801,6 +835,18 @@ export async function updateListingStatus(listingId: string, status: ListingStat
       verified_at: status === 'approved' ? now : localListings[idx].verified_at,
       updated_at: now,
     };
+    if (status === 'approved') {
+      const item = localListings[idx];
+      notifySubscribersOfNewStartup({
+        name: item.name,
+        slug: item.slug,
+        sector: item.sector,
+        area: item.area,
+        one_liner: item.one_liner,
+        description: item.description,
+        website: item.website,
+      }).catch(() => {});
+    }
     return true;
   }
   return false;
@@ -1288,6 +1334,17 @@ export async function approveLead(
         website: merged.website,
       }).catch(() => {});
 
+      // Notify all subscribers of newly approved company
+      notifySubscribersOfNewStartup({
+        name: merged.name,
+        slug: merged.slug,
+        sector: merged.sector,
+        area: merged.area,
+        one_liner: merged.one_liner,
+        description: merged.description,
+        website: merged.website,
+      }).catch(() => {});
+
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message };
@@ -1298,6 +1355,15 @@ export async function approveLead(
   if (idx !== -1) {
     localListings[idx] = { ...localListings[idx], ...updatePayload };
     queueStartupForMorningDigest({
+      name: merged.name,
+      slug: merged.slug,
+      sector: merged.sector,
+      area: merged.area,
+      one_liner: merged.one_liner,
+      description: merged.description,
+      website: merged.website,
+    }).catch(() => {});
+    notifySubscribersOfNewStartup({
       name: merged.name,
       slug: merged.slug,
       sector: merged.sector,

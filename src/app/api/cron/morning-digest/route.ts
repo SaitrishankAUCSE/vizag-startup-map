@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
  * Rules:
  * - If NO startups added in queue: Does NOT send emails. Returns status.
  * - If startups are pending: Bundles them into 1 single email for each active subscriber.
- * - Free trial check: Skips free users whose 3-day trial has passed unless they are Pro.
+ * - 100% Free: sends to all subscribed community members.
  */
 export async function GET(req: NextRequest) {
   try {

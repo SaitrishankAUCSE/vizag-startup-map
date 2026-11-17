@@ -34,15 +34,11 @@ export interface DigestSubscriber {
   company?: string;
   plan?: 'free' | 'pro';
   created_at: string;
-  trial_ends_at?: string;
 }
 
 const STARTUPS_QUEUE_FILE = path.join(process.cwd(), 'src', 'data', 'pending_digest.json');
 const JOBS_QUEUE_FILE = path.join(process.cwd(), 'src', 'data', 'pending_jobs.json');
 const SUBSCRIBERS_FILE = path.join(process.cwd(), 'src', 'data', 'subscribers.json');
-
-// Free trial duration: 3 days (strictly reduced per user requirements)
-export const FREE_TRIAL_DAYS = 3;
 
 /**
  * Loads pending startups queue.
@@ -186,7 +182,7 @@ export async function queueJobForMorningDigest(job: {
 }
 
 /**
- * Retrieves all subscribers, checking their 3-Day Free Trial vs Pro status.
+ * Retrieves all registered alert subscribers.
  */
 export async function getActiveSubscribers(): Promise<DigestSubscriber[]> {
   const subscriberMap = new Map<string, DigestSubscriber>();
@@ -207,7 +203,6 @@ export async function getActiveSubscribers(): Promise<DigestSubscriber[]> {
             company: d.company || '',
             plan: d.plan || 'free',
             created_at: d.created_at || new Date().toISOString(),
-            trial_ends_at: d.trial_ends_at,
           });
         }
       });
@@ -233,7 +228,6 @@ export async function getActiveSubscribers(): Promise<DigestSubscriber[]> {
                 company: item.company || '',
                 plan: item.plan || 'free',
                 created_at: item.created_at || new Date().toISOString(),
-                trial_ends_at: item.trial_ends_at,
               });
             }
           }
@@ -251,8 +245,7 @@ export async function getActiveSubscribers(): Promise<DigestSubscriber[]> {
  * Rules:
  * 1. If NO startups AND NO jobs added in the last 24h -> DOES NOT send any email.
  * 2. Bundles both newly verified startups AND open roles into TWO distinct sections in ONE single email.
- * 3. Free subscribers receive it for exactly 3 DAYS (3-day free trial). After that, paywall gates them.
- * 4. Pro users receive it permanently as long as their subscription is active.
+ * 3. 100% Free: all subscribed community members receive all alerts with zero trial limitations.
  */
 export async function dispatchMorningDigest(): Promise<{
   success: boolean;
@@ -309,11 +302,11 @@ export async function dispatchMorningDigest(): Promise<{
   if (eligibleRecipients.length === 0) {
     return {
       success: true,
-      message: 'No active eligible subscribers (free trials passed 3-day window; subscribers must upgrade to Pro).',
+      message: 'No active eligible subscribers registered to receive notifications.',
       startupsCount: pendingStartups.length,
       jobsCount: pendingJobs.length,
       recipientsCount: 0,
-      skippedExpiredCount: skippedExpired,
+      skippedExpiredCount: 0,
     };
   }
 
@@ -486,7 +479,7 @@ export async function dispatchMorningDigest(): Promise<{
   } catch {}
 
   console.log(
-    `[Morning Digest Dispatched] Sent 1 email with ${startupCount} startup(s) and ${jobCount} job(s) to ${eligibleRecipients.length} subscriber(s). Skipped ${skippedExpired} expired trial(s).`
+    `[Morning Digest Dispatched] Sent 1 email with ${startupCount} startup(s) and ${jobCount} job(s) to ${eligibleRecipients.length} subscriber(s).`
   );
 
   return {

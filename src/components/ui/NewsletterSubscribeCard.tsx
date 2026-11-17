@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Mail, X, CheckCircle2, AlertCircle, Loader2, Sparkles, Clock } from 'lucide-react';
+import { Bell, X, CheckCircle2, AlertCircle, Loader2, Sparkles } from 'lucide-react';
 
 export function NewsletterSubscribeCard() {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +18,7 @@ export function NewsletterSubscribeCard() {
         return;
       }
 
-      // Show after exactly 30 seconds of user activity on the website
+      // Show after 30 seconds of user activity on the website
       const timer = setTimeout(() => {
         setIsOpen(true);
       }, 30000);
@@ -65,7 +64,8 @@ export function NewsletterSubscribeCard() {
         setStatus('success');
         try {
           localStorage.setItem('vsm_newsletter_subscribed', 'true');
-          localStorage.setItem('vsm_trial_start', String(Date.now()));
+          // Clean up any legacy trial key
+          localStorage.removeItem('vsm_trial_start');
         } catch {}
 
         // Auto close after 4 seconds on success
@@ -84,31 +84,31 @@ export function NewsletterSubscribeCard() {
 
   return (
     <aside
-      aria-label="Subscribe to ecosystem updates"
+      aria-label="Subscribe to new company alerts"
       className="fixed bottom-20 right-4 z-[1250] w-[330px] sm:w-[370px] bg-white/95 backdrop-blur-md border border-[#3A0F34]/15 rounded-2xl p-5 shadow-[0_12px_40px_rgba(58,15,52,0.18)] text-[#3A0F34] font-sans animate-in fade-in slide-in-from-bottom-4 duration-300"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <Mail className="w-4 h-4 text-[#3A0F34]" />
+          <Bell className="w-4 h-4 text-[#3A0F34]" />
           <h3 className="font-display font-extrabold text-sm text-[#3A0F34]">
-            Daily Morning Intelligence
+            New Company Alerts
           </h3>
         </div>
         <button
           type="button"
           onClick={handleDismiss}
           className="w-6 h-6 rounded-full flex items-center justify-center text-[#3A0F34]/50 hover:text-[#3A0F34] hover:bg-[#3A0F34]/10 transition-colors cursor-pointer"
-          aria-label="Dismiss update prompt"
+          aria-label="Dismiss alert prompt"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
-      {/* 3-Day Free Trial Badge */}
+      {/* 100% Free Notification Badge */}
       <div className="inline-flex items-center gap-1.5 bg-[#EAAA00]/20 border border-[#EAAA00]/40 text-[#3A0F34] px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider mb-2.5">
-        <Clock className="w-3 h-3 text-[#EAAA00]" />
-        <span>3-Day Free Trial · Startups & Job Alerts</span>
+        <Sparkles className="w-3 h-3 text-[#EAAA00]" />
+        <span>100% Free · Direct Email Alerts</span>
       </div>
 
       {status === 'success' ? (
@@ -117,16 +117,16 @@ export function NewsletterSubscribeCard() {
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <h4 className="font-display font-bold text-sm text-[#3A0F34]">
-            3-Day Free Trial Activated!
+            Alerts Activated!
           </h4>
           <p className="text-[11px] text-[#3A0F34]/75 leading-relaxed">
-            You will receive 1 consolidated briefing every morning at 8:00 AM with newly mapped startups and fresh tech openings.
+            You are now subscribed. You will receive an email alert whenever a newly verified company or startup is added to the map.
           </p>
         </div>
       ) : (
         <>
-          <p className="text-xs text-[#3A0F34]/75 mb-4 leading-relaxed font-normal">
-            Receive exactly <strong>1 email in the morning</strong> with all newly verified startups and open tech roles across Visakhapatnam. Free for 3 days.
+          <p className="text-xs text-[#3A0F34]/75 mb-3.5 leading-relaxed font-normal">
+            Receive an email alert whenever a <strong>newly verified company or startup</strong> is added to the Visakhapatnam map.
           </p>
 
           <form onSubmit={handleSubscribe} className="space-y-3">
@@ -146,12 +146,12 @@ export function NewsletterSubscribeCard() {
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                className="bg-[#3A0F34] text-[#DDE3E8] hover:bg-[#EAAA00] hover:text-[#3A0F34] rounded-xl px-4 py-2 text-xs font-bold transition-all shrink-0 cursor-pointer disabled:opacity-50 inline-flex items-center justify-center min-w-[84px]"
+                className="bg-[#3A0F34] text-[#DDE3E8] hover:bg-[#EAAA00] hover:text-[#3A0F34] rounded-xl px-4 py-2 text-xs font-bold transition-all shrink-0 cursor-pointer disabled:opacity-50 inline-flex items-center justify-center min-w-[88px]"
               >
                 {status === 'loading' ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
-                  'Start Trial'
+                  'Notify Me'
                 )}
               </button>
             </div>
@@ -163,11 +163,8 @@ export function NewsletterSubscribeCard() {
               </div>
             )}
 
-            <div className="flex items-center justify-between text-[10px] text-[#3A0F34]/60 pt-1">
-              <span>Zero daytime spam · 1 morning briefing</span>
-              <Link href="/pricing" className="text-[#3A0F34] font-bold hover:underline">
-                Explore Pro →
-              </Link>
+            <div className="text-[10px] text-[#3A0F34]/60 pt-0.5">
+              <span>Only sent when a new company is added · Zero spam · Free forever</span>
             </div>
           </form>
         </>

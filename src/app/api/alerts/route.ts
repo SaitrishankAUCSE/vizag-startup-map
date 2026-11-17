@@ -97,31 +97,31 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Send welcome email
-    const emailSubject = `Welcome to Vizag Circle – Job & Startup Alerts`;
+    const emailSubject = `Welcome to Vizag Startup Map – New Company Alerts`;
     const emailHtml = `
       <!DOCTYPE html>
       <html>
         <head><meta charset="utf-8"><title>${emailSubject}</title></head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #fbf9f5; margin: 0; padding: 24px; color: #1e293b;">
-          <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e6e0d4; padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #DDE3E8; margin: 0; padding: 24px; color: #3A0F34;">
+          <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid rgba(58,15,52,0.15); padding: 28px; box-shadow: 0 4px 20px rgba(58,15,52,0.08);">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
               <span style="font-size: 20px;">📍</span>
-              <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: #0e4d64;">Vizag Startup Map · Vizag Circle</h2>
+              <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: #3A0F34;">Vizag Startup Map · New Company Alerts</h2>
             </div>
-            <p style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px;">
+            <p style="font-size: 14px; line-height: 1.6; color: #3A0F34; margin-bottom: 20px;">
               Hello${position ? ` (${position}${company ? ` at ${company}` : ''})` : ''},
             </p>
-            <p style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 20px;">
-              You are now subscribed to <strong>Vizag Circle</strong>. You will receive curated alerts whenever new startups raise venture funding or publish engineering and product openings across Visakhapatnam.
+            <p style="font-size: 14px; line-height: 1.6; color: #3A0F34; margin-bottom: 20px;">
+              You are now subscribed to <strong>New Company Alerts</strong>. You will receive an instant email alert whenever a newly verified company or startup is added to the Visakhapatnam map.
             </p>
             <div style="text-align: center; margin: 28px 0 16px 0;">
-              <a href="https://vizagstartupmap.com" style="background: #0e4d64; color: #ffffff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-block;">
+              <a href="https://vizagstartupmap.com" style="background: #3A0F34; color: #DDE3E8; padding: 10px 22px; border-radius: 9999px; font-size: 13px; font-weight: 700; text-decoration: none; display: inline-block;">
                 Explore the Interactive Map →
               </a>
             </div>
-            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0 16px 0;" />
-            <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 0;">
-              Free · Curated for Visakhapatnam, Andhra Pradesh · Unsubscribe anytime
+            <hr style="border: none; border-top: 1px solid rgba(58,15,52,0.1); margin: 24px 0 16px 0;" />
+            <p style="font-size: 11px; color: rgba(58,15,52,0.6); text-align: center; margin: 0;">
+              100% Free · Direct email alerts when new companies are mapped · Zero spam
             </p>
           </div>
         </body>
@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       subscriber: record,
-      message: 'Subscribed to Vizag Circle alerts',
+      message: 'Subscribed to New Company Alerts',
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Server error';
