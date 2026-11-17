@@ -184,6 +184,8 @@ export interface NewsItem {
   pubDate?: string; // alias
   matched_listing_id?: string | null;
   matched_keyword?: string | null;
+  region?: 'vizag' | 'world';
+  summary?: string;
 }
 
 export interface Claim {

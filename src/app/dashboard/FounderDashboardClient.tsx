@@ -52,6 +52,15 @@ export function FounderDashboardClient({
   const [jobSuccess, setJobSuccess] = useState('');
 
   // Profile Edit State
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  useEffect(() => {
+    if (toast) {
+      const t = setTimeout(() => setToast(null), 3500);
+      return () => clearTimeout(t);
+    }
+  }, [toast]);
+
   const [editDesc, setEditDesc] = useState(selectedListing?.description || '');
   const [editWebsite, setEditWebsite] = useState(selectedListing?.website || '');
   const [editLinkedin, setEditLinkedin] = useState(selectedListing?.linkedin_url || selectedListing?.linkedin || '');
@@ -168,13 +177,15 @@ export function FounderDashboardClient({
       });
       const data = await res.json();
       if (res.ok) {
-        alert(data.message || 'Job post renewed for an additional 60 days!');
+        setToast({ message: data.message || 'Job post renewed for an additional 60 days!', type: 'success' });
         setJobs((prev) =>
           prev.map((j) => (j.id === jobId ? { ...j, is_active: true } : j))
         );
+      } else {
+        setToast({ message: data.error || 'Failed to renew job', type: 'error' });
       }
     } catch {
-      alert('Failed to renew job');
+      setToast({ message: 'Failed to renew job', type: 'error' });
     }
   };
 
@@ -588,7 +599,7 @@ export function FounderDashboardClient({
                     const file = e.target.files?.[0];
                     if (!file) return;
                     if (file.size > 512 * 1024) {
-                      alert('Logo file size must be 500 KB or less.');
+                      setToast({ message: 'Logo file size must be 500 KB or less.', type: 'error' });
                       return;
                     }
                     const fd = new FormData();
@@ -596,9 +607,14 @@ export function FounderDashboardClient({
                     try {
                       const res = await fetch('/api/upload/logo', { method: 'POST', body: fd });
                       const data = await res.json();
-                      if (data.url) setEditLogoUrl(data.url);
+                      if (data.url) {
+                        setEditLogoUrl(data.url);
+                        setToast({ message: 'Logo uploaded successfully!', type: 'success' });
+                      } else {
+                        setToast({ message: data.error || 'Failed to upload logo.', type: 'error' });
+                      }
                     } catch {
-                      alert('Failed to upload logo.');
+                      setToast({ message: 'Failed to upload logo.', type: 'error' });
                     }
                   }}
                   className="text-xs text-gray-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
@@ -816,6 +832,25 @@ export function FounderDashboardClient({
               <span>{claimSubmitting ? 'Submitting Claim...' : 'Submit Claim for Verification'}</span>
             </button>
           </form>
+        </div>
+      )}
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl border text-xs font-bold transition-all ${
+            toast.type === 'success'
+              ? 'bg-[#3A0F34] text-[#EAAA00] border-[#EAAA00]/40'
+              : 'bg-rose-950 text-rose-100 border-rose-700'
+          }`}
+        >
+          {toast.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-[#EAAA00]" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-rose-400" />
+          )}
+          <span>{toast.message}</span>
         </div>
       )}
     </div>

@@ -385,7 +385,7 @@ export function AdSlotsClient() {
 
                   <div className="pt-2 border-t border-zinc-200">
                     <div className="text-xs font-bold uppercase tracking-wider text-zinc-600 mb-3">
-                      Billing & Invoice Contact
+                      Showcase & Representative Contact
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
@@ -403,12 +403,12 @@ export function AdSlotsClient() {
 
                       <div>
                         <label className="block text-xs text-zinc-600 mb-1">
-                          Billing Email *
+                          Contact Email *
                         </label>
                         <input
                           type="email"
                           required
-                          placeholder="billing@swiggy.in"
+                          placeholder="founder@company.com"
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                           className="w-full bg-[#F4F4F5] border border-transparent rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 placeholder-zinc-400 outline-none focus:bg-white focus:border-zinc-400"

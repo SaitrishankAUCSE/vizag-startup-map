@@ -161,7 +161,7 @@ export default function AdminPage() {
     const lat = parseFloat(newLat);
     const lng = parseFloat(newLng);
     if (isNaN(lat) || isNaN(lng)) {
-      alert('Please enter valid numerical latitude and longitude.');
+      setActionMessage('Please enter valid numerical latitude and longitude.');
       return;
     }
 
