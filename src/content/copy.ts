@@ -71,11 +71,11 @@ export const COPY = {
       'Your contribution helps map the growing coast of technology and venture in Vizag.',
   },
   pricing: {
-    headline: 'Ecosystem Access & Verification',
-    subheadline: 'Choose the right tier for founders, talent, and investors.',
-    freeButton: 'START WITH FREE',
-    proButton: 'GO PRO',
-    featuredButton: 'FEATURE MY STARTUP',
+    headline: '100% Free Community Platform',
+    subheadline: 'All tools, data exports, and directory listings are completely free for everyone.',
+    freeButton: 'EXPLORE DIRECTORY',
+    proButton: 'EXPLORE JOBS',
+    featuredButton: 'SUBMIT STARTUP (FREE)',
   },
   login: {
     welcome: 'Welcome back to the map.',
@@ -83,8 +83,8 @@ export const COPY = {
     googleButton: 'Continue with Google',
   },
   account: {
-    title: 'Account & Ecosystem Pass',
-    managePlan: 'MANAGE PLAN',
+    title: 'Community Profile',
+    managePlan: 'FREE COMMUNITY PASS',
     savedListings: 'Saved Companies',
   },
   about: {
@@ -109,6 +109,7 @@ export const COPY = {
       { label: 'Submit', href: '/submit' },
       { label: 'Jobs', href: '/jobs' },
       { label: 'News', href: '/news' },
+      { label: 'Admin', href: '/admin' },
     ],
   },
 };

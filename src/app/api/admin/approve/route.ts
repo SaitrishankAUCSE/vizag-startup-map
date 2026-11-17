@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { approveSubmission } from '@/lib/firebase/service';
+import { approveSubmission, rejectSubmission } from '@/lib/firebase/service';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,6 +12,11 @@ export async function POST(req: NextRequest) {
     if (action === 'approve') {
       const success = await approveSubmission(submissionId);
       return NextResponse.json({ success, message: 'Submission approved and added to active directory' });
+    }
+
+    if (action === 'reject') {
+      const success = await rejectSubmission(submissionId);
+      return NextResponse.json({ success, message: 'Submission rejected' });
     }
 
     return NextResponse.json({ success: true, message: `Submission marked as ${action}` });

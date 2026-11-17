@@ -155,6 +155,26 @@ export default function AdminPage() {
     }
   };
 
+  // Reject founder submission
+  const handleRejectSubmission = async (submissionId: string) => {
+    try {
+      const res = await fetch('/api/admin/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ submissionId, action: 'reject' }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setActionMessage(data.message || 'Submission rejected.');
+        await loadData();
+      } else {
+        setActionMessage(data.error || 'Failed to reject submission');
+      }
+    } catch {
+      setActionMessage('Failed to reject submission.');
+    }
+  };
+
   // Save new pin coordinates
   const handleSavePin = async () => {
     if (!editingPinListing) return;
@@ -527,6 +547,14 @@ export default function AdminPage() {
                       >
                         <Check className="w-3.5 h-3.5" />
                         <span>Approve & Publish</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRejectSubmission(sub.id)}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-700 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        <span>Reject</span>
                       </button>
                     </div>
                   </div>

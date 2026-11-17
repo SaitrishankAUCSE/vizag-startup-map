@@ -57,15 +57,8 @@ export function ShowcaseSpotlightBanner() {
           </div>
         </div>
 
-        {/* Right: CTA & Book Slot Link */}
-        <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-between sm:justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-white/10">
-          <Link
-            href="/ad-slots/submit"
-            className="text-[10px] text-[#EAAA00] hover:underline font-bold tracking-wider uppercase"
-          >
-            Reserve Slot ↗
-          </Link>
-
+        {/* Right: CTA */}
+        <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-white/10">
           <a
             href={showcase.target_url || showcase.website}
             target="_blank"

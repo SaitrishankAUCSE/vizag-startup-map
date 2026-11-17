@@ -642,6 +642,26 @@ export async function approveSubmission(submissionId: string): Promise<boolean> 
   return false;
 }
 
+export async function rejectSubmission(submissionId: string): Promise<boolean> {
+  const db = getAdminFirestore();
+  const now = new Date().toISOString();
+  if (db) {
+    try {
+      await db.collection('submissions').doc(submissionId).update({ status: 'rejected', updated_at: now });
+      return true;
+    } catch (err) {
+      console.error('[firebase/service] rejectSubmission error:', err);
+    }
+  }
+
+  const subIdx = localSubmissions.findIndex((s) => s.id === submissionId);
+  if (subIdx !== -1) {
+    localSubmissions[subIdx] = { ...localSubmissions[subIdx], status: 'rejected', updated_at: now };
+    return true;
+  }
+  return false;
+}
+
 /**
  * Create a listing with associated source and optional ATS board.
  * Used by CSV import & admin creation.

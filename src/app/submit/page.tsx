@@ -17,6 +17,7 @@ import {
   Mail,
   Zap,
   ExternalLink,
+  ShieldCheck,
 } from 'lucide-react';
 import { LISTING_TYPES, AREAS, STAGES, SECTORS } from '@/config/constants';
 import { CartoonButton } from '@/components/ui/cartoon-button';
@@ -191,30 +192,55 @@ export default function SubmitPage() {
               </div>
             </div>
 
-            {/* Optional Ad Slot Upsell */}
-            <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 max-w-md mx-auto text-left space-y-2">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
-                <Zap className="w-4 h-4 text-amber-600" />
-                <span>Want Instant #1 Visibility?</span>
+            {/* Moderation & Review Information */}
+            <div className="bg-[#3A0F34]/5 border border-[#3A0F34]/15 rounded-2xl p-4 max-w-md mx-auto text-left space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#3A0F34]">
+                <ShieldCheck className="w-4 h-4 text-[#3A0F34]" />
+                <span>What Happens Next?</span>
               </div>
-              <p className="text-[11.5px] text-amber-800/90 leading-relaxed">
-                Pin your company atop the directory strip for 7 days with a curated Showcase slot.
+              <p className="text-[11.5px] text-[#3A0F34]/80 leading-relaxed">
+                Your submission is queued for review by the admin moderation team. Once verified and approved in the Admin Console, your startup will be pinned to the live map and all community subscribers will receive an instant email alert.
               </p>
-              <Link
-                href="/ad-slots/submit"
-                className="inline-flex items-center gap-1 text-xs font-bold text-amber-900 hover:text-amber-950 underline"
-              >
-                Reserve a 7-Day Showcase Slot →
-              </Link>
             </div>
 
-            <div className="pt-2 flex items-center justify-center gap-3">
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 href="/"
-                className="px-6 py-2.5 rounded-full bg-zinc-900 hover:bg-black text-white text-xs font-bold transition-all shadow-xs"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#3A0F34] hover:bg-[#EAAA00] hover:text-[#3A0F34] text-white text-xs font-bold transition-all shadow-xs text-center"
               >
                 Return to Live Map
               </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setSubmitted(false);
+                  setFormData({
+                    name: '',
+                    type: 'startup',
+                    description: '',
+                    sector: 'SaaS',
+                    stage: 'Seed',
+                    area: 'Rushikonda',
+                    address: '',
+                    pincode: '530045',
+                    lat: 17.7835,
+                    lng: 83.385,
+                    website: '',
+                    linkedin: '',
+                    logo_url: '',
+                    is_hiring: false,
+                    careers_url: '',
+                    founder_name: '',
+                    founder_role: 'Founder',
+                    founder_linkedin: '',
+                    contact_email: '',
+                    hp_website_confirm: '',
+                  });
+                }}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-white border border-[#3A0F34]/20 hover:border-[#3A0F34] text-[#3A0F34] text-xs font-bold transition-all cursor-pointer text-center"
+              >
+                Submit Another Venture
+              </button>
             </div>
           </div>
         ) : (
@@ -232,26 +258,6 @@ export default function SubmitPage() {
               <p className="text-sm text-zinc-500 leading-relaxed">
                 Add your company to the Vizag Startup Map. Takes less than a minute. Free placement across the interactive map and directory.
               </p>
-            </div>
-
-            {/* Showcase Banner link callout */}
-            <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                  <Zap className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="font-bold text-zinc-900">Looking for guaranteed #1 spotlight placement?</div>
-                  <div className="text-zinc-500 text-[11px]">Reserve a 7-day curated banner spot on the directory strip.</div>
-                </div>
-              </div>
-              <Link
-                href="/ad-slots/submit"
-                className="px-3 py-1.5 rounded-lg bg-white border border-zinc-300 hover:border-zinc-900 font-bold text-zinc-900 text-[11px] whitespace-nowrap transition-colors inline-flex items-center gap-1 self-start sm:self-auto"
-              >
-                <span>Reserve Ad Slot</span>
-                <ChevronRight className="w-3 h-3" />
-              </Link>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
